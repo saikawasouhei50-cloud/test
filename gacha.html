@@ -910,6 +910,14 @@ const closeDismantleResultButton = document.getElementById('close-dismantle-resu
     checkAchievements();
 }
 
+function saveGame() {
+                // 이 함수는 이미 만들어두신 saveGameToFirebase() 함수를
+                // 호출하기만 하면 됩니다.
+                // saveGameToFirebase 함수가 알아서 로그인된 유저를 확인하고
+                // 서버에 데이터를 저장해 줍니다.
+                saveGameToFirebase();
+            }
+
 			
             function initializeNewGameData() {
     // ✨ 게임 첫 시작 시 기본 지급 카드에 고유 ID와 레벨 부여
