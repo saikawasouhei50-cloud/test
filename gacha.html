@@ -233,15 +233,20 @@ body.pointer-events-none {
                     <div id="event-dungeon-list-container" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
                 </div>
                 <div id="event-story-view" class="hidden">
-    <p class="text-center text-gray-200 mb-4">이벤트 스테이지를 클리어하고 스토리를 해금하세요.</p>
-    
-    <button id="start-event-part2-button" class="gacha-button w-full mb-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg">
-        [NEW] 전반부 스토리 시작하기
-    </button>
+                    <p class="text-center text-gray-200 mb-4">이벤트 스테이지를 클리어하고 스토리를 해금하세요.</p>
 
-    <div id="event-story-container" class="space-y-3 max-h-[60vh] overflow-y-auto bg-black/20 p-4 rounded-xl">
-        </div>
-</div>
+                    <div class="bg-black/20 rounded-full p-1 flex justify-center items-center mb-4 max-w-sm mx-auto">
+                        <button id="event-story-sub-tab-part1" class="sub-tab-button active w-1/2 font-bold py-2 px-6 rounded-full">전반부</button>
+                        <button id="event-story-sub-tab-part2" class="sub-tab-button w-1/2 font-bold py-2 px-6 rounded-full">후반부</button>
+                    </div>
+
+                    <div id="event-story-part1-container" class="space-y-3 max-h-[60vh] overflow-y-auto bg-black/20 p-4 rounded-xl">
+                        </div>
+                    
+                    <div id="event-story-part2-container" class="hidden space-y-3 max-h-[60vh] overflow-y-auto bg-black/20 p-4 rounded-xl">
+                        <p class="text-center text-gray-400 mt-10">후반부 스토리는 준비 중입니다.</p>
+                    </div>
+                </div>
                 <div id="event-shop-view" class="hidden">
                     <p class="text-center text-gray-200 mb-4">획득한 이벤트 포인트로 특별한 보상을 교환하세요!</p>
                     <div id="event-shop-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -2134,6 +2139,7 @@ function startStageCombat(chapterIndex, stageIndex) {
 
 
 			function displayEventStories() {
+    const eventStoryContainer = document.getElementById('event-story-part1-container'); // 👈 이 줄을 추가하세요.
     eventStoryContainer.innerHTML = '';
     
     // 이벤트 스토리가 준비되지 않았을 경우 (데이터가 비어있는 경우)
@@ -2941,9 +2947,18 @@ document.getElementById('logout-button').addEventListener('click', logoutUser);
 
 
 
-// ✨ 새로운 이벤트 스토리 시작 버튼
-document.getElementById('start-event-part2-button').addEventListener('click', () => {
-    startInteractiveStory({ content: eventStoryPart2.firstHalf });
+// ✨ 이벤트 스토리 뷰의 새 서브 탭 리스너
+document.getElementById('event-story-sub-tab-part1').addEventListener('click', () => {
+    document.getElementById('event-story-part1-container').classList.remove('hidden');
+    document.getElementById('event-story-part2-container').classList.add('hidden');
+    document.getElementById('event-story-sub-tab-part1').classList.add('active');
+    document.getElementById('event-story-sub-tab-part2').classList.remove('active');
+});
+document.getElementById('event-story-sub-tab-part2').addEventListener('click', () => {
+    document.getElementById('event-story-part1-container').classList.add('hidden');
+    document.getElementById('event-story-part2-container').classList.remove('hidden');
+    document.getElementById('event-story-sub-tab-part1').classList.remove('active');
+    document.getElementById('event-story-sub-tab-part2').classList.add('active');
 });
 
 // ✨ 기존 이벤트 스토리 목록 클릭
