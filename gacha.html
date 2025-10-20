@@ -2848,6 +2848,48 @@ function dismantleMultipleCards() {
                     displayInventory();
                 }
             }
+			
+			async function recordAndShowStats(statId, userChoiceText) {
+    const choiceRef = db.collection('choices').doc(statId);
+
+    await choiceRef.set({
+        [userChoiceText]: firebase.firestore.FieldValue.increment(1)
+    }, { merge: true });
+
+    const doc = await choiceRef.get();
+    const data = doc.exists ? doc.data() : {};
+
+    let totalVotes = 0;
+    const stats = [];
+    Object.values(data).forEach(votes => {
+        totalVotes += votes;
+    });
+
+    // 통계에 표시할 선택지 목록을 실제 선택지가 있었던 씬에서 직접 가져오도록 수정
+    const allChoices = eventStoryPart2.firstHalf[3].choices.map(c => c.text);
+
+    allChoices.forEach(choiceText => {
+        const votes = data[choiceText] || 0;
+        const percent = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : "0.0";
+        stats.push({ text: choiceText, percent: percent });
+    });
+
+    const statsContainer = document.getElementById('stats-container');
+    statsContainer.innerHTML = stats.map(stat => `
+        <div class="text-left">
+            <div class="flex justify-between items-center mb-1">
+                <span class="font-bold">${stat.text}</span>
+                <span class="text-yellow-300">${stat.percent}%</span>
+            </div>
+            <div class="w-full bg-gray-600 rounded-full h-4">
+                <div class="bg-blue-500 h-4 rounded-full" style="width: ${stat.percent}%"></div>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('choice-stats-modal').classList.remove('hidden');
+}
+
 
 		function handleStoryInteraction(e) {
     const choiceButton = e.target.closest('button');
@@ -3114,7 +3156,6 @@ startBookmarkRegenTimer();
    </script>
 </body>
 </html>
-
 
 
 
