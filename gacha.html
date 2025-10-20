@@ -2183,6 +2183,45 @@ function startStageCombat(chapterIndex, stageIndex) {
     });
 }
 			
+			function displayEventStoryPart2() {
+    const container = document.getElementById('event-story-part2-container');
+    container.innerHTML = '';
+
+    // 후반부 스토리가 없으면 안내 메시지 표시
+    if (!eventStoryPart2.secondHalf || eventStoryPart2.secondHalf.length === 0) {
+        container.innerHTML = `<p class="text-center text-gray-400 mt-10">후반부 스토리는 아직 공개되지 않았습니다.</p>`;
+        return;
+    }
+
+    // 전반부 마지막 스토리를 클리어했는지 확인
+    const isPart1Finished = playerChoices['event_part2_final_choice'];
+
+    eventStoryPart2.secondHalf.forEach((story, index) => {
+        // 후반부의 각 스토리는 이전 스토리를 봐야만 해금됩니다.
+        // 첫 번째 후반부 스토리는 전반부를 클리어해야만 해금됩니다.
+        const isUnlocked = (index === 0) ? isPart1Finished : playerChoices[`event_part2_story_${index - 1}`];
+
+        const storyEl = document.createElement('div');
+        storyEl.className = `p-4 rounded-lg transition-colors duration-300 ${isUnlocked ? 'bg-white/20 hover:bg-white/30 cursor-pointer' : 'bg-black/30 text-gray-500'}`;
+        
+        if (isUnlocked) {
+            storyEl.dataset.storyIndex = index;
+            storyEl.dataset.storyType = 'event_part2'; // 새로운 타입을 지정
+        }
+
+        let unlockText = '클릭하여 스토리 읽기';
+        if (!isUnlocked) {
+            unlockText = (index === 0) ? `전반부 마지막 선택을 완료하면 해금` : `이전 스토리를 완료하면 해금`;
+        }
+        
+        storyEl.innerHTML = `
+            <h3 class="text-xl font-bold ${isUnlocked ? 'text-pink-300' : ''}">[이벤트] ${story.title}</h3>
+            <p class="text-sm">${unlockText}</p>
+        `;
+        container.appendChild(storyEl);
+    });
+}
+			
             // gacha3.html - endCombat 함수 (기존 코드 전체 교체)
 function endCombat(isVictory, combatInfo) { // dungeon, type 대신 combatInfo 객체 받기
     lastCombatType = combatInfo.type;
@@ -2617,8 +2656,9 @@ function startInteractiveStory(storyOrIndex, type) {
     if (typeof storyOrIndex === 'number' && type === 'main') {
         storyData = mainStories[storyOrIndex];
     } else if (typeof storyOrIndex === 'number' && type === 'event') {
-        // ✨ type이 'event'일 때 eventStories 배열을 사용합니다.
         storyData = eventStories[storyOrIndex];
+    } else if (typeof storyOrIndex === 'number' && type === 'event_part2') { // 👈 이 블록을 추가
+        storyData = eventStoryPart2.secondHalf[storyOrIndex];
     } else if (typeof storyOrIndex === 'object') {
         // 스테이지 스토리 객체를 직접 받습니다.
         storyData = storyOrIndex;
@@ -2978,6 +3018,7 @@ document.getElementById('event-story-sub-tab-part1').addEventListener('click', (
     document.getElementById('event-story-part2-container').classList.add('hidden');
     document.getElementById('event-story-sub-tab-part1').classList.add('active');
     document.getElementById('event-story-sub-tab-part2').classList.remove('active');
+	displayEventStoryPart2(); // 👈 이 줄을 추가하세요.
 });
 document.getElementById('event-story-sub-tab-part2').addEventListener('click', () => {
     document.getElementById('event-story-part1-container').classList.add('hidden');
@@ -3164,6 +3205,27 @@ storyView.addEventListener('click', (e) => {
         else alert('스테이지 스토리 데이터를 찾을 수 없습니다.');
     } else if (storyEl.dataset.storyType === 'event') {
         startInteractiveStory(parseInt(storyEl.dataset.storyIndex), 'event');
+    } else if (storyEl.dataset.storyType === 'event_part2') { // 👈 이 블록을 추가
+        const storyIndex = parseInt(storyEl.dataset.storyIndex);
+        const storyData = eventStoryPart2.secondHalf[storyIndex];
+
+        // 만약 분기 스토리라면
+        if (storyData.isBranching) {
+            const userChoice = playerChoices['event_part2_final_choice']; // 전반부 선택
+            // 유저의 선택에 맞는 스토리 내용으로 시작
+            if (userChoice && storyData.branches[userChoice]) {
+                startInteractiveStory({ content: storyData.branches[userChoice] });
+            } else {
+                // 혹시 선택지가 기록 안된 경우, 기본 스토리로 시작 (예: 지문)
+                startInteractiveStory({ content: storyData.branches['결정적인 지문을 믿는다.'] });
+            }
+        } else {
+            // 일반적인 후반부 스토리
+            startInteractiveStory(storyIndex, 'event_part2');
+        }
+        // 후반부 스토리를 봤다는 기록을 남김
+        playerChoices[`event_part2_story_${storyIndex}`] = true;
+        saveGame();
     }
 });
 
@@ -3210,7 +3272,6 @@ startBookmarkRegenTimer();
    </script>
 </body>
 </html>
-
 
 
 
