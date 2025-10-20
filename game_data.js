@@ -309,12 +309,57 @@
         ]
     },
     {
-        title: '진실의 이면: 마지막 문장',
+        title: '전반부: 마지막 선택', // 👈 제목 변경
+        // 👇 content 내용을 'eventStoryPart2.firstHalf'의 내용으로 교체
         content: [
-            { character: null, dialogue: '모든 것이 끝났다. 진실은 잔혹했고, 그 이면에는 왜곡된 정의와 복수가 숨겨져 있었다.' },
-            // ✅ position 속성 추가
-            { character: '서도진', expression: 'neutral', position: 'left', dialogue: '결국... 내가 썼던 소설보다 더 비극적인 결말을 맞이했군.' },
-            { character: '도천영', expression: 'serious', position: 'right', dialogue: '이제 남은 것은 사건을 종결하고... 남겨진 흔적을 정리하는 것뿐입니다.' }
+            // 장면 0
+            {
+                character: '서도진', expression: 'serious', position: 'left',
+                dialogue: '사건 현장에서 두 개의 결정적인 증거가 나왔어. 하나는 피해자의 다잉 메시지, 다른 하나는... 용의자의 지문이 묻은 찻잔이야.'
+            },
+            // 장면 1
+            {
+                character: '도천영', expression: 'neutral', position: 'right',
+                dialogue: '데이터는 거짓말을 하지 않죠. 하지만 다잉 메시지는 해석의 여지가 있고, 지문은 조작될 수 있습니다.'
+            },
+            // 장면 2
+            {
+                character: null,
+                dialogue: '두 개의 상반된 단서. 어떤 것을 더 신뢰해야 할까?'
+            },
+            // 장면 3 (선택지)
+            {
+                character: '서도진', expression: 'neutral', position: 'left',
+                dialogue: '이제 선택해야 해. 어떤 증거를 중심으로 수사를 진행할지...',
+                choices: [
+                    { text: '다잉 메시지를 믿는다.', nextScene: 4 },
+                    { text: '결정적인 지문을 믿는다.', nextScene: 5 }
+                ]
+            },
+            // 장면 4 (분기 1: 다잉 메시지)
+            {
+                character: null,
+                dialogue: '당신은 피해자가 마지막 힘을 다해 남긴 메시지에 더 무게를 두기로 했다.',
+                jumpTo: 6 
+            },
+            // 장면 5 (분기 2: 지문)
+            {
+                character: null,
+                dialogue: '당신은 과학적이고 물리적인 증거인 지문을 더 신뢰하기로 했다.',
+                jumpTo: 6 
+            },
+            // 장면 6 (공통 장면)
+            {
+                character: '서도진', expression: 'serious', position: 'left',
+                dialogue: '좋아, 그 방향으로 수사를 진행하지. 우리의 선택이 어떤 결과로 이어질지는... 아직 아무도 몰라.',
+                choices: [
+                    {
+                        text: '전반부 스토리 완료',
+                        statId: 'event_part2_final_choice',
+                        isFinalChoice: true
+                    }
+                ]
+            }
         ]
     }
 ];
