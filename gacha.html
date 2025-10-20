@@ -647,6 +647,7 @@ const STAT_INCREASE_PER_LEVEL = 0.05; // 레벨당 기본 능력치의 5% 증가
 			let playerChoices = {};
 			let playerFountainPens = 500; // 🖋️
 			let playerInkwells = 0;
+			let currentEventChoice = null;
 			let isMultiSelectMode = false; // ✨ 다중 선택 모드 상태 추가
             let selectedCardsToDismantle = new Set(); // ✨ 선택된 카드 ID Set 추가
             let playerInventory = [];
@@ -2780,32 +2781,24 @@ function dismantleMultipleCards() {
 
 // ✨ 통계를 기록하고 보여주는 함수 ✨
 async function recordAndShowStats(statId, userChoiceText) {
-    // 1. Firestore 데이터베이스의 저장 경로를 지정합니다.
-    // 'choices'는 컬렉션(폴더), statId는 문서(파일) 이름이 됩니다.
     const choiceRef = db.collection('choices').doc(statId);
 
-    // 2. 서버에 투표 수를 원자적으로 업데이트합니다.
-    // 여러 유저가 동시에 투표해도 충돌이 일어나지 않도록 안전하게 처리합니다.
     await choiceRef.set({
         [userChoiceText]: firebase.firestore.FieldValue.increment(1)
-    }, { merge: true }); // 'merge: true'는 문서가 없으면 새로 만들고, 있으면 내용을 병합합니다.
+    }, { merge: true });
 
-    // 3. 서버에서 최신 투표 현황 데이터를 가져옵니다.
     const doc = await choiceRef.get();
     const data = doc.exists ? doc.data() : {};
 
-    // 4. 퍼센트를 계산합니다.
     let totalVotes = 0;
     const stats = [];
-    // Object.values()를 사용해 모든 선택지의 투표 수를 합산합니다.
     Object.values(data).forEach(votes => {
         totalVotes += votes;
     });
 
-    // 0표를 받은 선택지도 화면에 표시하기 위해 모든 선택지 목록을 가져옵니다.
-    const allChoices = eventStoryPart2.firstHalf
-        .find(scene => scene.choices && scene.choices[0].statId === statId)
-        .choices.map(c => c.text);
+    // ✨ 중요: 통계에 표시할 선택지 목록을 '전반부 스토리 완료'가 아닌
+    // 실제 선택지가 있었던 3번 인덱스 씬에서 직접 가져오도록 수정합니다.
+    const allChoices = eventStoryPart2.firstHalf[3].choices.map(c => c.text);
 
     allChoices.forEach(choiceText => {
         const votes = data[choiceText] || 0;
@@ -2813,8 +2806,6 @@ async function recordAndShowStats(statId, userChoiceText) {
         stats.push({ text: choiceText, percent: percent });
     });
 
-
-    // 5. 실제 집계 결과를 모달창에 표시합니다.
     const statsContainer = document.getElementById('stats-container');
     statsContainer.innerHTML = stats.map(stat => `
         <div class="text-left">
@@ -2828,9 +2819,7 @@ async function recordAndShowStats(statId, userChoiceText) {
         </div>
     `).join('');
 
-    // 6. 모달창을 보여줍니다.
     document.getElementById('choice-stats-modal').classList.remove('hidden');
-    // 이제 데이터는 온라인에 저장되므로, localStorage에 저장할 필요가 없습니다.
 }
 
 // ✨ 스토리 모달 클릭 이벤트 처리 ✨
@@ -2838,15 +2827,25 @@ function handleStoryInteraction(e) {
     const choiceButton = e.target.closest('button');
     if (!choiceButton) return;
 
-    // 분기 처리
+    // 분기 처리: 유저가 선택지를 골랐을 때
     if (choiceButton.dataset.nextScene) {
+        // ✨ 중요: 유저의 선택(버튼 텍스트)을 currentEventChoice 변수에 저장합니다.
+        currentEventChoice = choiceButton.textContent;
+        
         currentSceneIndex = parseInt(choiceButton.dataset.nextScene);
         renderCurrentScene();
-    }
-    // 통계 처리
+    } 
+    // 통계 처리: '전반부 스토리 완료' 버튼을 눌렀을 때
     else if (choiceButton.dataset.isFinalChoice === 'true') {
         closeInteractiveStory();
-        recordAndShowStats(choiceButton.dataset.statId, choiceButton.textContent);
+        
+        // ✨ 중요: 버튼 텍스트 대신, 아까 저장해둔 currentEventChoice 값으로 투표를 기록합니다.
+        if (currentEventChoice) {
+            recordAndShowStats(choiceButton.dataset.statId, currentEventChoice);
+        } else {
+            // 혹시 모를 오류 방지
+            console.error("오류: 유저의 선택이 기록되지 않았습니다.");
+        }
     }
 }
 
