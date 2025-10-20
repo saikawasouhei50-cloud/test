@@ -20,6 +20,10 @@ body.pointer-events-none {
             font-family: 'Jua', sans-serif;
             background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%);
         }
+		
+		body.loading {
+            pointer-events: none; /* 'loading' 클래스가 있을 때 모든 클릭을 막습니다. */
+        }
 
         /* 카드가 나타날 때의 애니메이션 */
         @keyframes fadeIn {
@@ -151,6 +155,10 @@ body.pointer-events-none {
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
+    <div id="loading-overlay" class="fixed inset-0 bg-black/80 flex flex-col justify-center items-center z-50">
+        <div class="text-yellow-300 text-2xl font-bold animate-pulse">Kside_</div>
+        <p class="text-white mt-2">데이터를 불러오는 중입니다...</p>
+    </div>
     <div class="w-full max-w-5xl bg-white/10 backdrop-blur-md rounded-2xl shadow-xl text-white p-6 md:p-8">
         
         <!-- 제목 부분 -->
@@ -216,7 +224,7 @@ body.pointer-events-none {
                         <p id="home-character-dialogue" class="text-white"></p>
                     </div>
                      <div id="home-default-message" class="text-2xl text-gray-300">
-                        보관함에서 대표 등장인물을 설정해주세요!
+                        당신의 서고에서 대표 등장인물을 설정해주세요!
                     </div>
                 </div>
             </div>
@@ -304,7 +312,7 @@ body.pointer-events-none {
     </div>
 </div>
 <div class="flex justify-center mt-4 mb-4">
-    <button id="enter-multi-mode" class="gacha-button bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-lg">다중 파쇄 모드 진입</button>
+    <button id="enter-multi-mode" class="gacha-button bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-lg">일괄 파쇄</button>
 </div>
 
 <div id="inventory-sort-buttons" class="mt-4 flex justify-center gap-2">
@@ -416,81 +424,84 @@ body.pointer-events-none {
 
 
             <div id="card-detail-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-30">
-                <div class="bg-gray-800 p-6 rounded-lg max-w-lg w-full relative mx-4 max-h-[90vh] overflow-y-auto">
-                    <button id="close-card-detail" class="absolute top-3 right-4 text-white text-3xl font-bold hover:text-gray-400">&times;</button>
-                    <div class="flex flex-col md:flex-row gap-6">
-                        <div class="md:w-1/3">
-                            <img id="detail-card-image" src="" alt="Card Image" class="w-full rounded-lg shadow-lg">
-                        </div>
-                        <div class="md:w-2/3">
-                            <h2 id="detail-card-name" class="text-3xl font-bold"></h2>
-                            <div class="flex items-center gap-4 mb-4">
-                                <p id="detail-card-rarity" class="font-bold text-2xl"></p>
-                                <p id="detail-card-faction" class="font-bold text-lg px-3 py-1 rounded-full"></p>
-                            </div>
+    <div class="bg-gray-800 p-6 rounded-lg max-w-lg w-full relative mx-4 max-h-[90vh] overflow-y-auto">
+        <button id="close-card-detail" class="absolute top-3 right-4 text-white text-3xl font-bold hover:text-gray-400">&times;</button>
+        
+        <div class="flex flex-col gap-4">
+            <div class="w-full md:w-3/5 mx-auto">
+                <img id="detail-card-image" src="" alt="Card Image" class="w-full rounded-lg shadow-lg">
+            </div>
 
-                            <div id="enhancement-container" class="mt-4 bg-black/20 p-4 rounded-lg">
-                                <h3 class="font-bold text-lg mb-2 text-yellow-300">등장인물 퇴고</h3>
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p>현재 퇴고: <span id="detail-card-level" class="font-bold text-xl"></span></p>
-                                        <p id="enhancement-preview" class="text-sm text-green-400"></p>
-                                    </div>
-                                    <button id="enhance-card-button" class="gacha-button bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-full shadow-lg">
-                                        퇴고하기
-                                        <span id="enhancement-cost" class="block text-xs"></span>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div id="revision-container" class="mt-4 bg-black/20 p-4 rounded-lg">
-                                <h3 class="font-bold text-lg mb-2 text-yellow-300">개정판 제작</h3>
-                                <div class="flex items-start justify-between gap-4">
-                                    <div class="flex-grow">
-                                        <p>현재: <span id="detail-card-revision" class="font-bold text-xl"></span></p>
-                                        <p id="revision-preview" class="text-sm text-green-400"></p>
-                                        <select id="revision-material-select" class="mt-2 w-full bg-gray-700 text-white p-2 rounded border border-gray-600">
-                                            <option value="">원본으로 사용할 카드를 선택하세요</option>
-                                        </select>
-                                    </div>
-                                    <button id="revise-card-button" class="gacha-button bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-full shadow-lg flex-shrink-0">
-                                        개정하기
-                                    </button>
-                                </div>
-                            </div>
+            <div class="w-full">
+                <h2 id="detail-card-name" class="text-3xl font-bold text-center"></h2>
+                <div class="flex items-center justify-center gap-4 my-4">
+                    <p id="detail-card-rarity" class="font-bold text-2xl"></p>
+                    <p id="detail-card-faction" class="font-bold text-lg px-3 py-1 rounded-full"></p>
+                </div>
 
-                            <div class="bg-black/20 p-3 rounded-lg mb-4">
-                                <h3 class="font-bold text-lg mb-2 text-yellow-300">능력치</h3>
-                                <div class="grid grid-cols-3 gap-2 text-center">
-                                    <div><p class="text-sm text-gray-400">HP</p><p id="detail-stat-hp" class="font-bold text-lg"></p></div>
-                                    <div><p class="text-sm text-gray-400">ATK</p><p id="detail-stat-atk" class="font-bold text-lg"></p></div>
-                                    <div><p class="text-sm text-gray-400">DEF</p><p id="detail-stat-def" class="font-bold text-lg"></p></div>
-                                </div>
-                            </div>
-                            <div class="bg-black/20 p-3 rounded-lg">
-                                <h3 class="font-bold text-lg mb-2 text-yellow-300">스킬</h3>
-                                <div id="detail-skills-container" class="space-y-3"></div>
-                            </div>
+                <div id="enhancement-container" class="bg-black/20 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg mb-2 text-yellow-300">등장인물 퇴고</h3>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p>현재 퇴고: <span id="detail-card-level" class="font-bold text-xl"></span></p>
+                            <p id="enhancement-preview" class="text-sm text-green-400"></p>
                         </div>
-                    </div>
-                    <div id="detail-card-story-container" class="mt-4 bg-black/20 p-4 rounded-lg">
-                        <h3 class="font-bold text-lg mb-2 text-yellow-300">등장인물 스토리</h3>
-                        <div id="detail-card-story" class="text-gray-300 text-sm story-content h-24 overflow-y-auto"></div>
-                        <div id="detail-story-pagination" class="flex justify-center items-center mt-2">
-                            <button id="detail-story-prev" class="gacha-button text-white font-bold py-1 px-4 rounded-full text-sm">&lt; 이전</button>
-                            <span id="detail-story-page-indicator" class="mx-4 text-sm"></span>
-                            <button id="detail-story-next" class="gacha-button text-white font-bold py-1 px-4 rounded-full text-sm">다음 &gt;</button>
-                        </div>
-                    </div>
-
-                    <div id="dismantle-container" class="mt-4 bg-red-800/20 p-4 rounded-lg flex justify-between items-center">
-                        <p class="font-bold text-md text-red-300">파쇄 (재료 회수)</p>
-                        <button id="dismantle-card-button" class="gacha-button bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-lg text-sm">
-                            파쇄하기
+                        <button id="enhance-card-button" class="gacha-button bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-full shadow-lg">
+                            퇴고하기
+                            <span id="enhancement-cost" class="block text-xs"></span>
                         </button>
                     </div>
                 </div>
+                
+                <div id="revision-container" class="mt-4 bg-black/20 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg mb-2 text-yellow-300">개정판 제작</h3>
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-grow">
+                            <p>현재: <span id="detail-card-revision" class="font-bold text-xl"></span></p>
+                            <p id="revision-preview" class="text-sm text-green-400"></p>
+                            <select id="revision-material-select" class="mt-2 w-full bg-gray-700 text-white p-2 rounded border border-gray-600">
+                                <option value="">원본으로 사용할 카드를 선택하세요</option>
+                            </select>
+                        </div>
+                        <button id="revise-card-button" class="gacha-button bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-full shadow-lg flex-shrink-0">
+                            개정하기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 bg-black/20 p-3 rounded-lg">
+                    <h3 class="font-bold text-lg mb-2 text-yellow-300">능력치</h3>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div><p class="text-sm text-gray-400">HP</p><p id="detail-stat-hp" class="font-bold text-lg"></p></div>
+                        <div><p class="text-sm text-gray-400">ATK</p><p id="detail-stat-atk" class="font-bold text-lg"></p></div>
+                        <div><p class="text-sm text-gray-400">DEF</p><p id="detail-stat-def" class="font-bold text-lg"></p></div>
+                    </div>
+                </div>
+                <div class="mt-4 bg-black/20 p-3 rounded-lg">
+                    <h3 class="font-bold text-lg mb-2 text-yellow-300">스킬</h3>
+                    <div id="detail-skills-container" class="space-y-3"></div>
+                </div>
             </div>
+        </div>
+        
+        <div id="detail-card-story-container" class="mt-4 bg-black/20 p-4 rounded-lg">
+            <h3 class="font-bold text-lg mb-2 text-yellow-300">등장인물 스토리</h3>
+            <div id="detail-card-story" class="text-gray-300 text-sm story-content h-24 overflow-y-auto"></div>
+            <div id="detail-story-pagination" class="flex justify-center items-center mt-2">
+                <button id="detail-story-prev" class="gacha-button text-white font-bold py-1 px-4 rounded-full text-sm">&lt; 이전</button>
+                <span id="detail-story-page-indicator" class="mx-4 text-sm"></span>
+                <button id="detail-story-next" class="gacha-button text-white font-bold py-1 px-4 rounded-full text-sm">다음 &gt;</button>
+            </div>
+        </div>
+
+        <div id="dismantle-container" class="mt-4 bg-red-800/20 p-4 rounded-lg flex justify-between items-center">
+            <p class="font-bold text-md text-red-300">파쇄 (재료 회수)</p>
+            <button id="dismantle-card-button" class="gacha-button bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-lg text-sm">
+                파쇄하기
+            </button>
+        </div>
+    </div>
+</div>
             
             <div id="dismantle-result-modal" class="hidden fixed inset-0 bg-black/70 flex justify-center items-center z-40">
                 <div class="bg-gray-800 p-8 rounded-lg text-center max-w-sm w-full">
@@ -556,6 +567,7 @@ body.pointer-events-none {
 
     // DOM이 모두 로드된 후 게임 스크립트 실행
     document.addEventListener('DOMContentLoaded', () => {
+	document.body.classList.add('loading');
 	const exitMultiModeButton = document.getElementById('exit-multi-mode');
     const enterMultiModeButton = document.getElementById('enter-multi-mode');
 
@@ -578,7 +590,12 @@ body.pointer-events-none {
                 currentUser = null;
                 loginView.classList.remove('hidden');
                 loggedInView.classList.add('hidden');
-                // 로그아웃 시 게임 화면을 비활성화하거나 초기화 할 수 있습니다.
+                
+                // ================== 👇 4. 로딩 상태 비활성화 👇 ==================
+                // 로딩 화면을 숨겨서 로그인/회원가입을 할 수 있도록 합니다.
+                document.getElementById('loading-overlay').classList.add('hidden');
+                document.body.classList.remove('loading');
+                // ===============================================================
             }
         });
 		// gacha3.html - downloadSaveData 함수 (기존 함수 전체 교체)
@@ -930,6 +947,8 @@ const closeDismantleResultButton = document.getElementById('close-dismantle-resu
     checkEventStatus();
     switchTab('home');
     checkAchievements();
+	document.getElementById('loading-overlay').classList.add('hidden');
+        document.body.classList.remove('loading');
 }
 
 function saveGame() {
@@ -1399,7 +1418,7 @@ function displayCollection() {
             
             function handlePull(count, cost, gachaType = 'normal') {
                 if (playerInventory.length + count > inventoryCapacity) {
-                    showMessage('보관함 공간이 부족합니다!', 'text-yellow-400', messageArea); return;
+                    showMessage('서고가 부족합니다!', 'text-yellow-400', messageArea); return;
                 }
                 if (playerCurrency >= cost) {
                     playerCurrency -= cost;
@@ -1413,7 +1432,7 @@ function displayCollection() {
             function expandInventory() {
                 if (playerCurrency >= EXPAND_COST) {
                     playerCurrency -= EXPAND_COST; inventoryCapacity += EXPAND_AMOUNT;
-                    showMessage(`보관함이 ${inventoryCapacity}칸으로 확장되었습니다!`, 'text-green-300', messageArea);
+                    showMessage(`서고가 ${inventoryCapacity}칸으로 확장되었습니다!`, 'text-green-300', messageArea);
                     updateUI(); displayInventory(); saveGame();
                     checkAchievements();
                 } else {
@@ -3340,6 +3359,9 @@ startBookmarkRegenTimer();
    </script>
 </body>
 </html>
+
+
+
 
 
 
