@@ -291,16 +291,16 @@ body.pointer-events-none {
         </div>
 
 
-		<div class="flex justify-between items-center">
-    <div class="flex items-center gap-4">
-        <p class="text-sm text-gray-300">선택된 카드: <span id="selected-card-count" class="font-bold text-white">0장</span></p>
-        <button id="select-all-filtered-button" class="gacha-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-full text-sm">필터된 원고 전체 선택</button>
-    </div>
-    <button id="dismantle-selected-button" class="gacha-button bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded-full shadow-lg text-sm" disabled>선택된 원고 파쇄</button>
-</div>
+		<div id="dismantle-multi-ui" class="hidden mt-4 bg-black/30 p-3 rounded-lg space-y-2">
     <div class="flex justify-between items-center">
-        <p class="text-sm text-gray-300">선택된 카드: <span id="selected-card-count" class="font-bold text-white">0장</span></p>
-        <button id="dismantle-selected-button" class="gacha-button bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded-full shadow-lg text-sm" disabled>선택된 원고 파쇄</button>
+        <div class="flex items-center gap-4">
+            <p class="text-sm text-gray-300">선택된 카드: <span id="selected-card-count" class="font-bold text-white">0장</span></p>
+            <button id="select-all-filtered-button" class="gacha-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-full text-sm">필터된 원고 전체 선택</button>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="exit-multi-mode" class="gacha-button bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full shadow-lg text-sm">나가기</button>
+            <button id="dismantle-selected-button" class="gacha-button bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded-full shadow-lg text-sm" disabled>선택된 원고 파쇄</button>
+        </div>
     </div>
 </div>
 <div class="flex justify-center mt-4 mb-4">
