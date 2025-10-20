@@ -2673,21 +2673,28 @@ function startInteractiveStory(storyOrIndex, type) {
     }
 }
 
-            function advanceStory() {
-    currentSceneIndex++;
+function advanceStory() {
+    const currentScene = currentInteractiveStory.content[currentSceneIndex];
+
+    // ✨ 점프 로직 추가 ✨
+    // 현재 장면에 jumpTo 속성이 있는지 확인합니다.
+    if (currentScene && currentScene.jumpTo !== undefined) {
+        // jumpTo에 지정된 번호로 바로 점프합니다.
+        currentSceneIndex = currentScene.jumpTo;
+    } else {
+        // jumpTo가 없으면, 평소처럼 다음 장면으로 넘어갑니다.
+        currentSceneIndex++;
+    }
+
     if (currentSceneIndex < currentInteractiveStory.content.length) {
         renderCurrentScene();
     } else {
-        // 스토리 완료 후, 전투 연결 콜백 확인
-        const callback = interactiveStoryModal.dataset.callback;
         closeInteractiveStory();
-        
-        // 콜백 함수가 설정되어 있다면 (스테이지 진입인 경우) 실행
+        // 스토리 완료 후 콜백 처리 (기존 로직 유지)
+        const callback = interactiveStoryModal.dataset.callback;
         if (callback) {
-            eval(callback); // 문자열로 저장된 함수 호출 (주의 필요하지만, 이 컨텍스트에서는 단순 전투 호출)
-            interactiveStoryModal.dataset.callback = ''; // 콜백 초기화
-            // 책갈피 차감 및 UI 업데이트는 challengeStage에서 스토리 시작 전이 아닌
-            // 스토리 완료 직후 (eval(callback) 직전)로 옮겼으므로 여기서는 생략합니다.
+            eval(callback);
+            interactiveStoryModal.dataset.callback = '';
         }
     }
 }
