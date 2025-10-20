@@ -3034,10 +3034,9 @@ document.getElementById('event-story-sub-tab-part2').addEventListener('click', (
 	displayEventStoryPart2(); // 👈 이 줄을 추가하세요.
 });
 
-// ✨ 기존 이벤트 스토리 목록 클릭
 document.getElementById('event-view').addEventListener('click', (e) => {
     const storyEl = e.target.closest('[data-story-type]');
-    if (!storyEl) return;
+    if (!storyEl || !storyEl.dataset.storyIndex) return; // 유효한 스토리 버튼이 아니면 종료
 
     const storyType = storyEl.dataset.storyType;
     const storyIndex = parseInt(storyEl.dataset.storyIndex, 10);
@@ -3050,23 +3049,26 @@ document.getElementById('event-view').addEventListener('click', (e) => {
         // --- 후반부 스토리 클릭 ---
         const storyData = eventStoryPart2.secondHalf[storyIndex];
 
-        // 만약 분기 스토리라면 (후반부 첫 번째 이야기)
+        // 분기 스토리 처리
         if (storyData.isBranching) {
             const userChoice = playerChoices['event_part2_final_choice'];
             if (userChoice && storyData.branches[userChoice]) {
                 startInteractiveStory({ content: storyData.branches[userChoice] });
             } else {
-                // 혹시 선택지가 기록 안된 경우, 기본 스토리로 시작
+                // 혹시 모를 오류 방지용 기본값
                 startInteractiveStory({ content: storyData.branches['결정적인 지문을 믿는다.'] });
             }
         } else {
-            // 일반적인 후반부 스토리
+            // 일반 후반부 스토리
             startInteractiveStory(storyIndex, 'event_part2');
         }
 
-        // 후반부 스토리를 봤다는 기록을 남김 (중요!)
+        // 후반부 스토리를 "클릭"했다는 사실을 기록 (이것이 다음 스토리의 해금 조건)
         playerChoices[`event_part2_story_${storyIndex}`] = true;
         saveGame();
+        
+        // 스토리가 끝난 후 UI를 새로고침하여 다음 스토리가 해금된 것을 바로 보여주기 위한 설정
+        document.getElementById('interactive-story-modal').dataset.callback = 'displayEventStoryPart2()';
     }
 });
 
@@ -3239,28 +3241,7 @@ storyView.addEventListener('click', (e) => {
         else alert('스테이지 스토리 데이터를 찾을 수 없습니다.');
     } else if (storyEl.dataset.storyType === 'event') {
         startInteractiveStory(parseInt(storyEl.dataset.storyIndex), 'event');
-    } else if (storyEl.dataset.storyType === 'event_part2') { // 👈 이 블록을 추가
-        const storyIndex = parseInt(storyEl.dataset.storyIndex);
-        const storyData = eventStoryPart2.secondHalf[storyIndex];
-
-        // 만약 분기 스토리라면
-        if (storyData.isBranching) {
-            const userChoice = playerChoices['event_part2_final_choice']; // 전반부 선택
-            // 유저의 선택에 맞는 스토리 내용으로 시작
-            if (userChoice && storyData.branches[userChoice]) {
-                startInteractiveStory({ content: storyData.branches[userChoice] });
-            } else {
-                // 혹시 선택지가 기록 안된 경우, 기본 스토리로 시작 (예: 지문)
-                startInteractiveStory({ content: storyData.branches['결정적인 지문을 믿는다.'] });
-            }
-        } else {
-            // 일반적인 후반부 스토리
-            startInteractiveStory(storyIndex, 'event_part2');
-        }
-        // 후반부 스토리를 봤다는 기록을 남김
-        playerChoices[`event_part2_story_${storyIndex}`] = true;
-        saveGame();
-    }
+    } 
 });
 
 // ✨ 이벤트 상점
