@@ -2703,9 +2703,16 @@ function advanceStory() {
         // jumpTo에 지정된 번호로 바로 점프합니다.
         currentSceneIndex = currentScene.jumpTo;
     } else {
-        // jumpTo가 없으면, 평소처럼 다음 장면으로 넘어갑니다.
-        currentSceneIndex++;
-    }
+                // ✨ 수정: 콜백을 먼저 읽어온 후, 스토리를 닫습니다.
+                const callback = interactiveStoryModal.dataset.callback; // 1. 콜백을 먼저 읽습니다.
+                
+                closeInteractiveStory(); // 2. 스토리를 닫습니다.
+                
+                if (callback) {
+                    eval(callback); // 3. 콜백을 실행합니다.
+                    interactiveStoryModal.dataset.callback = ''; // 4. 여기서 콜백을 비웁니다.
+                }
+            }
 
     if (currentSceneIndex < currentInteractiveStory.content.length) {
         renderCurrentScene();
@@ -2826,7 +2833,7 @@ function dismantleMultipleCards() {
     storyCharRight.src = '';
     currentInteractiveStory = null;
     // 일반적인 스토리 뷰에서 닫는 경우 콜백은 실행하지 않습니다.
-    interactiveStoryModal.dataset.callback = ''; 
+   
 }
             function reviseCard() {
     if (!currentDetailCardId) return;
