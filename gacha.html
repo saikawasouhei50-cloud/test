@@ -521,44 +521,45 @@ body.pointer-events-none {
 	
 	const firebaseConfig = {
         apiKey: "AIzaSyDNradWwvrFqZHbmlfavgiN8a7ll_Jb2Sg",
-  authDomain: "kside-5db33.firebaseapp.com",
-  projectId: "kside-5db33",
-  storageBucket: "kside-5db33.firebasestorage.app",
-  messagingSenderId: "381837651487",
-  appId: "1:381837651487:web:447bff3a3f83abbde66f2a",
+        authDomain: "kside-5db33.firebaseapp.com",
+        projectId: "kside-5db33",
+        storageBucket: "kside-5db33.appspot.com",
+        messagingSenderId: "381837651487",
+        appId: "1:381837651487:web:447bff3a3f83abbde66f2a",
     };
 
     // Firebase 초기화
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore(); // 이 'db' 객체가 데이터베이스와의 연결 통로입니다!
-	let currentUser = null;
-	document.addEventListener('DOMContentLoaded', () => {
+    const db = firebase.firestore();
+    const auth = firebase.auth(); // 인증 서비스 변수 추가
 
-    // ✅ 인증 상태 감지 리스너 (가장 중요한 부분!)
-    firebase.auth().onAuthStateChanged(user => {
-        const loginView = document.getElementById('login-view');
-        const loggedInView = document.getElementById('logged-in-view');
-        
-        if (user) {
-            // --- 유저가 로그인했을 때 ---
-            currentUser = user;
-            loginView.classList.add('hidden');
-            loggedInView.classList.remove('hidden');
-            document.getElementById('nickname-display').textContent = user.email; // 닉네임 대신 이메일 표시
+    let currentUser = null; // 현재 로그인된 유저 정보
 
-            // Firebase에서 이 유저의 게임 데이터 불러오기
-            loadGameFromFirebase(user.uid);
+    // DOM이 모두 로드된 후 게임 스크립트 실행
+    document.addEventListener('DOMContentLoaded', () => {
 
-        } else {
-            // --- 유저가 로그아웃했을 때 ---
-            currentUser = null;
-            loginView.classList.remove('hidden');
-            loggedInView.classList.add('hidden');
+        // --- 인증 상태 감지 리스너 (가장 중요한 부분) ---
+        auth.onAuthStateChanged(user => {
+            const loginView = document.getElementById('login-view');
+            const loggedInView = document.getElementById('logged-in-view');
             
-            // 여기에 로그아웃 시 게임 데이터를 초기화하는 로직을 넣을 수 있습니다.
-            // 예: resetGame(); 또는 로그인 화면으로 강제 이동
-        }
-    });
+            if (user) {
+                // --- 유저가 로그인했을 때 ---
+                currentUser = user;
+                loginView.classList.add('hidden');
+                loggedInView.classList.remove('hidden');
+                document.getElementById('nickname-display').textContent = user.displayName || user.email;
+
+                loadGameFromFirebase(user.uid);
+
+            } else {
+                // --- 유저가 로그아웃했을 때 ---
+                currentUser = null;
+                loginView.classList.remove('hidden');
+                loggedInView.classList.add('hidden');
+                // 로그아웃 시 게임 화면을 비활성화하거나 초기화 할 수 있습니다.
+            }
+        });
 		// gacha3.html - downloadSaveData 함수 (기존 함수 전체 교체)
 
 function downloadSaveData() {
@@ -2028,6 +2029,53 @@ function startStageCombat(chapterIndex, stageIndex) {
                 combatLog.innerHTML += `<p>${message}</p>`;
                 combatLogContainer.scrollTop = combatLogContainer.scrollHeight;
             }
+			
+			// ✨ 회원가입 함수 ✨
+        async function registerUser() {
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const newUser = userCredential.user;
+                alert('회원가입 성공! 자동으로 로그인됩니다.');
+
+                const localDataString = localStorage.getItem(SAVE_DATA_KEY);
+                if (localDataString) {
+                    console.log('기존 로컬 데이터를 Firebase로 마이그레이션합니다.');
+                    const localData = JSON.parse(localDataString);
+                    await db.collection('users').doc(newUser.uid).set(localData);
+                    localStorage.removeItem(SAVE_DATA_KEY);
+                } else {
+                    initializeNewGameData();
+                    await saveGameToFirebase(); 
+                }
+            } catch (error) {
+                alert(`회원가입 실패: ${error.message}`);
+            }
+        }
+
+        // ✨ 로그인 함수 ✨
+        async function loginUser() {
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                alert(`로그인 실패: ${error.message}`);
+            }
+        }
+
+        // ✨ 로그아웃 함수 ✨
+        async function logoutUser() {
+            try {
+                await auth.signOut();
+                alert('로그아웃 되었습니다.');
+                location.reload();
+            } catch (error) {
+                alert(`로그아웃 실패: ${error.message}`);
+            }
+        }
 
 
 			function renderEventStoryList() {
@@ -2809,6 +2857,8 @@ document.getElementById('register-button').addEventListener('click', registerUse
 document.getElementById('login-button').addEventListener('click', loginUser);
 document.getElementById('logout-button').addEventListener('click', logoutUser);
 
+
+
 // ✨ 새로운 이벤트 스토리 시작 버튼
 document.getElementById('start-event-part2-button').addEventListener('click', () => {
     startInteractiveStory({ content: eventStoryPart2.firstHalf });
@@ -3033,6 +3083,7 @@ eventSubTabBattle.addEventListener('click', () => switchSubTab(document.getEleme
 eventSubTabStory.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabStory));
 eventSubTabShop.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabShop));
 });   
+startBookmarkRegenTimer();
 
    </script>
 </body>
