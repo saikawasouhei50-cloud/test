@@ -153,13 +153,18 @@ body.pointer-events-none {
             <h1 class="text-4xl md:text-5xl font-bold tracking-wider text-yellow-300" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">Kside_</h1>
         </header>
 
-        <div class="flex justify-center md:justify-start items-center gap-4 flex-wrap mb-2">
-            <button onclick="downloadSaveData()" class="gacha-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-full text-sm">💾 데이터 다운로드</button>
-            <label for="upload-file" class="gacha-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-full text-sm cursor-pointer">
-                ⬆️ 데이터 업로드
-            </label>
-            <input type="file" id="upload-file" accept=".txt" class="hidden">
-        </div>
+        <div class="bg-black/20 p-3 rounded-lg mb-4 flex flex-wrap justify-between items-center gap-2">
+    <div id="login-view" class="flex flex-wrap items-center gap-2">
+        <input type="email" id="email-input" placeholder="이메일" class="bg-gray-700 text-white px-3 py-1 rounded-md text-sm">
+        <input type="password" id="password-input" placeholder="비밀번호" class="bg-gray-700 text-white px-3 py-1 rounded-md text-sm">
+        <button id="login-button" class="gacha-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-full text-sm">로그인</button>
+        <button id="register-button" class="gacha-button bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded-full text-sm">회원가입</button>
+    </div>
+    <div id="logged-in-view" class="hidden flex items-center gap-3">
+        <p class="font-bold">환영합니다, <span id="nickname-display" class="text-yellow-300"></span>님!</p>
+        <button id="logout-button" class="gacha-button bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded-full text-sm">로그아웃</button>
+    </div>
+</div>
         
         <div class="flex flex-wrap items-center justify-center md:justify-end gap-3 mb-3">
             <div class="text-xl font-bold text-cyan-300 bg-black/20 py-2 px-4 rounded-full inline-block whitespace-nowrap">🔖 <span id="bookmark-display">10</span> / <span id="max-bookmark-display">10</span><span id="bookmark-timer-container" class="text-sm ml-2"></span></div>
@@ -526,7 +531,34 @@ body.pointer-events-none {
     // Firebase 초기화
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore(); // 이 'db' 객체가 데이터베이스와의 연결 통로입니다!
+	let currentUser = null;
+	document.addEventListener('DOMContentLoaded', () => {
 
+    // ✅ 인증 상태 감지 리스너 (가장 중요한 부분!)
+    firebase.auth().onAuthStateChanged(user => {
+        const loginView = document.getElementById('login-view');
+        const loggedInView = document.getElementById('logged-in-view');
+        
+        if (user) {
+            // --- 유저가 로그인했을 때 ---
+            currentUser = user;
+            loginView.classList.add('hidden');
+            loggedInView.classList.remove('hidden');
+            document.getElementById('nickname-display').textContent = user.email; // 닉네임 대신 이메일 표시
+
+            // Firebase에서 이 유저의 게임 데이터 불러오기
+            loadGameFromFirebase(user.uid);
+
+        } else {
+            // --- 유저가 로그아웃했을 때 ---
+            currentUser = null;
+            loginView.classList.remove('hidden');
+            loggedInView.classList.add('hidden');
+            
+            // 여기에 로그아웃 시 게임 데이터를 초기화하는 로직을 넣을 수 있습니다.
+            // 예: resetGame(); 또는 로그인 화면으로 강제 이동
+        }
+    });
 		// gacha3.html - downloadSaveData 함수 (기존 함수 전체 교체)
 
 function downloadSaveData() {
@@ -795,86 +827,88 @@ const closeDismantleResultButton = document.getElementById('close-dismantle-resu
                 }
             }
 
-            function saveGame() {
-                if (!isStorageAvailable()) return;
-                const saveData = {
-                    currency: playerCurrency,
-                    fountainPens: playerFountainPens,
-					inkwells: playerInkwells, // ✨ 추가
-                    inventory: playerInventory,
-                    deck: playerDeck.map(cardInstance => cardInstance.id), // ✨ 덱에는 이제 고유 ID만 저장합니다.
-                    capacity: inventoryCapacity,
-                    representative: representativeCharacter ? representativeCharacter.name : null,
-                    clearedStages: clearedStages,
-                    eventPoints: playerEventPoints,
-                    clearedEventDungeons: clearedEventDungeons,
-                    purchasedEventItems: purchasedEventItems,
-                    bookmarks: playerBookmarks,
-                    lastBookmarkUpdate: lastBookmarkUpdateTime,
-                    achievements: playerAchievements,
-                    stats: playerStats,
-					clearedStageStories: clearedStageStories, 
-					playerChoices: playerChoices,
-                };
-                localStorage.setItem(SAVE_DATA_KEY, JSON.stringify(saveData));
-            }
+            async function saveGameToFirebase() {
+    if (!currentUser) return; // 로그인 상태가 아니면 저장하지 않음
+
+    const saveData = {
+        currency: playerCurrency,
+        fountainPens: playerFountainPens,
+        inkwells: playerInkwells,
+        inventory: playerInventory,
+        deck: playerDeck.map(card => card.id),
+        capacity: inventoryCapacity,
+        representative: representativeCharacter ? representativeCharacter.name : null,
+        clearedStages: clearedStages,
+        eventPoints: playerEventPoints,
+        clearedEventDungeons: clearedEventDungeons,
+        purchasedEventItems: purchasedEventItems,
+        bookmarks: playerBookmarks,
+        lastBookmarkUpdate: lastBookmarkUpdateTime,
+        achievements: playerAchievements,
+        stats: playerStats,
+        clearedStageStories: clearedStageStories,
+        playerChoices: playerChoices,
+    };
+    
+    // 'users' 컬렉션에 현재 유저의 UID를 문서 ID로 사용하여 데이터 저장
+    await db.collection('users').doc(currentUser.uid).set(saveData);
+    console.log("게임 데이터가 Firebase에 저장되었습니다.");
+}
 
             // ✅ 이 코드로 기존 loadGame 함수를 통째로 교체해주세요.
-            function loadGame() {
-                if (!isStorageAvailable()) {
-                    storageWarning.classList.remove('hidden');
-                    resetButton.disabled = true;
-                    initializeNewGameData();
-                } else {
-                    const savedDataString = localStorage.getItem(SAVE_DATA_KEY);
-                    if (savedDataString) {
-                        try {
-                            const savedData = JSON.parse(savedDataString);
-                            playerCurrency = savedData.currency ?? 100;
-                            playerFountainPens = savedData.fountainPens ?? 500;
-							playerInkwells = savedData.inkwells ?? 0; // ✨ 추가
-                            
-                            // ✨ 여기가 핵심적인 수정 부분입니다! ✨
-                            // 저장된 인벤토리를 불러오면서 각 카드에 'revision' 속성이 있는지 확인하고,
-                            // 만약 없다면 기본값인 0을 추가해줍니다.
-                            const loadedInventory = savedData.inventory || [];
-                            playerInventory = loadedInventory.map(card => ({
-                                ...card, // 기존 카드 정보 (id, name, level)는 그대로 유지
-                                revision: card.revision ?? 0 // revision 속성이 없으면(??) 0을 할당
-                            }));
+            async function loadGameFromFirebase(uid) {
+    const docRef = db.collection('users').doc(uid);
+    const doc = await docRef.get();
 
-                            const savedDeckIds = savedData.deck || [];
-                            playerDeck = savedDeckIds.map(id => playerInventory.find(card => card.id === id)).filter(Boolean);
+    if (doc.exists) {
+        // --- 데이터가 있는 기존 유저 ---
+        console.log("Firebase에서 게임 데이터를 불러옵니다.");
+        const savedData = doc.data();
+        
+        // 기존 loadGame 함수의 데이터 복원 로직을 그대로 사용합니다.
+        playerCurrency = savedData.currency ?? 100;
+        playerFountainPens = savedData.fountainPens ?? 500;
+        playerInkwells = savedData.inkwells ?? 0;
+        
+        // revision 속성이 없는 구버전 데이터를 불러올 경우를 대비한 호환성 코드
+        const loadedInventory = savedData.inventory || [];
+        playerInventory = loadedInventory.map(card => ({
+            ...card,
+            revision: card.revision ?? 0
+        }));
 
-                            inventoryCapacity = savedData.capacity ?? 100;
-                            if (savedData.representative) {
-                                representativeCharacter = findCharacter(savedData.representative) || null;
-                            }
-                            clearedStages = savedData.clearedStages || [];
-                            playerEventPoints = savedData.eventPoints ?? 0;
-                            clearedEventDungeons = savedData.clearedEventDungeons || [];
-                            purchasedEventItems = savedData.purchasedEventItems || {};
-                            playerBookmarks = savedData.bookmarks ?? MAX_BOOKMARKS;
-                            lastBookmarkUpdateTime = savedData.lastBookmarkUpdate ?? Date.now();
-                            playerAchievements = savedData.achievements || {};
-                            playerStats = savedData.stats || { totalPulls: 0 };
-                            clearedStageStories = savedData.clearedStageStories || []; // ✨ 이 라인을 추가합니다.
-							playerChoices = savedData.playerChoices || {};
-						} catch (e) {
-                            console.error("저장된 데이터 파싱 오류:", e);
-                            initializeNewGameData();
-                        }
-                    } else {
-                        initializeNewGameData();
-                        saveGame();
-                    }
-                }
-                calculateOfflineRegen();
-                updateUI();
-                checkEventStatus();
-                switchTab('home');
-                checkAchievements();
-            }
+        const savedDeckIds = savedData.deck || [];
+        playerDeck = savedDeckIds.map(id => playerInventory.find(card => card.id === id)).filter(Boolean);
+
+        inventoryCapacity = savedData.capacity ?? 100;
+        if (savedData.representative) {
+            representativeCharacter = findCharacter(savedData.representative) || null;
+        }
+        clearedStages = savedData.clearedStages || [];
+        playerEventPoints = savedData.eventPoints ?? 0;
+        clearedEventDungeons = savedData.clearedEventDungeons || [];
+        purchasedEventItems = savedData.purchasedEventItems || {};
+        playerBookmarks = savedData.bookmarks ?? MAX_BOOKMARKS;
+        lastBookmarkUpdateTime = savedData.lastBookmarkUpdate ?? Date.now();
+        playerAchievements = savedData.achievements || {};
+        playerStats = savedData.stats || { totalPulls: 0 };
+        clearedStageStories = savedData.clearedStageStories || [];
+        playerChoices = savedData.playerChoices || {};
+
+    } else {
+        // --- 처음 가입한 새로운 유저 ---
+        console.log("새로운 유저입니다. 초기 데이터로 시작합니다.");
+        initializeNewGameData();
+        await saveGameToFirebase(); // 초기 데이터를 Firebase 계정에 저장
+    }
+
+    // 데이터 로드 후 공통으로 실행할 UI 업데이트 및 게임 준비
+    calculateOfflineRegen();
+    updateUI();
+    checkEventStatus();
+    switchTab('home');
+    checkAchievements();
+}
 
 			
             function initializeNewGameData() {
@@ -2769,353 +2803,235 @@ function dismantleMultipleCards() {
             }
 			
             // --- 이벤트 리스너 ---
-			document.getElementById('start-event-part2-button').addEventListener('click', () => {
-    // startInteractiveStory 함수에 새로운 스토리 데이터(eventStoryPart2.firstHalf)를 직접 전달합니다.
+
+// ✨ 계정 관련 버튼
+document.getElementById('register-button').addEventListener('click', registerUser);
+document.getElementById('login-button').addEventListener('click', loginUser);
+document.getElementById('logout-button').addEventListener('click', logoutUser);
+
+// ✨ 새로운 이벤트 스토리 시작 버튼
+document.getElementById('start-event-part2-button').addEventListener('click', () => {
     startInteractiveStory({ content: eventStoryPart2.firstHalf });
 });
-			
-			
-			// gacha3.html의 <script> 태그 안
 
-// ✅ 아래 함수들을 스크립트의 '--- 이벤트 리스너 ---' 섹션 바로 위에 추가해주세요.
-
-// ✨ 통계를 기록하고 보여주는 함수 ✨
-async function recordAndShowStats(statId, userChoiceText) {
-    const choiceRef = db.collection('choices').doc(statId);
-
-    await choiceRef.set({
-        [userChoiceText]: firebase.firestore.FieldValue.increment(1)
-    }, { merge: true });
-
-    const doc = await choiceRef.get();
-    const data = doc.exists ? doc.data() : {};
-
-    let totalVotes = 0;
-    const stats = [];
-    Object.values(data).forEach(votes => {
-        totalVotes += votes;
-    });
-
-    // ✨ 중요: 통계에 표시할 선택지 목록을 '전반부 스토리 완료'가 아닌
-    // 실제 선택지가 있었던 3번 인덱스 씬에서 직접 가져오도록 수정합니다.
-    const allChoices = eventStoryPart2.firstHalf[3].choices.map(c => c.text);
-
-    allChoices.forEach(choiceText => {
-        const votes = data[choiceText] || 0;
-        const percent = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : "0.0";
-        stats.push({ text: choiceText, percent: percent });
-    });
-
-    const statsContainer = document.getElementById('stats-container');
-    statsContainer.innerHTML = stats.map(stat => `
-        <div class="text-left">
-            <div class="flex justify-between items-center mb-1">
-                <span class="font-bold">${stat.text}</span>
-                <span class="text-yellow-300">${stat.percent}%</span>
-            </div>
-            <div class="w-full bg-gray-600 rounded-full h-4">
-                <div class="bg-blue-500 h-4 rounded-full" style="width: ${stat.percent}%"></div>
-            </div>
-        </div>
-    `).join('');
-
-    document.getElementById('choice-stats-modal').classList.remove('hidden');
-}
-
-// ✨ 스토리 모달 클릭 이벤트 처리 ✨
-function handleStoryInteraction(e) {
-    const choiceButton = e.target.closest('button');
-    if (!choiceButton) return;
-
-    // 분기 처리: 유저가 선택지를 골랐을 때
-    if (choiceButton.dataset.nextScene) {
-        // ✨ 중요: 유저의 선택(버튼 텍스트)을 currentEventChoice 변수에 저장합니다.
-        currentEventChoice = choiceButton.textContent;
-        
-        currentSceneIndex = parseInt(choiceButton.dataset.nextScene);
-        renderCurrentScene();
-    } 
-    // 통계 처리: '전반부 스토리 완료' 버튼을 눌렀을 때
-    else if (choiceButton.dataset.isFinalChoice === 'true') {
-        closeInteractiveStory();
-        
-        // ✨ 중요: 버튼 텍스트 대신, 아까 저장해둔 currentEventChoice 값으로 투표를 기록합니다.
-        if (currentEventChoice) {
-            recordAndShowStats(choiceButton.dataset.statId, currentEventChoice);
-        } else {
-            // 혹시 모를 오류 방지
-            console.error("오류: 유저의 선택이 기록되지 않았습니다.");
-        }
+// ✨ 기존 이벤트 스토리 목록 클릭
+document.getElementById('event-view').addEventListener('click', (e) => {
+    const storyButton = e.target.closest('[data-story-type="event"]');
+    if (storyButton && storyButton.dataset.storyIndex) {
+        const storyIndex = parseInt(storyButton.dataset.storyIndex, 10);
+        startInteractiveStory(storyIndex, 'event');
     }
-}
+});
 
-			document.getElementById('event-view').addEventListener('click', (e) => {
-                // 클릭된 요소가 스토리 버튼인지 확인합니다.
-                const storyButton = e.target.closest('[data-story-type="event"]');
-                if (storyButton && storyButton.dataset.storyIndex) {
-                    const storyIndex = parseInt(storyButton.dataset.storyIndex, 10);
-                    startInteractiveStory(storyIndex, 'event'); // 이벤트 스토리 실행
-                }
-            });
-
+// ✨ 인벤토리 다중 파쇄 모드 관련
 enterMultiModeButton.addEventListener('click', enterMultiSelectMode);
 exitMultiModeButton.addEventListener('click', exitMultiSelectMode);
 dismantleSelectedButton.addEventListener('click', dismantleMultipleCards);
 
-			closeDismantleResultButton.addEventListener('click', () => {
-    // 1. 모달에 저장된 메시지 확인
+// ✨ 파쇄 결과 모달 닫기
+closeDismantleResultButton.addEventListener('click', () => {
     const finalMessage = dismantleResultModal.dataset.finalMessage;
     const messageColor = dismantleResultModal.dataset.messageColor;
-
-    // 2. 모달 숨기기
     dismantleResultModal.classList.add('hidden');
-    
-    // 3. 메시지가 있다면 표시 (모달이 닫힌 후에 메시지 출력)
     if (finalMessage) {
         showMessage(finalMessage, messageColor, messageArea);
-        dismantleResultModal.dataset.finalMessage = ''; // 메시지 초기화
+        dismantleResultModal.dataset.finalMessage = '';
     }
-
-    // ✨✨ 핵심 수정: 모달이 닫힌 후 파쇄 모드를 종료하고 인벤토리를 갱신합니다. ✨✨
-    exitMultiSelectMode(); // ✅ 모드 종료 (이 함수가 UI를 숨기고 인벤토리를 갱신합니다.)
-    // displayInventory(); // exitMultiSelectMode() 안에 이미 있으므로 제거합니다.
+    exitMultiSelectMode();
 });
-			
+
+// ✨ 카드 상세 모달에서 단일 파쇄
 dismantleCardButton.addEventListener('click', () => {
-    // 현재 모달에 표시된 카드의 ID를 사용
     dismantleCard(currentDetailCardId);
 });
-			
-			if (uploadFile) {
+
+// ✨ 데이터 업로드 (이제 사용되지 않지만, 만약을 위해 남겨둠)
+if (uploadFile) {
     uploadFile.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             uploadSaveData(file); 
         }
-        // 파일을 선택한 후, 동일한 파일을 다시 선택할 수 있도록 value를 비웁니다.
         e.target.value = null; 
     });
 }
 
-			storySubTabMain.addEventListener('click', () => {
+// ✨ 스토리 뷰의 서브 탭
+storySubTabMain.addEventListener('click', () => {
     storySubTabMain.classList.add('active');
     storySubTabStage.classList.remove('active');
     displayStoryView();
 });
-
 storySubTabStage.addEventListener('click', () => {
     storySubTabStage.classList.add('active');
     storySubTabMain.classList.remove('active');
     displayStoryView();
 });
-			
-			// document.getElementById('enhance-card-button')... 바로 위에 추가
-			// ✅ 이 코드로 기존 정렬 버튼 이벤트 리스너를 통째로 교체해주세요.
-            document.getElementById('inventory-sort-buttons').addEventListener('click', (e) => {
-                const button = e.target.closest('.sort-button');
-                if (button && button.dataset.sort) {
-                    const newSortOrder = button.dataset.sort;
-                    
-                    // ✨ 토글 로직 시작 ✨
-                    if (newSortOrder === currentSortOrder) {
-                        // 같은 버튼을 또 누르면 정렬 방향만 바꿈
-                        isSortAscending = !isSortAscending;
-                    } else {
-                        // 다른 버튼을 누르면 정렬 기준을 바꾸고, 기본값(내림차순)으로 초기화
-                        currentSortOrder = newSortOrder;
-                        isSortAscending = false; 
-                    }
-                    // ✨ 토글 로직 끝 ✨
 
-                    displayInventory(); // 정렬 후 인벤토리 다시 표시
-                }
-            });
-			
-			document.getElementById('enhance-card-button').addEventListener('click', enhanceCard);
-			document.getElementById('revise-card-button').addEventListener('click', reviseCard);
+// ✨ 인벤토리 정렬 버튼
+document.getElementById('inventory-sort-buttons').addEventListener('click', (e) => {
+    const button = e.target.closest('.sort-button');
+    if (button && button.dataset.sort) {
+        const newSortOrder = button.dataset.sort;
+        if (newSortOrder === currentSortOrder) {
+            isSortAscending = !isSortAscending;
+        } else {
+            currentSortOrder = newSortOrder;
+            isSortAscending = false; 
+        }
+        displayInventory();
+    }
+});
 
-            allTabs.forEach(tab => tab.addEventListener('click', () => switchTab(tab.id.split('-')[1])));
-            achievementsContainer.addEventListener('click', (e) => {
-                const button = e.target.closest('[data-ach-id]');
-                if (button) {
-                    claimAchievement(button.dataset.achId);
-                }
-            });
-            pullOneButton.addEventListener('click', () => handlePull(1, PULL_ONE_COST, 'normal'));
-            pullTenButton.addEventListener('click', () => handlePull(10, PULL_TEN_COST, 'normal'));
-            pullOneEventButton.addEventListener('click', () => handlePull(1, PULL_ONE_COST, 'event'));
-            pullTenEventButton.addEventListener('click', () => handlePull(10, PULL_TEN_COST, 'event'));
-            expandInventoryButton.addEventListener('click', expandInventory);
-            autoFillDeckButton.addEventListener('click', autoFillDeck);
-            gachaTabNormal.addEventListener('click', () => switchGachaTab('normal'));
-            gachaTabEvent.addEventListener('click', () => switchGachaTab('event'));
-            
-            const cardClickableContainers = [inventoryContainer, deckInventoryContainer, deckSlotsContainer, collectionContainer];
+// ✨ 카드 강화 및 개정 버튼
+document.getElementById('enhance-card-button').addEventListener('click', enhanceCard);
+document.getElementById('revise-card-button').addEventListener('click', reviseCard);
+
+// ✨ 메인 탭 버튼
+allTabs.forEach(tab => tab.addEventListener('click', () => switchTab(tab.id.split('-')[1])));
+
+// ✨ 업적 보상 받기
+achievementsContainer.addEventListener('click', (e) => {
+    const button = e.target.closest('[data-ach-id]');
+    if (button) {
+        claimAchievement(button.dataset.achId);
+    }
+});
+
+// ✨ 뽑기 버튼
+pullOneButton.addEventListener('click', () => handlePull(1, PULL_ONE_COST, 'normal'));
+pullTenButton.addEventListener('click', () => handlePull(10, PULL_TEN_COST, 'normal'));
+pullOneEventButton.addEventListener('click', () => handlePull(1, PULL_ONE_COST, 'event'));
+pullTenEventButton.addEventListener('click', () => handlePull(10, PULL_TEN_COST, 'event'));
+
+// ✨ 기타 기능 버튼
+expandInventoryButton.addEventListener('click', expandInventory);
+autoFillDeckButton.addEventListener('click', autoFillDeck);
+resetButton.addEventListener('click', resetGame);
+
+// ✨ 뽑기 뷰의 서브 탭
+gachaTabNormal.addEventListener('click', () => switchGachaTab('normal'));
+gachaTabEvent.addEventListener('click', () => switchGachaTab('event'));
+
+// ✨ 카드 클릭 이벤트 (인벤토리, 덱 편성, 도감 등)
+const cardClickableContainers = [inventoryContainer, deckInventoryContainer, deckSlotsContainer, collectionContainer];
 cardClickableContainers.forEach(container => {
     container.addEventListener('click', (e) => {
-        
-        // ✨✨ 최종 해결책: 파쇄 중일 경우 즉시 리턴하여 클릭 무시 ✨✨
         if (isDismantling) return; 
-        
         const actionButton = e.target.closest('[data-action]');
         if (actionButton) {
             e.stopPropagation();
             const action = actionButton.dataset.action;
-            
-            if (action === 'set-representative') {
-                setRepresentative(actionButton.dataset.cardName);
-            } else if (action === 'add-to-deck') {
-                addToDeck(actionButton.dataset.cardId); // ID 사용
-            } else if (action === 'remove-from-deck') {
-                removeFromDeck(actionButton.dataset.cardId); // ID 사용
-            }
-
+            if (action === 'set-representative') setRepresentative(actionButton.dataset.cardName);
+            else if (action === 'add-to-deck') addToDeck(actionButton.dataset.cardId);
+            else if (action === 'remove-from-deck') removeFromDeck(actionButton.dataset.cardId);
         } else {
             const cardElement = e.target.closest('[data-unique-id]');
             if (cardElement) {
                 const cardId = cardElement.dataset.uniqueId;
-
-                // ✨ 다중 파쇄 모드 처리 시작 (inventoryContainer에서만 작동) ✨
                 if (container === inventoryContainer && isMultiSelectMode) {
                     const isInDeck = playerDeck.some(deckCard => deckCard.id === cardId);
-                    
                     if (isInDeck) {
                         showMessage('덱에 포함된 카드는 파쇄할 수 없습니다.', 'text-red-400', messageArea);
                         return;
                     }
-                    
-                    // 선택 토글
-                    if (selectedCardsToDismantle.has(cardId)) {
-                        selectedCardsToDismantle.delete(cardId);
-                    } else {
-                        selectedCardsToDismantle.add(cardId);
-                    }
-                    
-                    // UI 업데이트
+                    if (selectedCardsToDismantle.has(cardId)) selectedCardsToDismantle.delete(cardId);
+                    else selectedCardsToDismantle.add(cardId);
                     displayInventory(); 
-                    return; // 다중 선택 모드에서는 상세 정보 모달을 띄우지 않습니다.
-                }
-                // ✨ 다중 파쇄 모드 처리 끝 ✨
-
-
-                // (기존) 단일 카드 상세 정보 표시 로직 
-                if (container === collectionContainer && cardElement.dataset.isCollected === 'false') {
                     return;
                 }
+                if (container === collectionContainer && cardElement.dataset.isCollected === 'false') return;
                 showCardDetails(cardElement.dataset.uniqueId);
             }
         }
     });
 });
 
-            // ⛔️ 기존 dungeonListContainer.addEventListener... 부분을 삭제하고,
-            // ✅ 아래의 새로운 이벤트 리스너를 추가합니다.
-            document.getElementById('combat-view').addEventListener('click', (e) => {
-                const button = e.target.closest('button[data-action]');
-                if (!button) return;
+// ✨ 전투 뷰 (챕터 및 스테이지 선택)
+document.getElementById('combat-view').addEventListener('click', (e) => {
+    const button = e.target.closest('button[data-action]');
+    if (!button) return;
+    const action = button.dataset.action;
+    if (action === 'select-chapter') displayStages(parseInt(button.dataset.chapterIndex));
+    else if (action === 'challenge-stage') challengeStage(parseInt(button.dataset.chapterIndex), parseInt(button.dataset.stageIndex));
+});
 
-                const action = button.dataset.action;
-                if (action === 'select-chapter') {
-                    displayStages(parseInt(button.dataset.chapterIndex));
-                } else if (action === 'challenge-stage') {
-                    challengeStage(parseInt(button.dataset.chapterIndex), parseInt(button.dataset.stageIndex));
-                }
-            });
-            homeCharacterContainer.addEventListener('click', () => { if (representativeCharacter) displayHomeView(true); });
-            eventBanner.addEventListener('click', () => {
-                showMessage(`[${EVENT_CHARACTER_NAME}] 확률 UP 이벤트 진행 중!`, 'text-blue-300', messageArea);
-                switchTab('gacha');
-            });
-            resetButton.addEventListener('click', resetGame);
-            closeCombatResultButton.addEventListener('click', () => {
-                combatResultModal.classList.add('hidden');
-                combatInProgressView.classList.add('hidden');
+// ✨ 홈 화면 및 이벤트 배너
+homeCharacterContainer.addEventListener('click', () => { if (representativeCharacter) displayHomeView(true); });
+eventBanner.addEventListener('click', () => {
+    showMessage(`[${EVENT_CHARACTER_NAME}] 확률 UP 이벤트 진행 중!`, 'text-blue-300', messageArea);
+    switchTab('gacha');
+});
 
-                if (lastCombatType === 'event') {
-                    switchTab('event');
-                    displayEventView();
-                    switchSubTab(document.getElementById('event-view'), eventSubTabBattle);
-                } else { // 'main'
-                    switchTab('combat');
-                }
-            });
-            closeCardDetailButton.addEventListener('click', hideCardDetails);
-            cardDetailModal.addEventListener('click', (e) => {
-                if (e.target === cardDetailModal) hideCardDetails();
-            });
+// ✨ 모달 닫기 버튼들
+closeCombatResultButton.addEventListener('click', () => {
+    combatResultModal.classList.add('hidden');
+    combatInProgressView.classList.add('hidden');
+    if (lastCombatType === 'event') {
+        switchTab('event');
+        displayEventView();
+        switchSubTab(document.getElementById('event-view'), eventSubTabBattle);
+    } else {
+        switchTab('combat');
+    }
+});
+closeCardDetailButton.addEventListener('click', hideCardDetails);
+cardDetailModal.addEventListener('click', (e) => { if (e.target === cardDetailModal) hideCardDetails(); });
 
-            storyView.addEventListener('click', (e) => {
-    // 1. 클릭된 요소 또는 가장 가까운 스토리 항목 요소를 찾습니다.
+// ✨ 스토리 뷰 (메인, 스테이지, 이벤트 스토리 목록)
+storyView.addEventListener('click', (e) => {
     const storyEl = e.target.closest('[data-story-index], [data-stage-id]');
     if (!storyEl) return;
-
     if (storyEl.dataset.storyType === 'main') {
-        // 메인 스토리 처리: 인덱스와 타입 'main' 전달
         startInteractiveStory(parseInt(storyEl.dataset.storyIndex), 'main');
-        
     } else if (storyEl.dataset.storyType === 'stage') {
-        // 스테이지 스토리 처리: stageId를 파싱하여 객체로 전달
         const stageId = storyEl.dataset.stageId;
         const [chapIdx, stgIdx] = stageId.split('-').map(s => parseInt(s) - 1);
         const stage = mainChapters[chapIdx]?.stages[stgIdx];
-
-        if (stage && stage.stageStory) {
-            // 스테이지 스토리 객체를 직접 전달
-            startInteractiveStory({ content: stage.stageStory });
-        } else {
-            alert('스테이지 스토리 데이터를 찾을 수 없습니다.');
-        }
-        
+        if (stage && stage.stageStory) startInteractiveStory({ content: stage.stageStory });
+        else alert('스테이지 스토리 데이터를 찾을 수 없습니다.');
     } else if (storyEl.dataset.storyType === 'event') {
-        // 이벤트 스토리 처리: 인덱스와 타입 'event' 전달
-        // data-story-index를 반드시 정수(숫자)로 변환하여 전달합니다.
         startInteractiveStory(parseInt(storyEl.dataset.storyIndex), 'event');
     }
 });
 
-            
-            eventShopContainer.addEventListener('click', (e) => {
-                const button = e.target.closest('button');
-                if (button && button.dataset.itemId) {
-                    purchaseEventItem(button.dataset.itemId);
-                }
-            });
+// ✨ 이벤트 상점
+eventShopContainer.addEventListener('click', (e) => {
+    const button = e.target.closest('button');
+    if (button && button.dataset.itemId) purchaseEventItem(button.dataset.itemId);
+});
 
-            // [추가] 새로운 대화형 스토리 모달의 버튼들을 연결합니다.
-			storyNextButton.addEventListener('click', advanceStory);
-			
-			interactiveStoryModal.addEventListener('click', handleStoryInteraction);
+// ✨ 대화형 스토리 모달 상호작용
+storyNextButton.addEventListener('click', advanceStory);
+interactiveStoryModal.addEventListener('click', handleStoryInteraction);
 document.getElementById('close-stats-modal').addEventListener('click', () => {
     document.getElementById('choice-stats-modal').classList.add('hidden');
 });
-			storySkipButton.addEventListener('click', closeInteractiveStory);
+storySkipButton.addEventListener('click', closeInteractiveStory);
 
-            detailStoryPrevButton.addEventListener('click', () => {
-                if (currentStoryPageIndex > 0) {
-                    currentStoryPageIndex--;
-                    displayCardStoryPage();
-                }
-            });
-            detailStoryNextButton.addEventListener('click', () => {
-                if (currentStoryPageIndex < currentStoryPages.length - 1) {
-                    currentStoryPageIndex++;
-                    displayCardStoryPage();
-                }
-            });
+// ✨ 카드 상세 스토리 페이지네이션
+detailStoryPrevButton.addEventListener('click', () => {
+    if (currentStoryPageIndex > 0) {
+        currentStoryPageIndex--;
+        displayCardStoryPage();
+    }
+});
+detailStoryNextButton.addEventListener('click', () => {
+    if (currentStoryPageIndex < currentStoryPages.length - 1) {
+        currentStoryPageIndex++;
+        displayCardStoryPage();
+    }
+});
 
+// ✨ 전투 속도 조절
+speed1xButton.addEventListener('click', () => setCombatSpeed(1));
+speed2xButton.addEventListener('click', () => setCombatSpeed(2));
+speed4xButton.addEventListener('click', () => setCombatSpeed(4));
 
-            speed1xButton.addEventListener('click', () => setCombatSpeed(1));
-            speed2xButton.addEventListener('click', () => setCombatSpeed(2));
-            speed4xButton.addEventListener('click', () => setCombatSpeed(4));
-
-            eventSubTabBattle.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabBattle));
-            eventSubTabStory.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabStory));
-            eventSubTabShop.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabShop));
-            
-            // --- 게임 시작 ---
-            loadGame();
-            startBookmarkRegenTimer();
-        });
+// ✨ 이벤트 뷰의 서브 탭
+eventSubTabBattle.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabBattle));
+eventSubTabStory.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabStory));
+eventSubTabShop.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabShop));
     </script>
 </body>
 </html>
