@@ -549,6 +549,8 @@ body.pointer-events-none {
 
     // DOM이 모두 로드된 후 게임 스크립트 실행
     document.addEventListener('DOMContentLoaded', () => {
+	const exitMultiModeButton = document.getElementById('exit-multi-mode');
+    const enterMultiModeButton = document.getElementById('enter-multi-mode');
 
         // --- 인증 상태 감지 리스너 (가장 중요한 부분) ---
         auth.onAuthStateChanged(user => {
@@ -731,8 +733,7 @@ const STAT_INCREASE_PER_LEVEL = 0.05; // 레벨당 기본 능력치의 5% 증가
 
             // --- HTML 요소 가져오기 ---
 			const dismantleMultiUI = document.getElementById('dismantle-multi-ui');
-const enterMultiModeButton = document.getElementById('enter-multi-mode');
-const exitMultiModeButton = document.getElementById('exit-multi-mode');
+
 const selectedCardCountSpan = document.getElementById('selected-card-count');
 const dismantleSelectedButton = document.getElementById('dismantle-selected-button');
 			const fountainPenDisplay = document.getElementById('fountainpen-display');
