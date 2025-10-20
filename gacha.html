@@ -3036,10 +3036,37 @@ document.getElementById('event-story-sub-tab-part2').addEventListener('click', (
 
 // ✨ 기존 이벤트 스토리 목록 클릭
 document.getElementById('event-view').addEventListener('click', (e) => {
-    const storyButton = e.target.closest('[data-story-type="event"]');
-    if (storyButton && storyButton.dataset.storyIndex) {
-        const storyIndex = parseInt(storyButton.dataset.storyIndex, 10);
+    const storyEl = e.target.closest('[data-story-type]');
+    if (!storyEl) return;
+
+    const storyType = storyEl.dataset.storyType;
+    const storyIndex = parseInt(storyEl.dataset.storyIndex, 10);
+
+    if (storyType === 'event') {
+        // --- 전반부 스토리 클릭 ---
         startInteractiveStory(storyIndex, 'event');
+
+    } else if (storyType === 'event_part2') {
+        // --- 후반부 스토리 클릭 ---
+        const storyData = eventStoryPart2.secondHalf[storyIndex];
+
+        // 만약 분기 스토리라면 (후반부 첫 번째 이야기)
+        if (storyData.isBranching) {
+            const userChoice = playerChoices['event_part2_final_choice'];
+            if (userChoice && storyData.branches[userChoice]) {
+                startInteractiveStory({ content: storyData.branches[userChoice] });
+            } else {
+                // 혹시 선택지가 기록 안된 경우, 기본 스토리로 시작
+                startInteractiveStory({ content: storyData.branches['결정적인 지문을 믿는다.'] });
+            }
+        } else {
+            // 일반적인 후반부 스토리
+            startInteractiveStory(storyIndex, 'event_part2');
+        }
+
+        // 후반부 스토리를 봤다는 기록을 남김 (중요!)
+        playerChoices[`event_part2_story_${storyIndex}`] = true;
+        saveGame();
     }
 });
 
