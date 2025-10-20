@@ -2848,6 +2848,32 @@ function dismantleMultipleCards() {
                     displayInventory();
                 }
             }
+
+		function handleStoryInteraction(e) {
+    const choiceButton = e.target.closest('button');
+    if (!choiceButton) return;
+
+    // 분기 처리: 유저가 일반 선택지를 골랐을 때
+    if (choiceButton.dataset.nextScene) {
+        // 유저의 선택(버튼 텍스트)을 currentEventChoice 변수에 저장합니다.
+        currentEventChoice = choiceButton.textContent;
+        
+        currentSceneIndex = parseInt(choiceButton.dataset.nextScene);
+        renderCurrentScene();
+    } 
+    // 통계 처리: '전반부 스토리 완료' 버튼을 눌렀을 때
+    else if (choiceButton.dataset.isFinalChoice === 'true') {
+        closeInteractiveStory();
+        
+        // 버튼 텍스트 대신, 이전에 저장해둔 currentEventChoice 값으로 투표를 기록합니다.
+        if (currentEventChoice) {
+            recordAndShowStats(choiceButton.dataset.statId, currentEventChoice);
+        } else {
+            // 혹시 모를 오류 방지
+            console.error("오류: 유저의 선택이 기록되지 않았습니다.");
+        }
+    }
+}
 			
             // --- 이벤트 리스너 ---
 
@@ -3088,6 +3114,7 @@ startBookmarkRegenTimer();
    </script>
 </body>
 </html>
+
 
 
 
