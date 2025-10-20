@@ -419,7 +419,104 @@ const eventStoryPart2 = {
         }
     ],
     // --- 후반부 스토리 ---
-    secondHalf: [ /* ... 후반부 스토리는 나중에 이 곳에 추가합니다 ... */ ]
+    secondHalf: [
+        // === 1부 (기존 에피소드) ===
+        {
+            title: '분기점: 선택의 무게',
+            isBranching: true, 
+            branches: {
+                '결정적인 지문을 믿는다.': [
+                    { character: '도천영', expression: 'serious', position: 'right', dialogue: '지문 분석 결과가 나왔습니다. 하지만... 이상합니다. 지문이 너무 완벽해요.' },
+                    { character: '서도진', expression: 'surprised', position: 'left', dialogue: '너무 완벽하다고? 그게 무슨 소리지?' },
+                    { character: null, dialogue: '분석 결과, 지문은 실제 사람의 것이 아닌, 극도로 정교하게 제작된 \'인공 피부\'에서 찍힌 것으로 밝혀졌다. 범인은 우리를 완벽한 가짜 증거로 유인한 것이다.' }
+                ],
+                '다잉 메시지를 믿는다.': [
+                    { character: '박연우', expression: 'neutral', position: 'left', dialogue: '다잉 메시지를 재해독해 봤어요. 이건 사람 이름이 아니라... 분자 구조식의 일부였어요.' },
+                    { character: '서도진', expression: 'serious', position: 'right', dialogue: '분자 구조식이라고? 피해자는 죽기 직전, 범인의 이름이 아닌 \'그것\'의 정체를 알리려 했던 건가.' },
+                    { character: null, dialogue: '피해자가 남긴 마지막 메시지는 범인의 정체가 아닌, 사건의 핵심에 있는 미지의 물질을 가리키고 있었다.' }
+                ]
+            }
+        },
+        {
+            title: '진실의 성분: D-컴포넌트',
+            content: [
+                { character: '윤서천', expression: 'serious', position: 'right', dialogue: '당신들이 쫓는 건, 제가 과거에 \'D-컴포넌트\'라 이름 붙였던 물질입니다.' },
+                { character: '서도진', expression: 'neutral', position: 'left', dialogue: 'D-컴포넌트... 그게 대체 뭐지?' },
+                { character: '윤서천', expression: 'serious', position: 'right', dialogue: '단순한 독극물이 아닙니다. 인간의 뇌에 작용해... 현실과 허구의 경계를 무너뜨리는 환각제죠.' },
+                { character: null, dialogue: '피해자는 살해당한 것이 아니었다. D-컴포넌트에 중독되어, 스스로가 비극 소설의 주인공이 된 것처럼 행동하다 죽음에 이른 것이다.' }
+            ]
+        },
+        {
+            title: '실험 기록: K-사이드 프로젝트',
+            content: [
+                { character: '강은율', expression: 'neutral', position: 'left', dialogue: '해킹한 자료에서 암호화된 파일을 발견했습니다. 프로젝트 명은... K-side.' },
+                { character: null, dialogue: '파일에는 수많은 실험 기록이 담겨 있었다. 다양한 직업, 나이, 성별의 사람들이 \'피실험체\'가 되어 D-컴포넌트에 노출되었고, 그들의 반응이 상세히 기록되어 있었다.' },
+                { character: '도천영', expression: 'serious', position: 'right', dialogue: '이건... 단순 살인 사건이 아니었군요. 한 도시를 무대로 벌어지는 거대한 임상 실험입니다.' }
+            ]
+        },
+        {
+            title: '함정: 일그러진 서재',
+            content: [
+                { character: null, dialogue: '모든 단서는 도시 외곽의 낡은 도서관을 가리켰다. 하지만 그곳은 범인이 파놓은 함정이었다.' },
+                { character: '???', expression: 'neutral', position: 'right', dialogue: '어서 오세요, 나의 탐정님들. 여러분의 이야기는 잘 감상하고 있답니다.' },
+                { character: '서도진', expression: 'angry', position: 'left', dialogue: '누구냐! 정체를 밝혀!' },
+                { character: null, dialogue: '스피커에서 웃음소리가 터져 나온 뒤, 환기구에서 기체가 뿜어져 나오기 시작했다. D-컴포넌트였다. 책장의 책들이 녹아내리고, 글자들이 쏟아져 바닥을 기어 다녔다.' }
+            ]
+        },
+        {
+            title: '대면: 가면 속의 얼굴',
+            content: [
+                { character: null, dialogue: '환각 속에서, 탐정 일행은 마침내 프로젝트의 책임자, \'실장\'이라 불리는 인물과 마주한다.' },
+                { character: '실장', expression: 'neutral', position: 'left', dialogue: '당신들은 아주 훌륭한 \'등장인물\'이었어요. 당신들 덕분에 D-컴포넌트의 효능을 확실히 검증할 수 있었죠.' },
+                { character: '서도진', expression: 'serious', position: 'right', dialogue: '...이 모든 게, 그저 너의 유희를 위해서였단 말인가!' },
+                { character: '실장', expression: 'neutral', position: 'left', dialogue: '유희? 아니요. 이건 인류를 다음 단계로 진화시키기 위한 숭고한 \'집필\'입니다. 자, 이제 1부의 막을 내릴 시간이에요.' }
+            ]
+        },
+        // === 2부 (새로 추가된 에피소드) ===
+        {
+            title: '탈출: 각자의 무기',
+            content: [
+                { character: '서도진', expression: 'serious', position: 'left', dialogue: '젠장, 정신 똑바로 차려! 이건 전부 환각이야!' },
+                { character: '백정문', expression: 'neutral', position: 'right', dialogue: '모든 환각에도 \'에너지\'가 있습니다. 이 기체의 가장 약한 지점은... 저쪽 통풍구입니다!' },
+                { character: '한 현', expression: 'serious', position: 'left', dialogue: '길을 열죠. 뒤는 맡기겠습니다.' },
+                { character: null, dialogue: '각자의 특기를 살려, 탐정 일행은 간신히 환각의 도서관에서 탈출하는 데 성공한다. 하지만 \'실장\'이 남긴 작은 카드 한 장이 그들을 기다리고 있었다.' }
+            ]
+        },
+        {
+            title: '남겨진 카드: 새로운 수수께끼',
+            content: [
+                { character: '도천영', expression: 'neutral', position: 'right', dialogue: '카드에 적힌 건 의미 불명의 기호뿐입니다. 하지만 이 로고... 제약회사 \'NEXUS\'의 초기 로고와 일치합니다.' },
+                { character: '윤필규', expression: 'surprised', position: 'left', dialogue: '넥서스 제약? 평판이 아주 좋은 클린 기업인데요?' },
+                { character: null, dialogue: '가장 깨끗한 얼굴 뒤에 가장 추악한 진실이 숨어있는 법. K-사이드 프로젝트의 자금 출처와 배후가 서서히 드러나기 시작했다.' }
+            ]
+        },
+        {
+            title: '위장 잠입: 적의 심장부로',
+            content: [
+                { character: '강은율', expression: 'serious', position: 'left', dialogue: '넥서스 제약의 내부망에 침투했습니다. 오늘 밤, D-컴포넌트의 \'개량 샘플\'을 운송할 계획입니다. 잠입할 기회는 지금뿐입니다.' },
+                { character: '양석민', expression: 'neutral', position: 'right', dialogue: '가장 빠른 경로를 설계했습니다. 하지만 경비가 삼엄하니, 들키면 끝장입니다.' },
+                { character: null, dialogue: '탐정 일행은 연구원으로 위장해 넥서스 제약의 최심부, 격리된 연구 구역으로 향한다. 한 걸음 한 걸음이 살얼음판 위를 걷는 것 같았다.' }
+            ]
+        },
+        {
+            title: '프로젝트의 진실: 완벽한 이야기',
+            content: [
+                { character: null, dialogue: '연구 구역의 중앙 서버실. 그곳에서 K-사이드 프로젝트의 최종 목표가 드러났다.' },
+                { character: '서도진', expression: 'surprised', position: 'left', dialogue: '이건... 시나리오? \'최종장: 도시 정화\'라고 적혀있어.' },
+                { character: '도천영', expression: 'serious', position: 'right', dialogue: 'D-컴포넌트를 도시 전체에 살포하여, \'실장\'이 설계한 특정 시나리오대로 모든 시민이 행동하게 만들려는 계획입니다. 이건... 집단 세뇌입니다.' },
+                { character: null, dialogue: '그들이 막으려 했던 것은 연쇄 살인 사건이 아니었다. 한 도시의 현실을 통째로 뒤바꾸려는 거대한 음모였다.' }
+            ]
+        },
+        {
+            title: '최종장: 그리고, 이야기는 계속된다',
+            content: [
+                { character: '실장', expression: 'neutral', position: 'right', dialogue: '(모니터를 통해) 축하드립니다, 탐정님들. 드디어 이야기의 핵심에 도달하셨군요.' },
+                { character: '서도진', expression: 'angry', position: 'left', dialogue: '당장 멈춰!' },
+                { character: '실장', expression: 'neutral', position: 'right', dialogue: '멈추다니요? 이제 막 2부의 클라이맥스가 시작되었는걸요. 여러분의 활약 덕분에, 다음 이야기는 훨씬 더 재미있어질 겁니다.' },
+                { character: null, dialogue: '경보가 울리고 연구실의 문이 폐쇄된다. 모니터 속 \'실장\'은 미소 띤 얼굴로 손을 흔들었다. 그의 마지막 말은, 새로운 시작을 알리는 예고편과도 같았다.' }
+            ]
+        }
+    ]
 };
 
             const eventShopItems = [
