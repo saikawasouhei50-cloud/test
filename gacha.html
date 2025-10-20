@@ -2695,34 +2695,33 @@ function startInteractiveStory(storyOrIndex, type) {
 }
 
 function advanceStory() {
-    const currentScene = currentInteractiveStory.content[currentSceneIndex];
+    // 1. 현재 장면 데이터를 먼저 가져옵니다.
+    const currentScene = currentInteractiveStory.content[currentSceneIndex]; 
 
-    // ✨ 점프 로직 추가 ✨
-    // 현재 장면에 jumpTo 속성이 있는지 확인합니다.
+    // 2. 'jumpTo' 속성이 있는지 확인합니다.
     if (currentScene && currentScene.jumpTo !== undefined) {
-        // jumpTo에 지정된 번호로 바로 점프합니다.
+        // 'jumpTo'가 있으면: 인덱스를 지정된 번호로 점프
         currentSceneIndex = currentScene.jumpTo;
     } else {
-                // ✨ 수정: 콜백을 먼저 읽어온 후, 스토리를 닫습니다.
-                const callback = interactiveStoryModal.dataset.callback; // 1. 콜백을 먼저 읽습니다.
-                
-                closeInteractiveStory(); // 2. 스토리를 닫습니다.
-                
-                if (callback) {
-                    eval(callback); // 3. 콜백을 실행합니다.
-                    interactiveStoryModal.dataset.callback = ''; // 4. 여기서 콜백을 비웁니다.
-                }
-            }
+        // 'jumpTo'가 없으면: 평소처럼 인덱스를 1 증가
+        currentSceneIndex++;
+    }
 
+    // 3. 증가/점프된 인덱스가 스토리의 끝을 넘었는지 확인합니다.
     if (currentSceneIndex < currentInteractiveStory.content.length) {
+        // 4. 스토리가 끝나지 않았으면: 다음 장면을 렌더링
         renderCurrentScene();
     } else {
-        closeInteractiveStory();
-        // 스토리 완료 후 콜백 처리 (기존 로직 유지)
-        const callback = interactiveStoryModal.dataset.callback;
+        // 5. 스토리가 끝났으면:
+        // (가장 중요!) 스토리를 닫기 *전에* 콜백(전투 시작 명령)을 읽어옵니다.
+        const callback = interactiveStoryModal.dataset.callback; 
+        
+        closeInteractiveStory(); // 스토리를 닫습니다. (이때 currentInteractiveStory가 null이 됩니다)
+        
+        // 읽어둔 콜백이 있으면 실행합니다.
         if (callback) {
             eval(callback);
-            interactiveStoryModal.dataset.callback = '';
+            interactiveStoryModal.dataset.callback = ''; // 콜백 비우기
         }
     }
 }
