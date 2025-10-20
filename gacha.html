@@ -124,6 +124,11 @@ body.pointer-events-none {
     background-color: #4299e1; /* 파란색 */
     color: white;
 }
+
+.filter-button.active {
+    background-color: #4299e1; /* 파란색 */
+    color: white;
+}
         /* 뽑기 탭 버튼 스타일 */
         .sub-tab-button { transition: all 0.2s ease-in-out; }
         .sub-tab-button.active { background-color: rgba(246, 224, 94, 0.8); color: #330867; }
@@ -286,11 +291,13 @@ body.pointer-events-none {
         </div>
 
 
-		<div id="dismantle-multi-ui" class="mt-4 p-4 rounded-xl bg-gray-800/50 hidden">
-    <div class="flex justify-between items-center mb-3">
-        <p class="text-lg font-bold text-yellow-300">다중 파쇄 모드</p>
-        <button id="exit-multi-mode" class="gacha-button bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-full text-sm">모드 종료</button>
+		<div class="flex justify-between items-center">
+    <div class="flex items-center gap-4">
+        <p class="text-sm text-gray-300">선택된 카드: <span id="selected-card-count" class="font-bold text-white">0장</span></p>
+        <button id="select-all-filtered-button" class="gacha-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-full text-sm">필터된 원고 전체 선택</button>
     </div>
+    <button id="dismantle-selected-button" class="gacha-button bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded-full shadow-lg text-sm" disabled>선택된 원고 파쇄</button>
+</div>
     <div class="flex justify-between items-center">
         <p class="text-sm text-gray-300">선택된 카드: <span id="selected-card-count" class="font-bold text-white">0장</span></p>
         <button id="dismantle-selected-button" class="gacha-button bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded-full shadow-lg text-sm" disabled>선택된 원고 파쇄</button>
@@ -300,11 +307,12 @@ body.pointer-events-none {
     <button id="enter-multi-mode" class="gacha-button bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-lg">다중 파쇄 모드 진입</button>
 </div>
 		 
-        <div id="inventory-sort-buttons" class="mt-4 flex justify-center gap-2">
-    <button data-sort="rarity" class="gacha-button sort-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">등급순<span class="sort-indicator"></span></button>
-    <button data-sort="level" class="gacha-button sort-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">퇴고순<span class="sort-indicator"></span></button>
-    <button data-sort="revision" class="gacha-button sort-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">개정순<span class="sort-indicator"></span></button>
-    <button data-sort="name" class="gacha-button sort-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">캐릭터순<span class="sort-indicator"></span></button>
+        <div id="inventory-filter-buttons" class="mt-2 flex justify-center gap-2">
+    <button data-filter="All" class="gacha-button filter-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">전체</button>
+    <button data-filter="N" class="gacha-button filter-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">N</button>
+    <button data-filter="R" class="gacha-button filter-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">R</button>
+    <button data-filter="SR" class="gacha-button filter-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">SR</button>
+    <button data-filter="SSR" class="gacha-button filter-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">SSR</button>
 </div>
     </div>
     <div id="inventory-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 min-h-[400px] max-h-[60vh] overflow-y-auto bg-black/20 p-4 rounded-xl"></div>
@@ -711,6 +719,7 @@ const STAT_INCREASE_PER_LEVEL = 0.05; // 레벨당 기본 능력치의 5% 증가
 			let currentInteractiveStory = null; // 이 줄 추가
 			let currentSceneIndex = 0; // 이 줄 추가
 			let currentSortOrder = 'rarity';
+			let currentRarityFilter = 'All'; // 👈 이 줄을 추가하세요.
 			let clearedStageStories = []; 
 
             const DECK_CAPACITY = 5;
@@ -1539,22 +1548,31 @@ function addCardToInventory(cardName) {
     inventoryStatus.textContent = `${playerInventory.length} / ${inventoryCapacity}`;
     inventoryContainer.innerHTML = '';
 
-    if (playerInventory.length === 0) {
-        inventoryContainer.innerHTML = `<p class="col-span-full text-center text-gray-400 mt-10">아직 수집한 동료가 없습니다.</p>`;
-        // 다중 선택 모드일 때 카드가 없으면 UI를 업데이트합니다.
+    // --- 🔽 1. 필터링 로직 (새로 추가) 🔽 ---
+    const filteredInventory = playerInventory.filter(cardInstance => {
+        if (currentRarityFilter === 'All') return true;
+        const character = findCharacter(cardInstance.name);
+        return character && character.rarity === currentRarityFilter;
+    });
+    // --- 🔼 필터링 로직 끝 🔼 ---
+
+    if (filteredInventory.length === 0) {
+        const emptyMessage = currentRarityFilter === 'All' 
+            ? '아직 수집한 등장인물이 없습니다.' 
+            : `해당 등급의 등장인물이 없습니다.`;
+        inventoryContainer.innerHTML = `<p class="col-span-full text-center text-gray-400 mt-10">${emptyMessage}</p>`;
         if (isMultiSelectMode) {
             updateMultiSelectUI();
         }
         return;
     }
 
-    // 정렬 로직 시작 (기존 정렬 로직 유지)
+    // --- 2. 정렬 로직 (filteredInventory를 사용하도록 수정) ---
     const rarityOrder = { 'SSR': 4, 'SR': 3, 'R': 2, 'N': 1 };
-    const sortedInventory = [...playerInventory].sort((a, b) => {
+    const sortedInventory = [...filteredInventory].sort((a, b) => { // 👈 filteredInventory 사용
         const charA = findCharacter(a.name);
         const charB = findCharacter(b.name);
         let comparison = 0;
-
         switch (currentSortOrder) {
             case 'level':
                 comparison = b.level - a.level || rarityOrder[charB.rarity] - rarityOrder[charA.rarity];
@@ -1572,58 +1590,52 @@ function addCardToInventory(cardName) {
         }
         return isSortAscending ? comparison * -1 : comparison;
     });
-    // 정렬 로직 끝
 
-    // 정렬된 목록을 기준으로 화면에 표시합니다.
-    sortedInventory.forEach((cardInstance, index) => {
+    // --- 3. 화면 표시 로직 (기존과 거의 동일) ---
+    sortedInventory.forEach((cardInstance, index) => { // 👈 sortedInventory 사용
         const character = findCharacter(cardInstance.name);
         if (character) {
-            // mode: 'inventory'는 인벤토리 뷰에서 일반적인 상태를 나타냅니다.
             const cardElement = createCard(character, { animationIndex: index, mode: 'inventory', instance: cardInstance });
-            
-            // ✨ 다중 선택 모드 UI 처리 시작 ✨
             if (isMultiSelectMode) {
-                cardElement.classList.add('multi-select-card'); // CSS로 경계선 추가를 위한 클래스
-                
-                // 덱에 포함된 카드는 선택 불가
+                cardElement.classList.add('multi-select-card');
                 const isInDeck = playerDeck.some(deckCard => deckCard.id === cardInstance.id);
                 if (isInDeck) {
-                    // 비활성화 UI
                     cardElement.classList.add('opacity-40', 'cursor-not-allowed', 'bg-red-900/30');
                     cardElement.title = "덱에 포함되어 파쇄 불가";
                 } else {
                     cardElement.classList.add('cursor-pointer');
                 }
-                
-                // 선택된 카드에 하이라이트 표시
                 if (selectedCardsToDismantle.has(cardInstance.id)) {
                     cardElement.classList.remove('bg-black/20');
-                    cardElement.classList.add('border-4', 'border-yellow-400', 'bg-blue-900/50'); // 선택 하이라이트
+                    cardElement.classList.add('border-4', 'border-yellow-400', 'bg-blue-900/50');
                 } else if (!isInDeck) {
-                    cardElement.classList.add('border', 'border-gray-500', 'bg-black/20'); // 미선택 테두리
+                    cardElement.classList.add('border', 'border-gray-500', 'bg-black/20');
                 }
-                
-                // 상세 정보 버튼은 숨깁니다. (대표 설정 버튼)
                 cardElement.querySelector('[data-action="set-representative"]').classList.add('hidden');
             }
-            // ✨ 다중 선택 모드 UI 처리 끝 ✨
-
             inventoryContainer.appendChild(cardElement);
         }
     });
 
-    // ✨ 정렬 UI 업데이트 로직 (기존 정렬 로직 유지) ✨
+    // --- 4. 버튼 UI 업데이트 ---
     document.querySelectorAll('.sort-button').forEach(btn => {
         btn.classList.remove('active', 'bg-blue-500');
         btn.querySelector('.sort-indicator').textContent = '';
     });
-    const activeButton = document.querySelector(`.sort-button[data-sort="${currentSortOrder}"]`);
-    if (activeButton) {
-        activeButton.classList.add('active', 'bg-blue-500');
-        activeButton.querySelector('.sort-indicator').textContent = isSortAscending ? ' ▲' : ' ▼';
+    const activeSortButton = document.querySelector(`.sort-button[data-sort="${currentSortOrder}"]`);
+    if (activeSortButton) {
+        activeSortButton.classList.add('active', 'bg-blue-500');
+        activeSortButton.querySelector('.sort-indicator').textContent = isSortAscending ? ' ▲' : ' ▼';
     }
+
+    // 필터 버튼 UI 업데이트 (새로 추가)
+    document.querySelectorAll('.filter-button').forEach(btn => {
+        btn.classList.remove('active', 'bg-blue-500');
+        if (btn.dataset.filter === currentRarityFilter) {
+            btn.classList.add('active', 'bg-blue-500');
+        }
+    });
     
-    // 다중 선택 모드일 때만 상태 UI 업데이트
     if (isMultiSelectMode) {
         updateMultiSelectUI();
     }
@@ -3087,6 +3099,36 @@ closeDismantleResultButton.addEventListener('click', () => {
         dismantleResultModal.dataset.finalMessage = '';
     }
     exitMultiSelectMode();
+});
+
+// 필터 버튼 클릭
+document.getElementById('inventory-filter-buttons').addEventListener('click', (e) => {
+    const button = e.target.closest('.filter-button');
+    if (button && button.dataset.filter) {
+        currentRarityFilter = button.dataset.filter;
+        displayInventory();
+    }
+});
+
+// 필터된 원고 전체 선택 버튼 클릭
+document.getElementById('select-all-filtered-button').addEventListener('click', () => {
+    // 현재 화면에 보이는 카드들만 선택 대상으로 합니다.
+    const currentlyVisibleCards = playerInventory.filter(cardInstance => {
+        if (currentRarityFilter === 'All') return true;
+        const character = findCharacter(cardInstance.name);
+        return character && character.rarity === currentRarityFilter;
+    });
+
+    // 덱에 포함되지 않은 카드만 선택 목록에 추가합니다.
+    currentlyVisibleCards.forEach(cardInstance => {
+        const isInDeck = playerDeck.some(deckCard => deckCard.id === cardInstance.id);
+        if (!isInDeck) {
+            selectedCardsToDismantle.add(cardInstance.id);
+        }
+    });
+
+    // 선택 상태를 화면에 즉시 반영합니다.
+    displayInventory();
 });
 
 // ✨ 카드 상세 모달에서 단일 파쇄
