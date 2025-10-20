@@ -228,9 +228,15 @@ body.pointer-events-none {
                     <div id="event-dungeon-list-container" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
                 </div>
                 <div id="event-story-view" class="hidden">
-                    <p class="text-center text-gray-200 mb-4">이벤트 스테이지를 클리어하고 스토리를 해금하세요.</p>
-                    <div id="event-story-container" class="space-y-3 max-h-[60vh] overflow-y-auto bg-black/20 p-4 rounded-xl"></div>
-                </div>
+    <p class="text-center text-gray-200 mb-4">이벤트 스테이지를 클리어하고 스토리를 해금하세요.</p>
+    
+    <button id="start-event-part2-button" class="gacha-button w-full mb-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg">
+        [NEW] 전반부 스토리 시작하기
+    </button>
+
+    <div id="event-story-container" class="space-y-3 max-h-[60vh] overflow-y-auto bg-black/20 p-4 rounded-xl">
+        </div>
+</div>
                 <div id="event-shop-view" class="hidden">
                     <p class="text-center text-gray-200 mb-4">획득한 이벤트 포인트로 특별한 보상을 교환하세요!</p>
                     <div id="event-shop-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -2762,6 +2768,10 @@ function dismantleMultipleCards() {
             }
 			
             // --- 이벤트 리스너 ---
+			document.getElementById('start-event-part2-button').addEventListener('click', () => {
+    // startInteractiveStory 함수에 새로운 스토리 데이터(eventStoryPart2.firstHalf)를 직접 전달합니다.
+    startInteractiveStory({ content: eventStoryPart2.firstHalf });
+});
 			
 			
 			// gacha3.html의 <script> 태그 안
