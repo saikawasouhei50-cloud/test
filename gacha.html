@@ -1219,7 +1219,7 @@ function displayCollection() {
 			
             function displayEventView() {
                 displayEventBattleView();
-                displayEventStoryView();
+                displayEventStories(); // 👈 'displayEventStoryView'를 'displayEventStories'로 변경!
                 displayEventShopView();
                 switchSubTab(document.getElementById('event-view'), eventSubTabBattle);
             }
