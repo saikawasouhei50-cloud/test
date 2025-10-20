@@ -480,22 +480,24 @@ body.pointer-events-none {
                 </div>
                 
                 <div id="dialogue-box" class="relative bg-black/70 backdrop-blur-sm m-4 p-5 rounded-xl border border-white/20 text-white z-10">
-    <h3 id="speaker-name" class="font-bold text-2xl text-yellow-300 mb-2"></h3>
-    <p id="dialogue-text" class="text-lg leading-relaxed h-24"></p>
-    
-    <div id="choice-buttons-container" class="mt-4 flex flex-col items-center gap-2"></div>
-
-    <button id="story-next-button" class="absolute bottom-4 right-5 text-xl animate-pulse">▼ 다음</button>
-</div>
-
-		<div id="choice-stats-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div class="bg-gray-800 p-8 rounded-lg max-w-md w-full text-center">
-                <h2 class="text-2xl font-bold text-yellow-300 mb-6">다른 탐정들의 선택</h2>
-                <div id="stats-container" class="space-y-4">
-                    </div>
-                <button id="close-stats-modal" class="gacha-button mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full">확인</button>
+                    <h3 id="speaker-name" class="font-bold text-2xl text-yellow-300 mb-2"></h3>
+                    <p id="dialogue-text" class="text-lg leading-relaxed h-24"></p>
+                    <div id="choice-buttons-container" class="mt-4 flex flex-col items-center gap-2"></div>
+                    <button id="story-next-button" class="absolute bottom-4 right-5 text-xl animate-pulse">▼ 다음</button>
+                </div>
+                <button id="story-skip-button" class="absolute top-5 right-5 bg-black/50 text-white py-2 px-4 rounded-full z-20">스킵</button>
             </div>
-        </div>
+
+            <div id="choice-stats-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+                <div class="bg-gray-800 p-8 rounded-lg max-w-md w-full text-center">
+                    <h2 class="text-2xl font-bold text-yellow-300 mb-6">다른 탐정들의 선택</h2>
+                    <div id="stats-container" class="space-y-4">
+                        </div>
+                    <button id="close-stats-modal" class="gacha-button mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full">확인</button>
+                </div>
+            </div>
+
+        </main>
 
 
         </main>
