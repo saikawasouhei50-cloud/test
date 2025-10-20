@@ -324,58 +324,57 @@
 const eventStoryPart2 = {
     // --- 전반부 스토리 ---
     firstHalf: [
+        // 장면 0
         {
             character: '서도진', expression: 'serious', position: 'left',
             dialogue: '사건 현장에서 두 개의 결정적인 증거가 나왔어. 하나는 피해자의 다잉 메시지, 다른 하나는... 용의자의 지문이 묻은 찻잔이야.'
         },
+        // 장면 1
         {
             character: '도천영', expression: 'neutral', position: 'right',
             dialogue: '데이터는 거짓말을 하지 않죠. 하지만 다잉 메시지는 해석의 여지가 있고, 지문은 조작될 수 있습니다.'
         },
+        // 장면 2
         {
             character: null,
             dialogue: '두 개의 상반된 단서. 어떤 것을 더 신뢰해야 할까?'
         },
+        // 장면 3 (선택지)
         {
             character: '서도진', expression: 'neutral', position: 'left',
             dialogue: '이제 선택해야 해. 어떤 증거를 중심으로 수사를 진행할지...',
-            // ✨ 선택지 추가: choices 배열을 추가합니다.
             choices: [
-                // text: 유저에게 보여줄 선택지 텍스트
-                // nextScene: 이 선택지를 골랐을 때 이동할 장면의 인덱스(순서)
                 { text: '다잉 메시지를 믿는다.', nextScene: 4 },
                 { text: '결정적인 지문을 믿는다.', nextScene: 5 }
             ]
         },
-        // 분기 1: 다잉 메시지를 선택한 경우 (인덱스 4)
+        // 장면 4 (분기 1: 다잉 메시지)
         {
             character: null,
-            dialogue: '당신은 피해자가 마지막 힘을 다해 남긴 메시지에 더 무게를 두기로 했다.'
+            dialogue: '당신은 피해자가 마지막 힘을 다해 남긴 메시지에 더 무게를 두기로 했다.',
+            jumpTo: 6 // ✅ 이 장면이 끝나면 6번 장면으로 점프하라고 알려줍니다.
         },
-        // 분기 2: 지문을 선택한 경우 (인덱스 5)
+        // 장면 5 (분기 2: 지문)
         {
             character: null,
-            dialogue: '당신은 과학적이고 물리적인 증거인 지문을 더 신뢰하기로 했다.'
+            dialogue: '당신은 과학적이고 물리적인 증거인 지문을 더 신뢰하기로 했다.',
+            jumpTo: 6 // ✅ 이 장면이 끝나면 6번 장면으로 점프하라고 알려줍니다.
         },
-        // ✨ 전반부 마지막 장면 (공통)
+        // 장면 6 (공통 장면)
         {
             character: '서도진', expression: 'serious', position: 'left',
             dialogue: '좋아, 그 방향으로 수사를 진행하지. 우리의 선택이 어떤 결과로 이어질지는... 아직 아무도 몰라.',
-            // ✨ 마지막 선택지: 통계 집계를 위한 특별한 선택지를 추가합니다.
             choices: [
                 {
                     text: '전반부 스토리 완료',
-                    statId: 'event_part2_final_choice', // 통계를 식별할 고유 ID
-                    isFinalChoice: true // 집계 시스템을 호출할 스위치
+                    statId: 'event_part2_final_choice',
+                    isFinalChoice: true
                 }
             ]
         }
     ],
-
-    // --- 후반부 스토리 (나중에 추가할 공간) ---
-    secondHalf: [
-        // ... 후반부 스토리는 나중에 이 곳에 추가합니다 ...
-    ]
+    // --- 후반부 스토리 ---
+    secondHalf: [ /* ... 후반부 스토리는 나중에 이 곳에 추가합니다 ... */ ]
 };
 
             const eventShopItems = [
