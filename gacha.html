@@ -2979,6 +2979,12 @@ function dismantleMultipleCards() {
     else if (choiceButton && choiceButton.dataset.isFinalChoice === 'true') {
         closeInteractiveStory();
         if (currentEventChoice) {
+            // ✅ 1. 유저의 선택을 playerChoices 객체에 기록합니다.
+            playerChoices[choiceButton.dataset.statId] = currentEventChoice;
+            
+            // ✅ 2. 변경된 playerChoices를 저장합니다.
+            saveGame();
+
             recordAndShowStats(choiceButton.dataset.statId, currentEventChoice);
         } else {
             console.error("오류: 유저의 선택이 기록되지 않았습니다.");
