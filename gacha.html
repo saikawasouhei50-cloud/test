@@ -3018,13 +3018,14 @@ document.getElementById('event-story-sub-tab-part1').addEventListener('click', (
     document.getElementById('event-story-part2-container').classList.add('hidden');
     document.getElementById('event-story-sub-tab-part1').classList.add('active');
     document.getElementById('event-story-sub-tab-part2').classList.remove('active');
-	displayEventStoryPart2(); // 👈 이 줄을 추가하세요.
+	
 });
 document.getElementById('event-story-sub-tab-part2').addEventListener('click', () => {
     document.getElementById('event-story-part1-container').classList.add('hidden');
     document.getElementById('event-story-part2-container').classList.remove('hidden');
     document.getElementById('event-story-sub-tab-part1').classList.remove('active');
     document.getElementById('event-story-sub-tab-part2').classList.add('active');
+	displayEventStoryPart2(); // 👈 이 줄을 추가하세요.
 });
 
 // ✨ 기존 이벤트 스토리 목록 클릭
