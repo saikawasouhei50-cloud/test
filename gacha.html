@@ -1556,13 +1556,12 @@ function addCardToInventory(cardName) {
     inventoryStatus.textContent = `${playerInventory.length} / ${inventoryCapacity}`;
     inventoryContainer.innerHTML = '';
 
-    // --- 🔽 1. 필터링 로직 (새로 추가) 🔽 ---
+    // --- 1. 필터링 로직 ---
     const filteredInventory = playerInventory.filter(cardInstance => {
         if (currentRarityFilter === 'All') return true;
         const character = findCharacter(cardInstance.name);
         return character && character.rarity === currentRarityFilter;
     });
-    // --- 🔼 필터링 로직 끝 🔼 ---
 
     if (filteredInventory.length === 0) {
         const emptyMessage = currentRarityFilter === 'All' 
@@ -1575,32 +1574,37 @@ function addCardToInventory(cardName) {
         return;
     }
 
-    // --- 2. 정렬 로직 (filteredInventory를 사용하도록 수정) ---
+    // --- 2. 🔽 정렬 로직 (핵심 수정 부분) 🔽 ---
     const rarityOrder = { 'SSR': 4, 'SR': 3, 'R': 2, 'N': 1 };
-    const sortedInventory = [...filteredInventory].sort((a, b) => { // 👈 filteredInventory 사용
+    const sortedInventory = [...filteredInventory].sort((a, b) => {
         const charA = findCharacter(a.name);
         const charB = findCharacter(b.name);
         let comparison = 0;
         switch (currentSortOrder) {
             case 'level':
-                comparison = b.level - a.level || rarityOrder[charB.rarity] - rarityOrder[charA.rarity];
+                // 퇴고 순: 레벨 높은 순 > 등급 높은 순 > 이름 가나다 순
+                comparison = b.level - a.level || rarityOrder[charB.rarity] - rarityOrder[charA.rarity] || charA.baseName.localeCompare(charB.baseName);
                 break;
             case 'revision':
-                comparison = b.revision - a.revision || rarityOrder[charB.rarity] - rarityOrder[charA.rarity];
+                // 개정 순: 개정 높은 순 > 등급 높은 순 > 이름 가나다 순
+                comparison = b.revision - a.revision || rarityOrder[charB.rarity] - rarityOrder[charA.rarity] || charA.baseName.localeCompare(charB.baseName);
                 break;
             case 'name': 
+                // 이름 순: 이름 가나다 순 > 등급 높은 순 > 레벨 높은 순
                 comparison = charA.baseName.localeCompare(charB.baseName) || rarityOrder[charB.rarity] - rarityOrder[charA.rarity] || b.level - a.level;
                 break;
             case 'rarity':
             default:
-                comparison = rarityOrder[charB.rarity] - rarityOrder[charA.rarity] || b.level - a.level;
+                // ✨ 등급 순: 등급 높은 순 > 이름 가나다 순 > 레벨 높은 순 (요청하신 부분!)
+                comparison = rarityOrder[charB.rarity] - rarityOrder[charA.rarity] || charA.baseName.localeCompare(charB.baseName) || b.level - a.level;
                 break;
         }
         return isSortAscending ? comparison * -1 : comparison;
     });
+    // --- 🔼 정렬 로직 끝 🔼 ---
 
-    // --- 3. 화면 표시 로직 (기존과 거의 동일) ---
-    sortedInventory.forEach((cardInstance, index) => { // 👈 sortedInventory 사용
+    // --- 3. 화면 표시 로직 (기존과 동일) ---
+    sortedInventory.forEach((cardInstance, index) => {
         const character = findCharacter(cardInstance.name);
         if (character) {
             const cardElement = createCard(character, { animationIndex: index, mode: 'inventory', instance: cardInstance });
@@ -1625,7 +1629,7 @@ function addCardToInventory(cardName) {
         }
     });
 
-    // --- 4. 버튼 UI 업데이트 ---
+    // --- 4. 버튼 UI 업데이트 (기존과 동일) ---
     document.querySelectorAll('.sort-button').forEach(btn => {
         btn.classList.remove('active', 'bg-blue-500');
         btn.querySelector('.sort-indicator').textContent = '';
@@ -1636,7 +1640,6 @@ function addCardToInventory(cardName) {
         activeSortButton.querySelector('.sort-indicator').textContent = isSortAscending ? ' ▲' : ' ▼';
     }
 
-    // 필터 버튼 UI 업데이트 (새로 추가)
     document.querySelectorAll('.filter-button').forEach(btn => {
         btn.classList.remove('active', 'bg-blue-500');
         if (btn.dataset.filter === currentRarityFilter) {
