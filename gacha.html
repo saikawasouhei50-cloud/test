@@ -306,6 +306,13 @@ body.pointer-events-none {
 <div class="flex justify-center mt-4 mb-4">
     <button id="enter-multi-mode" class="gacha-button bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-lg">다중 파쇄 모드 진입</button>
 </div>
+
+<div id="inventory-sort-buttons" class="mt-4 flex justify-center gap-2">
+    <button data-sort="rarity" class="gacha-button sort-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">등급<span class="sort-indicator"></span></button>
+    <button data-sort="level" class="gacha-button sort-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">퇴고<span class="sort-indicator"></span></button>
+    <button data-sort="revision" class="gacha-button sort-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">개정<span class="sort-indicator"></span></button>
+    <button data-sort="name" class="gacha-button sort-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">이름<span class="sort-indicator"></span></button>
+</div>
 		 
         <div id="inventory-filter-buttons" class="mt-2 flex justify-center gap-2">
     <button data-filter="All" class="gacha-button filter-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded-full text-sm">전체</button>
