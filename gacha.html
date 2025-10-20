@@ -963,12 +963,19 @@ function saveGame() {
             }
 
             function checkAchievements() {
+    // 업적 조건 함수가 rarity, level 등 모든 정보에 접근할 수 있도록
+    // 인벤토리 데이터를 '풍부하게(rich)' 만듭니다.
+    const richInventory = playerInventory.map(c => {
+        const base = findCharacter(c.name); // (name, rarity, stats...)
+        return { ...base, ...c }; // (name, rarity, stats, id, level, revision)
+    });
+    
     const currentState = {
-        inventory: playerInventory,
+        inventory: richInventory, // 👈 'playerInventory' 대신 'richInventory'를 전달
         stats: playerStats,
         clearedStages: clearedStages,
         capacity: inventoryCapacity,
-        fountainPens: playerFountainPens, // ✨ 만년필 수량 상태를 추가합니다. ✨
+        fountainPens: playerFountainPens,
     };
     let newAchievementUnlocked = false;
     achievements.forEach(ach => {
@@ -2807,6 +2814,7 @@ function dismantleMultipleCards() {
         saveGame();
         // 변경된 정보로 모달을 다시 표시
         showCardDetails(currentDetailCardId);
+        checkAchievements(); // ✨ 업적 달성 여부 확인
     } else {
         alert('만년필이 부족합니다!');
     }
