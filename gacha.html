@@ -2653,6 +2653,57 @@ enhanceButton.disabled = playerFountainPens < cost;
                 cardDetailModal.classList.remove('hidden');
             }
 
+			// ✅ showCardDetails 함수 바로 다음에 이 새로운 함수를 추가하세요.
+
+function showCollectionCardDetails(cardBaseName) {
+    const character = findCharacter(cardBaseName);
+    if (!character) {
+        console.error("도감 카드를 찾을 수 없습니다:", cardBaseName);
+        return;
+    }
+
+    currentDetailCardId = null; // 도감에서는 인스턴스 ID가 없음
+
+    // --- 1. 기본 정보 표시 (showCardDetails와 거의 동일) ---
+    document.getElementById('detail-card-image').src = character.imageUrl;
+    document.getElementById('detail-card-name').textContent = character.name;
+    const rarityEl = document.getElementById('detail-card-rarity');
+    rarityEl.textContent = character.rarity;
+    const rarityColor = { 'N': 'text-gray-400', 'R': 'text-blue-400', 'SR': 'text-purple-400', 'SSR': 'text-yellow-400' }[character.rarity];
+    rarityEl.className = `font-bold text-2xl ${rarityColor}`;
+    const factionEl = document.getElementById('detail-card-faction');
+    factionEl.textContent = character.faction;
+    const factionColors = { '탐정': 'bg-blue-500 text-white', '조수': 'bg-green-500 text-white', '범인': 'bg-red-500 text-white' };
+    factionEl.className = `font-bold text-lg px-3 py-1 rounded-full ${factionColors[character.faction]}`;
+
+    // --- 2. ✨ 기본 능력치 표시 (퇴고/개정 없는 기본 스탯) ✨ ---
+    document.getElementById('detail-stat-hp').textContent = character.stats.hp;
+    document.getElementById('detail-stat-atk').textContent = character.stats.atk;
+    document.getElementById('detail-stat-def').textContent = character.stats.def;
+
+    // --- 3. 스킬 및 스토리 표시 (showCardDetails와 동일) ---
+    const skillsContainer = document.getElementById('detail-skills-container');
+    skillsContainer.innerHTML = '';
+    character.skills.forEach((skill, index) => {
+        const isUltimate = character.rarity === 'SSR' && index === 1;
+        const skillEl = document.createElement('div');
+        skillEl.className = 'bg-black/20 p-3 rounded-lg';
+        skillEl.innerHTML = `<h4 class="font-bold ${isUltimate ? 'text-yellow-300' : 'text-white'}">${isUltimate ? '궁극기' : '일반 스킬'}: ${skill.name}</h4><p class="text-gray-300 italic">"${skill.dialogue}"</p><p class="text-sm mt-1">${getSkillDescription(skill)}</p>`;
+        skillsContainer.appendChild(skillEl);
+    });
+    currentStoryPages = character.story.split('[PAGE_BREAK]');
+    currentStoryPageIndex = 0;
+    displayCardStoryPage();
+
+    // --- 4. ✨ 퇴고, 개정, 파쇄 UI 숨기기 ✨ ---
+    document.getElementById('enhancement-container').classList.add('hidden');
+    document.getElementById('revision-container').classList.add('hidden');
+    document.getElementById('dismantle-container').classList.add('hidden');
+
+    // 모달 표시
+    cardDetailModal.classList.remove('hidden');
+}
+			
 
 			function enterMultiSelectMode() {
     isMultiSelectMode = true;
@@ -2737,6 +2788,10 @@ function updateMultiSelectUI() {
 
             function hideCardDetails() {
                 cardDetailModal.classList.add('hidden');
+                // 👇 숨겨졌던 UI 요소들을 다시 보이도록 복원
+                document.getElementById('enhancement-container').classList.remove('hidden');
+                document.getElementById('revision-container').classList.remove('hidden');
+                document.getElementById('dismantle-container').classList.remove('hidden');
             }
             
             function findCharacter(name) {
@@ -3464,8 +3519,17 @@ cardClickableContainers.forEach(container => {
         // 도감이 아닌 곳에서 유효한 카드 ID가 있을 때만 상세 정보 표시
         if (container !== collectionContainer && cardUniqueId) {
              showCardDetails(cardUniqueId);
+        } 
+        // 👇 도감에서 클릭 시: 기본 카드 정보 표시 (새 함수 호출)
+        else if (container === collectionContainer && cardElement) {
+            // 카드 요소에서 기본 이름(name)을 가져옵니다. (title 속성 활용)
+            const cardBaseName = cardElement.title; 
+            // 수집된 카드인지 다시 한번 확인 (회색 카드 클릭 방지)
+            const isCollected = cardElement.dataset.isCollected === "true";
+            if (cardBaseName && isCollected) {
+                showCollectionCardDetails(cardBaseName); // ✨ 새 함수 호출 ✨
+            }
         }
-        // (도감에서는 카드를 클릭해도 아무 동작 안 함)
 
     }); // addEventListener 콜백 끝
 }); // forEach 콜백 끝
