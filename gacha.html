@@ -1366,6 +1366,7 @@ function displayCharacterCards(baseName, isCollected) {
 }
 
 // ✅ (신규) 특정 캐릭터의 '대사 모음' 표시 함수
+// ✅ (수정됨) 특정 캐릭터의 '대사 모음' 표시 함수
 function displayCharacterDialogues(baseName) {
     const dialogueList = document.getElementById('collection-dialogues-list');
     dialogueList.innerHTML = '';
@@ -1374,29 +1375,27 @@ function displayCharacterDialogues(baseName) {
     const characterVersions = characters.filter(c => c.baseName === baseName);
     const collectedNames = new Set(playerInventory.map(card => card.name));
     
-    if (!collectedNames.has(baseName) && characterVersions.length > 0 && !collectedNames.has(characterVersions[0].name)) {
-         dialogueList.innerHTML = `<p class="text-gray-400 text-center">등장인물을 수집하여 대사를 잠금 해제하세요.</p>`;
-         return;
-    }
+    // --- 👇 핵심 수정 부분 👇 ---
+    // "이 baseName을 가진 카드를 하나라도 수집했는가?" 를 기준으로 판단합니다.
+    const isAnyCardCollected = characterVersions.some(character => collectedNames.has(character.name));
 
+    if (!isAnyCardCollected) {
+        // 하나도 수집하지 못했다면 잠금 메시지 표시
+        dialogueList.innerHTML = `<p class="text-gray-400 text-center">등장인물을 수집하여 대사를 잠금 해제하세요.</p>`;
+        return; // 여기서 함수 종료
+    }
+    // --- 🔼 핵심 수정 부분 끝 🔼 ---
+
+    // 하나라도 수집했다면, 각 카드별로 대사를 표시 (수집/미수집 상태에 따라)
     characterVersions.forEach(character => {
         const isCardCollected = collectedNames.has(character.name);
         
         if (isCardCollected) {
             // 2-1. 수집된 카드의 대사
             dialogueList.innerHTML += `<h4 class="text-lg font-bold text-yellow-300">${character.name}</h4>`;
-            
-            // 일반 대사
-            character.dialogues.forEach(diag => {
-                dialogueList.innerHTML += `<p class="pl-4 text-gray-300">"${diag}"</p>`;
-            });
-            // 스킬 대사
-            character.skills.forEach(skill => {
-                dialogueList.innerHTML += `<p class="pl-4 text-cyan-300"><b>[${skill.name}]</b> "${skill.dialogue}"</p>`;
-            });
-            // 죽음 대사
+            character.dialogues.forEach(diag => { dialogueList.innerHTML += `<p class="pl-4 text-gray-300">"${diag}"</p>`; });
+            character.skills.forEach(skill => { dialogueList.innerHTML += `<p class="pl-4 text-cyan-300"><b>[${skill.name}]</b> "${skill.dialogue}"</p>`; });
             dialogueList.innerHTML += `<p class="pl-4 text-red-400">"${character.deathDialogue}"</p>`;
-            
         } else {
             // 2-2. 미수집된 카드의 대사
             dialogueList.innerHTML += `<h4 class="text-lg font-bold text-gray-600">${character.name} (미수집)</h4>`;
