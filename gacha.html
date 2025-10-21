@@ -755,6 +755,7 @@ const STAT_INCREASE_PER_LEVEL = 0.05; // 레벨당 기본 능력치의 5% 증가
 			let isMultiSelectMode = false; // ✨ 다중 선택 모드 상태 추가
             let selectedCardsToDismantle = new Set(); // ✨ 선택된 카드 ID Set 추가
             let playerInventory = [];
+			let collectedCardNames = new Set(); // 👈 이 줄을 추가하세요.
 			let isSortAscending = false; // ✨ 정렬 방향 변수 추가 (false: 내림차순, true: 오름차순)
             let playerDeck = [];
             let inventoryCapacity = 100;
@@ -920,6 +921,7 @@ const closeDismantleResultButton = document.getElementById('close-dismantle-resu
         stats: playerStats,
         clearedStageStories: clearedStageStories,
         playerChoices: playerChoices,
+		collectedCardNames: Array.from(collectedCardNames)
     };
     
     // 'users' 컬렉션에 현재 유저의 UID를 문서 ID로 사용하여 데이터 저장
@@ -948,7 +950,7 @@ const closeDismantleResultButton = document.getElementById('close-dismantle-resu
             ...card,
             revision: card.revision ?? 0
         }));
-
+collectedCardNames = new Set(savedData.collectedCardNames || []);
         const savedDeckIds = savedData.deck || [];
         playerDeck = savedDeckIds.map(id => playerInventory.find(card => card.id === id)).filter(Boolean);
 
@@ -997,6 +999,8 @@ function saveGame() {
     // ✨ 게임 첫 시작 시 기본 지급 카드에 고유 ID와 레벨 부여
     addCardToInventory('[편집자] 윤필규');
     addCardToInventory('[조수] 한 현');
+	collectedCardNames.add('[편집자] 윤필규');
+                collectedCardNames.add('[조수] 한 현');
 	playerCurrency = 100; // 💎 초기 보석 100개 지급
     playerFountainPens = 500; // 🖋️ 초기 펜 수량도 명시적으로 지정
     playerBookmarks = MAX_BOOKMARKS;
@@ -1300,7 +1304,7 @@ function displayCharacterDetail(baseName) {
     document.getElementById('collection-default-message').classList.add('hidden');
     
     // 2. 프로필 정보 채우기
-    const isCollected = new Set(playerInventory.map(card => findCharacter(card.name)?.baseName)).has(baseName);
+    const isCollected = Array.from(collectedCardNames).some(cardName => findCharacter(cardName)?.baseName === baseName); // 👈 이렇게 수정하세요.
 
     if (isCollected) {
         document.getElementById('collection-profile-image').src = profile.imageUrl;
@@ -1334,36 +1338,31 @@ function displayCharacterDetail(baseName) {
 }
 
 // ✅ (신규) 특정 캐릭터의 '카드 모음' 표시 함수
-function displayCharacterCards(baseName, isCollected) {
-    const cardContainer = document.getElementById('collection-container'); // ID가 유지됨
-    cardContainer.innerHTML = '';
-    
-    // 1. 전체 character 목록에서 이 baseName을 가진 카드들만 필터링
-    const characterVersions = characters.filter(c => c.baseName === baseName);
-    const collectedNames = new Set(playerInventory.map(card => card.name));
+function displayCharacterCards(baseName, isCollected) { // isCollected 인수는 이제 사용 안 함
+                const cardContainer = document.getElementById('collection-container');
+                cardContainer.innerHTML = '';
+                
+                const characterVersions = characters.filter(c => c.baseName === baseName);
+                // const collectedNames = new Set(playerInventory.map(card => card.name)); // 👈 이 줄 삭제
 
-    characterVersions.forEach((character, index) => {
-        const isCardCollected = collectedNames.has(character.name);
-        
-        const cardElement = createCard(character, { 
-            animationIndex: index, 
-            mode: 'collection', 
-            isCollected: isCardCollected,
-            instance: { id: character.name, level: 0, revision: 0 } 
-        });
+                characterVersions.forEach((character, index) => {
+                    // 👇 isCardCollected를 collectedCardNames로 직접 확인
+                    const isCardCollected = collectedCardNames.has(character.name); 
+                    
+                    const cardElement = createCard(character, { 
+                        animationIndex: index, 
+                        mode: 'collection', 
+                        isCollected: isCardCollected,
+                        // instance 정보는 기본값으로 전달 (파쇄된 카드 대응)
+                        instance: { id: character.name, level: 0, revision: 0 } 
+                    });
 
-        if (isCardCollected) {
-            // 수집된 카드는 클릭 시 상세 정보가 뜨도록, 실제 인벤토리의 uniqueId를 할당
-            cardElement.dataset.uniqueId = playerInventory.find(c => c.name === character.name).id;
-        } else {
-            // 미수집 카드는 클릭 이벤트를 막음
-            cardElement.dataset.uniqueId = ''; 
-            cardElement.dataset.isCollected = "false";
-        }
-        
-        cardContainer.appendChild(cardElement);
-    });
-}
+                    // 👇 data-unique-id 할당 로직 삭제 (파쇄된 카드는 클릭해도 상세 모달 X)
+                    // if (isCardCollected) { ... } else { ... } 부분 삭제
+
+                    cardContainer.appendChild(cardElement);
+                });
+            }
 
 // ✅ (신규) 특정 캐릭터의 '대사 모음' 표시 함수
 // ✅ (수정됨) 특정 캐릭터의 '대사 모음' 표시 함수
@@ -1377,8 +1376,7 @@ function displayCharacterDialogues(baseName) {
     
     // --- 👇 핵심 수정 부분 👇 ---
     // "이 baseName을 가진 카드를 하나라도 수집했는가?" 를 기준으로 판단합니다.
-    const isAnyCardCollected = characterVersions.some(character => collectedNames.has(character.name));
-
+const isAnyCardCollected = characterVersions.some(character => collectedCardNames.has(character.name));
     if (!isAnyCardCollected) {
         // 하나도 수집하지 못했다면 잠금 메시지 표시
         dialogueList.innerHTML = `<p class="text-gray-400 text-center">등장인물을 수집하여 대사를 잠금 해제하세요.</p>`;
@@ -1388,8 +1386,7 @@ function displayCharacterDialogues(baseName) {
 
     // 하나라도 수집했다면, 각 카드별로 대사를 표시 (수집/미수집 상태에 따라)
     characterVersions.forEach(character => {
-        const isCardCollected = collectedNames.has(character.name);
-        
+const isCardCollected = collectedCardNames.has(character.name);        
         if (isCardCollected) {
             // 2-1. 수집된 카드의 대사
             dialogueList.innerHTML += `<h4 class="text-lg font-bold text-yellow-300">${character.name}</h4>`;
@@ -1621,6 +1618,7 @@ function addCardToInventory(cardName) {
 		revision: 0 // ✨ 최초 개정 레벨은 0
     };
     playerInventory.push(newCard);
+	collectedCardNames.add(cardName); //
 }
 
             function performPulls(count, gachaType = 'normal') {
@@ -2515,7 +2513,7 @@ function endCombat(isVictory, combatInfo) { // dungeon, type 대신 combatInfo �
                     ${actionButtonsHTML}
                 `;
 
-                if (cardInstance) {
+                if (cardInstance && mode !== 'collection') { 
                     card.dataset.uniqueId = cardInstance.id;
                 }
 
@@ -3433,6 +3431,7 @@ cardClickableContainers.forEach(container => {
             else if (action === 'add-to-deck') addToDeck(actionButton.dataset.cardId);
             else if (action === 'remove-from-deck') removeFromDeck(actionButton.dataset.cardId);
         } else {
+		if (container !== collectionContainer) {
             const cardElement = e.target.closest('[data-unique-id]');
             if (cardElement) {
                 const cardId = cardElement.dataset.uniqueId;
