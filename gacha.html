@@ -3418,40 +3418,57 @@ resetButton.addEventListener('click', resetGame);
 gachaTabNormal.addEventListener('click', () => switchGachaTab('normal'));
 gachaTabEvent.addEventListener('click', () => switchGachaTab('event'));
 
-// ✨ 카드 클릭 이벤트 (인벤토리, 덱 편성, 도감 등)
+// ✨ 카드 클릭 이벤트 (인벤토리, 덱 편성, 도감 등) - 수정된 버전
 const cardClickableContainers = [inventoryContainer, deckInventoryContainer, deckSlotsContainer, collectionContainer];
 cardClickableContainers.forEach(container => {
     container.addEventListener('click', (e) => {
-        if (isDismantling) return; 
+        // 파쇄 중이거나, 클릭된 요소가 카드 자체가 아니면 무시
+        if (isDismantling) return;
+        
+        // 1. 액션 버튼(`data-action`) 클릭 처리
         const actionButton = e.target.closest('[data-action]');
         if (actionButton) {
-            e.stopPropagation();
+            e.stopPropagation(); // 카드 클릭 이벤트 중복 방지
             const action = actionButton.dataset.action;
-            if (action === 'set-representative') setRepresentative(actionButton.dataset.cardName);
-            else if (action === 'add-to-deck') addToDeck(actionButton.dataset.cardId);
-            else if (action === 'remove-from-deck') removeFromDeck(actionButton.dataset.cardId);
-        } else {
-		if (container !== collectionContainer) {
-            const cardElement = e.target.closest('[data-unique-id]');
-            if (cardElement) {
-                const cardId = cardElement.dataset.uniqueId;
-                if (container === inventoryContainer && isMultiSelectMode) {
-                    const isInDeck = playerDeck.some(deckCard => deckCard.id === cardId);
-                    if (isInDeck) {
-                        showMessage('덱에 포함된 카드는 파쇄할 수 없습니다.', 'text-red-400', messageArea);
-                        return;
-                    }
-                    if (selectedCardsToDismantle.has(cardId)) selectedCardsToDismantle.delete(cardId);
-                    else selectedCardsToDismantle.add(cardId);
-                    displayInventory(); 
-                    return;
-                }
-                if (container === collectionContainer && cardElement.dataset.isCollected === 'false') return;
-                showCardDetails(cardElement.dataset.uniqueId);
-            }
+            const cardId = actionButton.dataset.cardId;
+            const cardName = actionButton.dataset.cardName;
+
+            if (action === 'set-representative') setRepresentative(cardName);
+            else if (action === 'add-to-deck') addToDeck(cardId);
+            else if (action === 'remove-from-deck') removeFromDeck(cardId);
+            
+            return; // 액션 버튼 처리 후 종료
         }
-    });
-});
+        
+        // 2. 카드 자체 클릭 처리 (상세 정보 보기 또는 다중 선택)
+        const cardElement = e.target.closest('.relative.text-center'); // 카드 요소 찾기
+        // data-unique-id는 인벤토리/덱 카드에만 있으므로 이걸로 구분
+        const cardUniqueId = cardElement?.dataset.uniqueId; 
+
+        // 인벤토리에서 다중 선택 모드일 때
+        if (container === inventoryContainer && isMultiSelectMode && cardUniqueId) {
+             const isInDeck = playerDeck.some(deckCard => deckCard.id === cardUniqueId);
+             if (isInDeck) {
+                 showMessage('덱에 포함된 카드는 파쇄할 수 없습니다.', 'text-red-400', messageArea);
+                 return;
+             }
+             if (selectedCardsToDismantle.has(cardUniqueId)) {
+                 selectedCardsToDismantle.delete(cardUniqueId);
+             } else {
+                 selectedCardsToDismantle.add(cardUniqueId);
+             }
+             displayInventory(); // 선택 상태 UI 업데이트
+             return; // 다중 선택 후 종료
+        }
+        
+        // 도감이 아닌 곳에서 유효한 카드 ID가 있을 때만 상세 정보 표시
+        if (container !== collectionContainer && cardUniqueId) {
+             showCardDetails(cardUniqueId);
+        }
+        // (도감에서는 카드를 클릭해도 아무 동작 안 함)
+
+    }); // addEventListener 콜백 끝
+}); // forEach 콜백 끝
 
 // ✨ 전투 뷰 (챕터 및 스테이지 선택)
 document.getElementById('combat-view').addEventListener('click', (e) => {
