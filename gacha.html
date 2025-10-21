@@ -3330,8 +3330,8 @@ document.getElementById('collection-sub-tab-cards').addEventListener('click', (e
     const activeCharButton = document.querySelector('#collection-character-list button.active');
     if (activeCharButton) {
         const baseName = activeCharButton.dataset.baseName;
-        const isCollected = new Set(playerInventory.map(card => findCharacter(card.name)?.baseName)).has(baseName);
-        displayCharacterCards(baseName, isCollected);
+        // const isCollected = new Set(playerInventory.map(card => findCharacter(card.name)?.baseName)).has(baseName); // 👈 이 줄 삭제
+        displayCharacterCards(baseName); // 👈 두 번째 인자 없이 호출하도록 수정
     }
 });
 
