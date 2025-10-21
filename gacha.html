@@ -387,12 +387,45 @@ body.pointer-events-none {
             </div>
 
              <div id="collection-view" class="hidden">
-                <div class="text-center mb-4">
-                    <p class="text-gray-200">수집한 등장인물과 아직 만나지 못한 등장인물을 확인하세요.</p>
+    <div class="flex flex-col md:flex-row gap-4 min-h-[70vh]">
+        <div class="md:w-1/4 bg-black/20 p-3 rounded-lg max-h-[70vh] overflow-y-auto">
+            <h3 class="text-lg font-bold text-yellow-300 mb-2 text-center">등장인물</h3>
+            <div id="collection-character-list" class="space-y-1">
                 </div>
-                <div id="collection-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 min-h-[400px] max-h-[60vh] overflow-y-auto bg-black/20 p-4 rounded-xl">
+        </div>
+        
+        <div id="collection-character-detail-view" class="md:w-3/4 bg-black/20 p-4 rounded-lg hidden">
+            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                <img id="collection-profile-image" src="" class="w-full md:w-1/3 rounded-lg shadow-lg">
+                <div class="md:w-2/3">
+                    <h2 id="collection-profile-name" class="text-3xl font-bold text-yellow-300"></h2>
+                    <p class="text-lg mt-1"><span class="font-bold text-gray-400">나이:</span> <span id="collection-profile-age"></span></p>
+                    <p class="text-lg mt-1"><span class="font-bold text-gray-400">직업:</span> <span id="collection-profile-job"></span></p>
+                    <p class="text-sm mt-3 text-gray-300 leading-relaxed" id="collection-profile-description"></p>
                 </div>
             </div>
+            
+            <div class="bg-black/20 rounded-full p-1 flex justify-center items-center mb-4 max-w-sm mx-auto">
+                <button id="collection-sub-tab-cards" class="sub-tab-button active w-1/2 font-bold py-2 px-6 rounded-full">카드 모음</button>
+                <button id="collection-sub-tab-dialogues" class="sub-tab-button w-1/2 font-bold py-2 px-6 rounded-full">대사 모음</button>
+            </div>
+            
+            <div id="collection-cards-view">
+                <div id="collection-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-h-[40vh] overflow-y-auto bg-black/10 p-2 rounded-xl">
+                    </div>
+            </div>
+            
+            <div id="collection-dialogues-view" class="hidden">
+                <div id="collection-dialogues-list" class="space-y-3 max-h-[40vh] overflow-y-auto bg-black/10 p-4 rounded-xl">
+                    </div>
+            </div>
+        </div>
+        
+        <div id="collection-default-message" class="md:w-3/4 flex items-center justify-center bg-black/20 p-4 rounded-lg">
+            <p class="text-2xl text-gray-400">왼쪽에서 등장인물을 선택하세요.</p>
+        </div>
+    </div>
+</div>
 
 			<div id="achievements-view" class="hidden">
                 <div class="text-center mb-4">
@@ -1150,7 +1183,7 @@ function saveGame() {
     else if (tabName === 'inventory') displayInventory(); 
     else if (tabName === 'deck') displayDeckManagement();
     else if (tabName === 'combat') displayCombatView();
-    else if (tabName === 'collection') displayCollection();
+    else if (tabName === 'collection') displayCollectionView(); // 👈 함수 이름 변경
     else if (tabName === 'story') displayStoryView();
     else if (tabName === 'event') displayEventView();
     else if (tabName === 'achievements') displayAchievements();
@@ -1228,35 +1261,148 @@ function saveGame() {
             }
 
 
-function displayCollection() {
-    collectionContainer.innerHTML = '';
+// ✅ '도감' 탭의 메인 함수 (캐릭터 목록 생성)
+function displayCollectionView() {
+    const charListContainer = document.getElementById('collection-character-list');
+    const detailView = document.getElementById('collection-character-detail-view');
+    const defaultMessage = document.getElementById('collection-default-message');
     
-    // 1. 플레이어가 수집한 모든 고유 캐릭터 이름 목록을 만듭니다.
+    charListContainer.innerHTML = '';
+    
+    // 1. 플레이어가 수집한 모든 고유 'baseName' 목록을 만듭니다.
+    const collectedBaseNames = new Set(playerInventory.map(card => findCharacter(card.name)?.baseName).filter(Boolean));
+
+    // 2. characterProfiles 객체를 순회하며 목록을 만듭니다.
+    Object.keys(characterProfiles).forEach(baseName => {
+        const profile = characterProfiles[baseName];
+        const isCollected = collectedBaseNames.has(baseName); // 이 캐릭터의 카드를 하나라도 모았는가?
+        
+        const button = document.createElement('button');
+        button.className = `w-full text-left font-bold py-2 px-3 rounded-lg transition-colors duration-200 ${isCollected ? 'gacha-button bg-white/10 hover:bg-white/20' : 'bg-black/30 text-gray-500'}`;
+        button.textContent = isCollected ? profile.name : '?????';
+        button.dataset.baseName = baseName; // 클릭 시 이 baseName을 사용
+        
+        charListContainer.appendChild(button);
+    });
+    
+    // 3. 상세 정보 뷰와 기본 메시지 숨기기 (초기 상태)
+    detailView.classList.add('hidden');
+    defaultMessage.classList.remove('hidden');
+}
+
+// ✅ (신규) 캐릭터 상세 정보 표시 함수
+function displayCharacterDetail(baseName) {
+    const profile = characterProfiles[baseName];
+    if (!profile) return;
+    
+    // 1. 상세 뷰 보이기
+    document.getElementById('collection-character-detail-view').classList.remove('hidden');
+    document.getElementById('collection-default-message').classList.add('hidden');
+    
+    // 2. 프로필 정보 채우기
+    const isCollected = new Set(playerInventory.map(card => findCharacter(card.name)?.baseName)).has(baseName);
+
+    if (isCollected) {
+        document.getElementById('collection-profile-image').src = profile.imageUrl;
+        document.getElementById('collection-profile-name').textContent = profile.name;
+        document.getElementById('collection-profile-age').textContent = profile.age;
+        document.getElementById('collection-profile-job').textContent = profile.job;
+        document.getElementById('collection-profile-description').textContent = profile.description;
+    } else {
+        // 미수집 시 ? 로 표시
+        document.getElementById('collection-profile-image').src = 'https://placehold.co/300x500/000000/ffffff?text=???';
+        document.getElementById('collection-profile-name').textContent = '?????';
+        document.getElementById('collection-profile-age').textContent = '??';
+        document.getElementById('collection-profile-job').textContent = '?????';
+        document.getElementById('collection-profile-description').textContent = '아직 이 등장인물에 대한 정보가 없습니다. "누군가의 서고"에서 획득하여 잠금 해제하세요.';
+    }
+    
+    // 3. 활성화된 탭 버튼 스타일 업데이트
+    document.querySelectorAll('#collection-character-list button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.baseName === baseName);
+        btn.classList.toggle('bg-blue-500', btn.dataset.baseName === baseName);
+    });
+
+    // 4. 서브 탭을 '카드 모음'으로 초기화
+    document.getElementById('collection-sub-tab-cards').classList.add('active');
+    document.getElementById('collection-sub-tab-dialogues').classList.remove('active');
+    document.getElementById('collection-cards-view').classList.remove('hidden');
+    document.getElementById('collection-dialogues-view').classList.add('hidden');
+    
+    // 5. 카드 모음 탭 내용 표시
+    displayCharacterCards(baseName, isCollected);
+}
+
+// ✅ (신규) 특정 캐릭터의 '카드 모음' 표시 함수
+function displayCharacterCards(baseName, isCollected) {
+    const cardContainer = document.getElementById('collection-container'); // ID가 유지됨
+    cardContainer.innerHTML = '';
+    
+    // 1. 전체 character 목록에서 이 baseName을 가진 카드들만 필터링
+    const characterVersions = characters.filter(c => c.baseName === baseName);
     const collectedNames = new Set(playerInventory.map(card => card.name));
 
-    // 2. 전체 캐릭터 목록을 순회하며 도감 항목을 생성합니다.
-    characters.forEach((character, index) => {
-        const isCollected = collectedNames.has(character.name);
+    characterVersions.forEach((character, index) => {
+        const isCardCollected = collectedNames.has(character.name);
         
-        // 도감 항목은 '카드 인스턴스'가 아닌 '캐릭터 데이터' 그 자체입니다.
         const cardElement = createCard(character, { 
             animationIndex: index, 
             mode: 'collection', 
-            isCollected: isCollected,
-            // 인스턴스가 없으므로 unique-id 대신 name을 임시 ID로 사용합니다.
+            isCollected: isCardCollected,
             instance: { id: character.name, level: 0, revision: 0 } 
         });
 
-        // 수집된 경우에만 showCardDetails가 열리도록 데이터셋을 설정합니다.
-        if (isCollected) {
+        if (isCardCollected) {
+            // 수집된 카드는 클릭 시 상세 정보가 뜨도록, 실제 인벤토리의 uniqueId를 할당
             cardElement.dataset.uniqueId = playerInventory.find(c => c.name === character.name).id;
         } else {
-            // 미수집 카드는 고유 ID를 가질 수 없으므로, 클릭을 막거나 데이터를 표시하지 않습니다.
+            // 미수집 카드는 클릭 이벤트를 막음
             cardElement.dataset.uniqueId = ''; 
             cardElement.dataset.isCollected = "false";
         }
         
-        collectionContainer.appendChild(cardElement);
+        cardContainer.appendChild(cardElement);
+    });
+}
+
+// ✅ (신규) 특정 캐릭터의 '대사 모음' 표시 함수
+function displayCharacterDialogues(baseName) {
+    const dialogueList = document.getElementById('collection-dialogues-list');
+    dialogueList.innerHTML = '';
+    
+    // 1. 이 캐릭터의 모든 카드 버전을 찾음
+    const characterVersions = characters.filter(c => c.baseName === baseName);
+    const collectedNames = new Set(playerInventory.map(card => card.name));
+    
+    if (!collectedNames.has(baseName) && characterVersions.length > 0 && !collectedNames.has(characterVersions[0].name)) {
+         dialogueList.innerHTML = `<p class="text-gray-400 text-center">등장인물을 수집하여 대사를 잠금 해제하세요.</p>`;
+         return;
+    }
+
+    characterVersions.forEach(character => {
+        const isCardCollected = collectedNames.has(character.name);
+        
+        if (isCardCollected) {
+            // 2-1. 수집된 카드의 대사
+            dialogueList.innerHTML += `<h4 class="text-lg font-bold text-yellow-300">${character.name}</h4>`;
+            
+            // 일반 대사
+            character.dialogues.forEach(diag => {
+                dialogueList.innerHTML += `<p class="pl-4 text-gray-300">"${diag}"</p>`;
+            });
+            // 스킬 대사
+            character.skills.forEach(skill => {
+                dialogueList.innerHTML += `<p class="pl-4 text-cyan-300"><b>[${skill.name}]</b> "${skill.dialogue}"</p>`;
+            });
+            // 죽음 대사
+            dialogueList.innerHTML += `<p class="pl-4 text-red-400">"${character.deathDialogue}"</p>`;
+            
+        } else {
+            // 2-2. 미수집된 카드의 대사
+            dialogueList.innerHTML += `<h4 class="text-lg font-bold text-gray-600">${character.name} (미수집)</h4>`;
+            dialogueList.innerHTML += `<p class="pl-4 text-gray-600">"???"</p>`;
+        }
+        dialogueList.innerHTML += `<hr class="border-gray-600 my-2">`;
     });
 }
 			
@@ -3166,6 +3312,47 @@ dismantleCardButton.addEventListener('click', () => {
     dismantleCard(currentDetailCardId);
 });
 
+// =================== 👇 '도감' 탭 전용 리스너 👇 ===================
+
+// '도감' 탭의 캐릭터 목록(사이드바) 클릭 이벤트
+document.getElementById('collection-character-list').addEventListener('click', (e) => {
+    const button = e.target.closest('button');
+    if (button && button.dataset.baseName) {
+        displayCharacterDetail(button.dataset.baseName);
+    }
+});
+
+// '도감' 탭의 서브 탭 (카드 모음) 클릭
+document.getElementById('collection-sub-tab-cards').addEventListener('click', (e) => {
+    e.target.classList.add('active');
+    document.getElementById('collection-sub-tab-dialogues').classList.remove('active');
+    document.getElementById('collection-cards-view').classList.remove('hidden');
+    document.getElementById('collection-dialogues-view').classList.add('hidden');
+    
+    // 현재 선택된 캐릭터의 baseName을 찾아서 카드 뷰를 다시 그림
+    const activeCharButton = document.querySelector('#collection-character-list button.active');
+    if (activeCharButton) {
+        const baseName = activeCharButton.dataset.baseName;
+        const isCollected = new Set(playerInventory.map(card => findCharacter(card.name)?.baseName)).has(baseName);
+        displayCharacterCards(baseName, isCollected);
+    }
+});
+
+// '도감' 탭의 서브 탭 (대사 모음) 클릭
+document.getElementById('collection-sub-tab-dialogues').addEventListener('click', (e) => {
+    e.target.classList.add('active');
+    document.getElementById('collection-sub-tab-cards').classList.remove('active');
+    document.getElementById('collection-cards-view').classList.add('hidden');
+    document.getElementById('collection-dialogues-view').classList.remove('hidden');
+    
+    // 현재 선택된 캐릭터의 baseName을 찾아서 대사 뷰를 그림
+    const activeCharButton = document.querySelector('#collection-character-list button.active');
+    if (activeCharButton) {
+        displayCharacterDialogues(activeCharButton.dataset.baseName);
+    }
+});
+// =================================================================
+
 // ✨ 데이터 업로드 (이제 사용되지 않지만, 만약을 위해 남겨둠)
 if (uploadFile) {
     uploadFile.addEventListener('change', (e) => {
@@ -3359,8 +3546,6 @@ startBookmarkRegenTimer();
    </script>
 </body>
 </html>
-
-
 
 
 
