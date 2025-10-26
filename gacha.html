@@ -1189,7 +1189,7 @@ function saveGame() {
     else if (tabName === 'combat') displayCombatView();
     else if (tabName === 'collection') displayCollectionView(); // 👈 함수 이름 변경
     else if (tabName === 'story') displayStoryView();
-    else if (tabName === 'event') displayEventView();
+    else if (tabName === 'event') displayEventHomeView(); // 👈 함수 이름 변경
     else if (tabName === 'achievements') displayAchievements();
 }
             function switchSubTab(viewContainer, button) {
@@ -1400,6 +1400,21 @@ const isCardCollected = collectedCardNames.has(character.name);
         }
         dialogueList.innerHTML += `<hr class="border-gray-600 my-2">`;
     });
+}
+
+// ✅ displayEventView 함수 바로 위에 이 함수를 추가하세요.
+
+function displayEventHomeView() {
+    // game_data.js에서 이벤트 정보 가져오기
+    document.getElementById('event-home-title').textContent = currentEventInfo.title;
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    const startDateStr = currentEventInfo.startDate.toLocaleDateString('ko-KR', options);
+    const endDateStr = currentEventInfo.endDate.toLocaleDateString('ko-KR', options);
+    document.getElementById('event-home-duration').textContent = `${startDateStr} ~ ${endDateStr}`;
+    document.getElementById('event-home-banner-image').src = currentEventInfo.bannerImageUrl;
+    document.getElementById('event-home-description').textContent = currentEventInfo.description;
+    document.getElementById('event-home-points').textContent = playerEventPoints; // 이벤트 포인트 표시
+    document.getElementById('event-home-point-display').classList.remove('hidden'); // 포인트 표시 보이게
 }
 			
             function displayEventView() {
@@ -3364,6 +3379,39 @@ dismantleCardButton.addEventListener('click', () => {
     dismantleCard(currentDetailCardId);
 });
 
+// ================ 👇 이벤트 홈 관련 리스너 (신규) 👇 ================
+
+// 1. '홈' 화면의 이벤트 배너 클릭 시 -> 이벤트 홈으로 이동
+eventBanner.addEventListener('click', () => {
+    switchTab('event'); // event-home-view를 보여줌
+});
+
+// 2. '이벤트 홈'의 '이벤트 전투' 버튼 클릭 시
+document.getElementById('goto-event-battle').addEventListener('click', () => {
+    // 기존 event-view를 보여주고, '전투' 서브 탭을 활성화
+    document.getElementById('event-home-view').classList.add('hidden');
+    document.getElementById('event-view').classList.remove('hidden');
+    displayEventView(); // 전투/스토리/상점 목록을 그림
+    switchSubTab(document.getElementById('event-view'), eventSubTabBattle); // 전투 탭 활성화
+});
+
+// 3. '이벤트 홈'의 '이벤트 스토리' 버튼 클릭 시
+document.getElementById('goto-event-story').addEventListener('click', () => {
+    document.getElementById('event-home-view').classList.add('hidden');
+    document.getElementById('event-view').classList.remove('hidden');
+    displayEventView(); 
+    switchSubTab(document.getElementById('event-view'), eventSubTabStory); // 스토리 탭 활성화
+});
+
+// 4. '이벤트 홈'의 '이벤트 서가' 버튼 클릭 시
+document.getElementById('goto-event-gacha').addEventListener('click', () => {
+    switchTab('gacha'); // 뽑기 탭으로 이동
+    switchGachaTab('event'); // 이벤트 뽑기 서브 탭 활성화
+});
+
+// ======================================================================
+
+
 // =================== 👇 '도감' 탭 전용 리스너 👇 ===================
 
 // '도감' 탭의 캐릭터 목록(사이드바) 클릭 이벤트
@@ -3625,7 +3673,6 @@ startBookmarkRegenTimer();
    </script>
 </body>
 </html>
-
 
 
 
