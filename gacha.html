@@ -3382,6 +3382,7 @@ dismantleCardButton.addEventListener('click', () => {
 // ================ 👇 이벤트 홈 관련 리스너 (신규) 👇 ================
 
 // 1. '홈' 화면의 이벤트 배너 클릭 시 -> 이벤트 홈으로 이동
+console.log('Checking eventBanner:', eventBanner); // 디버깅용 로그 추가
 eventBanner.addEventListener('click', () => {
     switchTab('event'); // event-home-view를 보여줌
 });
