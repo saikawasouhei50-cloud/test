@@ -230,12 +230,15 @@ body.pointer-events-none {
             </div>
             
 			<div id="event-home-view" class="hidden text-center">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
 
+    <h2 id="event-home-title" class="text-3xl font-bold text-yellow-300 mb-2"></h2>
+    <p id="event-home-duration" class="text-sm text-gray-400 mb-4"></p>
+    <img id="event-home-banner-image" src="https://placehold.co/600x200/ff6347/ffffff?text=Event+Banner" alt="Event Banner" class="w-full max-w-2xl mx-auto rounded-lg shadow-lg mb-6">
+    <p id="event-home-description" class="text-gray-200 mb-6 max-w-xl mx-auto"></p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
         <button id="goto-event-battle" class="gacha-button bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg text-lg">
             이벤트 전투
         </button>
-
         <button id="goto-event-story" class="gacha-button bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg text-lg">
             이벤트 스토리
         </button>
@@ -246,7 +249,10 @@ body.pointer-events-none {
             이벤트 상점
         </button>
     </div>
-
+    <div class="mt-6 flex justify-center">
+        <div id="event-home-point-display" class="text-xl font-bold text-pink-300 bg-black/20 py-2 px-4 rounded-full">EVENT P: <span id="event-home-points">0</span></div>
+    </div>
+    </div>
     </div>
 			
             <div id="event-view" class="hidden">
