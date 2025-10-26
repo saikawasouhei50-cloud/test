@@ -1260,14 +1260,16 @@ const characterProfiles = {
 };
 
 
+// [이 코드로 교체하세요]
 const currentEventInfo = {
-    title: "푸른 잉크와 그림자", // 이벤트 제목
-    startDate: EVENT_START_DATE, // 기존 이벤트 시작 날짜 변수 사용
-    endDate: EVENT_END_DATE,     // 기존 이벤트 종료 날짜 변수 사용
-    bannerImageUrl: "https://placehold.co/600x200/5a4fcf/ffffff?text=푸른+잉크와+그림자", // 이벤트 홈 배너 이미지
-    description: "도시 곳곳에서 기묘한 사건이 발생하기 시작했다. 푸른 잉크로 쓰인 경고장, 사라진 연구 기록... 사건의 그림자를 쫓아 진실을 밝혀내세요! 이벤트 전투를 통해 포인트를 모아 특별한 보상을 획득할 수 있습니다.", // 이벤트 설명
-    gachaCharacterName: EVENT_CHARACTER_NAME // 기존 이벤트 뽑기 캐릭터 이름 변수 사용
+    title: "[ON] 승급전 세번만", // 이벤트 제목
+    startDate: EVENT_START_DATE, // 기존 이벤트 시작 날짜 변수 사용
+    endDate: EVENT_END_DATE,     // 기존 이벤트 종료 날짜 변수 사용
+    bannerImageUrl: "https://placehold.co/600x200/5a4fcf/ffffff?text=푸른+잉크와+그림자", // 이벤트 홈 배너 이미지
+    description: "'실패한 도시'를 떠난 백도화. 몇 달의 시간이 흐른 뒤, 긴 휴식기를 가졌던 그의 방송이 다시 시작된다. 그러나 방송을 보던 현은 무언가 이상한 낌새를 느끼고, 도진에게 의견을 구하는데….", // 이벤트 설명
+    gachaCharacterName: EVENT_CHARACTER_NAME // 기존 이벤트 뽑기 캐릭터 이름 변수 사용
 };
+
 
 
 
