@@ -3,7 +3,7 @@
     // name(고유), baseName, rarity, faction, stats, imageUrl, cardImageUrl, dialogues, skills, deathDialogue, story
     { 
 	// [이 코드 블록을 const characters = [...] 배열의 끝에 추가하세요]
-    , // 👈 맨 마지막 카드 뒤에 쉼표(,)가 있는지 꼭 확인하세요!
+    
     { 
         name: '[소중한 배낭] 선생', 
         baseName: '선생', 
@@ -1360,6 +1360,7 @@ const currentEventInfo = {
     description: "'실패한 도시'를 떠난 백도화. 몇 달의 시간이 흐른 뒤, 긴 휴식기를 가졌던 그의 방송이 다시 시작된다. 그러나 방송을 보던 현은 무언가 이상한 낌새를 느끼고, 도진에게 의견을 구하는데….", // 이벤트 설명
     gachaCharacterName: EVENT_CHARACTER_NAME // 기존 이벤트 뽑기 캐릭터 이름 변수 사용
 };
+
 
 
 
