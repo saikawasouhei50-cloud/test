@@ -961,6 +961,7 @@ const closeDismantleResultButton = document.getElementById('close-dismantle-resu
         capacity: inventoryCapacity,
         representative: representativeCharacter ? representativeCharacter.name : null,
         clearedStages: clearedStages,
+		currentEventId: CURRENT_EVENT_ID, // ✨ 1. 현재 이벤트 ID 저장
         eventPoints: playerEventPoints,
         clearedEventDungeons: clearedEventDungeons,
         purchasedEventItems: purchasedEventItems,
@@ -979,7 +980,8 @@ const closeDismantleResultButton = document.getElementById('close-dismantle-resu
 }
 
             // ✅ 이 코드로 기존 loadGame 함수를 통째로 교체해주세요.
-            async function loadGameFromFirebase(uid) {
+            // [gacha.html의 loadGameFromFirebase 함수를 이걸로 교체하세요]
+async function loadGameFromFirebase(uid) {
     const docRef = db.collection('users').doc(uid);
     const doc = await docRef.get();
 
@@ -988,35 +990,46 @@ const closeDismantleResultButton = document.getElementById('close-dismantle-resu
         console.log("Firebase에서 게임 데이터를 불러옵니다.");
         const savedData = doc.data();
         
-        // 기존 loadGame 함수의 데이터 복원 로직을 그대로 사용합니다.
+        // 1. 비(非)-이벤트 데이터 로드 (재화, 인벤토리 등)
         playerCurrency = savedData.currency ?? 100;
         playerFountainPens = savedData.fountainPens ?? 500;
         playerInkwells = savedData.inkwells ?? 0;
-        
-        // revision 속성이 없는 구버전 데이터를 불러올 경우를 대비한 호환성 코드
         const loadedInventory = savedData.inventory || [];
         playerInventory = loadedInventory.map(card => ({
             ...card,
             revision: card.revision ?? 0
         }));
-collectedCardNames = new Set(savedData.collectedCardNames || []);
+        collectedCardNames = new Set(savedData.collectedCardNames || []);
         const savedDeckIds = savedData.deck || [];
         playerDeck = savedDeckIds.map(id => playerInventory.find(card => card.id === id)).filter(Boolean);
-
         inventoryCapacity = savedData.capacity ?? 100;
         if (savedData.representative) {
             representativeCharacter = findCharacter(savedData.representative) || null;
         }
         clearedStages = savedData.clearedStages || [];
-        playerEventPoints = savedData.eventPoints ?? 0;
-        clearedEventDungeons = savedData.clearedEventDungeons || [];
-        purchasedEventItems = savedData.purchasedEventItems || {};
         playerBookmarks = savedData.bookmarks ?? MAX_BOOKMARKS;
         lastBookmarkUpdateTime = savedData.lastBookmarkUpdate ?? Date.now();
         playerAchievements = savedData.achievements || {};
         playerStats = savedData.stats || { totalPulls: 0 };
         clearedStageStories = savedData.clearedStageStories || [];
-        playerChoices = savedData.playerChoices || {};
+        
+        // 2. ✨ 이벤트 데이터 로드 (핵심 수정) ✨
+        // 저장된 이벤트 ID와 현재 게임의 이벤트 ID를 비교합니다.
+        if (savedData.currentEventId === CURRENT_EVENT_ID) {
+            // ID가 같으면 = 진행 중이던 이벤트를 계속
+            console.log("이전 이벤트를 이어서 진행합니다:", CURRENT_EVENT_ID);
+            playerEventPoints = savedData.eventPoints ?? 0; //
+            clearedEventDungeons = savedData.clearedEventDungeons || []; //
+            purchasedEventItems = savedData.purchasedEventItems || {}; //
+            playerChoices = savedData.playerChoices || {}; //
+        } else {
+            // ID가 다르면 = 새 이벤트 시작 (또는 첫 이벤트)
+            console.log("새 이벤트가 시작되어 이전 이벤트 기록을 초기화합니다.");
+            playerEventPoints = 0;
+            clearedEventDungeons = [];
+            purchasedEventItems = {};
+            playerChoices = {}; // 이벤트 선택지 기록도 초기화
+        }
 
     } else {
         // --- 처음 가입한 새로운 유저 ---
@@ -1031,8 +1044,8 @@ collectedCardNames = new Set(savedData.collectedCardNames || []);
     checkEventStatus();
     switchTab('home');
     checkAchievements();
-	document.getElementById('loading-overlay').classList.add('hidden');
-        document.body.classList.remove('loading');
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.body.classList.remove('loading');
 }
 
 function saveGame() {
