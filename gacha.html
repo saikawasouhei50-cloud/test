@@ -3688,14 +3688,19 @@ speed1xButton.addEventListener('click', () => setCombatSpeed(1));
 speed2xButton.addEventListener('click', () => setCombatSpeed(2));
 speed4xButton.addEventListener('click', () => setCombatSpeed(4));
 
-// ✨ 이벤트 뷰의 서브 탭
-eventSubTabBattle.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabBattle));
-eventSubTabStory.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabStory));
-eventSubTabShop.addEventListener('click', () => switchSubTab(document.getElementById('event-view'), eventSubTabShop));
-
-startBookmarkRegenTimer();
+// ✨ 이벤트 뷰의 서브 탭 (수정됨)
+eventSubTabBattle.addEventListener('click', () => {
+    displayEventView(); // 👈 내용 먼저 그리기
+    switchSubTab(document.getElementById('event-view'), eventSubTabBattle); 
 });
-
+eventSubTabStory.addEventListener('click', () => {
+    displayEventView(); // 👈 내용 먼저 그리기
+    switchSubTab(document.getElementById('event-view'), eventSubTabStory); 
+});
+eventSubTabShop.addEventListener('click', () => {
+    displayEventView(); // 👈 내용 먼저 그리기
+    switchSubTab(document.getElementById('event-view'), eventSubTabShop); 
+});
    </script>
 </body>
 </html>
