@@ -665,148 +665,236 @@
     { name: '10장', monsterName: '편집된 진실', eventPointReward: 500 }
 ];
 
-            const eventStories = [
+           // [이 코드로 기존 const eventStories = [...] 블록 전체를 교체하세요]
+const eventStories = [
     {
-        title: '사건의 발단: 푸른 잉크의 경고',
+        title: '고양이 소년',
         content: [
-            // ✅ position 속성 추가
-            { character: '서도진', expression: 'neutral', position: 'left', dialogue: '익명의 제보가 또 들어왔군. 이번엔 푸른 잉크로 쓰여 있어.' },
-            { character: '윤필규', expression: 'neutral', position: 'right', dialogue: '푸른 잉크요? 저번에 쓰러진 작가분의 원고와는 전혀 다른 색이네요.' },
-            { character: null, dialogue: '편지에는 암호 같은 화학식이 적혀 있었다. 이는 단순한 경고가 아니라, 앞으로 벌어질 사건의 매뉴얼 같았다.' }
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '이것 좀 보세요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '응?' },
+            { character: null, dialogue: '노트북 앞에서 다음 문장을 낑낑대며 고민하는 티가 팍팍 나던 도진의 눈앞에 쓱 내밀어진 것은 현의 휴대전화 액정이었다.' },
+            { character: null, dialogue: '동영상이 재생되고 있는 액정. 아니, 왼쪽 위에 생방송이라는 글자가 쓰여 있으니 라이브 영상인가.' },
+            { character: null, dialogue: '액정 안에서는 정체를 알 수 없는 게임이 한창 진행되고 있었다. 적을 총으로 쏘아 죽이는 게임인 것만은 알아보겠다.' },
+            { character: null, dialogue: '누가 하고 있는 게임인지는 모르겠지만 그는 참 실력이 좋다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '음…….' },
+            { character: null, dialogue: '도진이 정말로 게임 화면만을 보고 있으니 현은 답답하다는 듯이 화면의 오른쪽 아래를 가리켰다. 상반신만 보이는 금발 머리의 고양이 소년이 웃는 얼굴로 몸을 흔들고 있다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '응? 이게 뭔데…….' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '네?' },
+            { character: null, dialogue: '현은 들이밀었던 휴대전화를 제 쪽으로 거뒀다. 게임 화면을 확인한 현이 아 뭐야, 하며 작은 탄식을 뱉었다.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '그새 갈아 끼우긴. 하나 잡았다고 담배라도 피시나?' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '갈아 끼워? 뭘 잡아?' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '아녜요, 잠깐만 기다려보세요.' }
         ]
     },
     {
-        title: '사라진 그림자: 감춰진 연구실',
+        title: '잘 지내는 걸까?',
         content: [
-            // ✅ position 속성 추가
-            { character: '도천영', expression: 'serious', position: 'right', dialogue: '이 화학식은 존재하지 않습니다. 하지만 구조를 역산해보니, 폐쇄된 화학 연구소의 위치를 가리키고 있군요.' },
-            { character: '강은율', expression: 'neutral', position: 'left', dialogue: '시뮬레이션 결과, 그 연구소는 최근 48시간 이내에 누군가 침입한 기록이 있습니다.' },
-            { character: null, dialogue: '현장은 이미 누군가의 손을 거친 후였다. 범인의 그림자는 잡히지 않았지만, 뒤섞인 시약병만이 그들의 흔적을 증명했다.' }
+            { character: null, dialogue: '잠시 곁에 서서 휴대전화를 빤히 내려다보던 현은 이윽고 다시 도진의 코앞에 액정을 들이밀었다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(뭐가 달라진 거지…?)' },
+            { character: null, dialogue: '도진이 현의 눈치를 보자 현은 또다시 한쪽 눈썹을 찌그러뜨려선 아까와 똑같은 부분을 손가락으로 짚었다.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '봐요.' },
+            { character: null, dialogue: '금발의 고양이 소년은 온데간데없었다.' },
+            { character: null, dialogue: '대신 아는 사람의 상반신이 그곳에 있었다.' },
+            { character: null, dialogue: '게임에 집중한 듯 눈을 살짝 가늘게 뜬 얼굴은 기억 속의 그와 여전히 똑같았다. 입고 있는 분홍색 후드 티도, 쓰고 있는 고양이 귀 헤드셋도 똑같다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '도화 씨, 잘 계시네.' }
         ]
     },
     {
-        title: '첫 번째 증인: 떨리는 목소리',
+        title: '이상한 낌새',
         content: [
-            // ✅ position 속성 추가
-            { character: '박연우', expression: 'neutral', position: 'left', dialogue: '연구소 근처를 수색했습니다. 폐지 수거인이 사건 당일 새벽, 흰 가운을 입은 사람을 봤다고 증언했어요.' },
-            { character: '백정문', expression: 'serious', position: 'right', dialogue: '그의 진술에서 미세한 "두려움의 파장"이 느껴집니다. 그가 본 것은 단순한 연구원이 아닐 겁니다.' },
-            { character: null, dialogue: '목격자는 겁에 질려 있었고, 그가 본 흰 가운의 모습은 평범한 연구원보다는 실험에 미친 광인에 가까웠다.' }
+            { character: null, dialogue: '허리에 한 손을 짚고 선 현은 어깨를 으쓱이더니 휴대전화를 도진의 시야에서 거뒀다.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '글쎄요, 과연 잘 계시는 걸까요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '여기 계실 때랑 똑같으신데…….' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '저 요즘 시간 날 때마다 도화 씨 방송 보고 있는데. 뭔가뭔가 낌새가 이상하다는 말이죠.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '응? 애청자가 된 거야?' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '전 원래도 가끔 봤어요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '낌새가 이상하다고?' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '예를 들면 이런 거죠.' }
         ]
     },
     {
-        title: '거짓된 알리바이: 완벽한 밀실',
+        title: '반백의 중노동',
         content: [
-            // ✅ position 속성 추가
-            { character: '서도진', expression: 'serious', position: 'left', dialogue: '용의자 B는 사건 당일, 자신이 완벽한 밀실 같은 환경에 있었다고 주장해. 물 샐 틈 없는 알리바이야.' },
-            { character: '양석민', expression: 'neutral', position: 'right', dialogue: '모든 반응 경로를 시뮬레이션했지만, 그가 밀실을 벗어날 방법은 없습니다. 하지만... 경로는 하나뿐이 아니죠.' },
-            { character: null, dialogue: '탐정은 완벽한 진술 속에서, 단 하나의 거짓된 문장을 찾아내려 애쓴다.' }
+            { character: null, dialogue: '현은 다시 휴대전화를 조작했다. 카메라 앞에 앉은 도화가 화면에 비친다.' },
+            { character: '도화', expression: 'neutral', position: 'left', dialogue: '이사를 하니깐 물건이 어디에 있는지 자꾸 헷갈리는 거 있지?' },
+            { character: null, dialogue: '화면 너머로 보이는 도화의 방은 그때와 똑같았다.' },
+            { character: null, dialogue: '마치 도화의 방을 실패한 도시의 아파트에서 뚝 떼어내선, 성공한 도시 서울의 이름 모를 아파트에 그대로 가져다 붙인 듯했다.' },
+            { character: '도화', expression: 'neutral', position: 'left', dialogue: '아까도 어, 이 밑에 전선이 난리도 아니라 케이블 타이를 찾고 있었거든. 이사 오기 전에는 분명히 근처 서랍에 넣어뒀었는데 오늘 찾아보니까 없데?' },
+            { character: '도화', expression: 'neutral', position: 'left', dialogue: '내가 뭐 이삿짐센터를 따로 쓴 것도 아니고 포터만 불러서 싹 옮겨서 일주일 내내 자~알 정리하고 와 이 정도면 진짜 반백치고 중노동 했다 수고했다 백도화 하고.' },
+            { character: '도화', expression: 'neutral', position: 'left', dialogue: '짜장면도 한 그릇 먹고 소화도 시킬 겸 2주 정도 푹 쉬고 이제 일상생활로 돌아와서 다시 광대놀음 하려고 각을 잡았는데 어? 자꾸 이런 찐빠들이 나는 거야. 아 말이 안 돼요.' }
         ]
     },
     {
-        title: '어둠 속의 계약: 공범의 조건',
+        title: '한순간의 사고',
         content: [
-            // ✅ position 속성 추가
-            { character: '독고유진', expression: 'serious', position: 'right', dialogue: '범인은 혼자가 아닐 겁니다. 누군가에게 협조를 얻고, 그 대가로 물질적 보상이 아닌 "정보"를 약속했을 가능성이 높아요.' },
-            { character: '윤필규', expression: 'neutral', position: 'left', dialogue: '어둠 속에서 계약된 것은 무엇일까요? 진실의 은폐? 아니면... 새로운 이야기의 집필?' },
-            { character: null, dialogue: '계약서의 흔적은 없었지만, 그들이 주고받은 교환의 에너지("열 추적")는 현장에 강하게 남아 있었다.' }
+            { character: '도진', expression: 'neutral', position: 'right', dialogue: '반백 아닐 텐데…….' },
+            { character: '현', expression: 'neutral', position: 'left', dialogue: '방송적 과장이죠. 옆에 채팅창 보세요.' },
+            { character: '도진', expression: 'neutral', position: 'right', dialogue: '채팅……. ‘형 치매 보험 들었어?’.' },
+            { character: '현', expression: 'neutral', position: 'left', dialogue: '아니 뭐 그런 걸 읽어요. ‘형 엄살 좀 그만해’, ‘혼자 몇년 일찍 사네’.' },
+            { character: '도진', expression: 'neutral', position: 'right', dialogue: '치매라니…….' },
+            { character: '현', expression: 'neutral', position: 'left', dialogue: '이제 채팅창 보지 마세요.' },
+            { character: null, dialogue: '너스레를 떨며 어깨를 으쓱이던 화면 속의 도화가 쉴 새 없이 올라가는 채팅창을 잠시 주시했다.' },
+            { character: null, dialogue: '한 손이 카메라 범위 밖으로 넘어가는가 싶더니 로고 하나 없는 종이컵을 들고 돌아온다.' },
+            { character: '도화', expression: 'neutral', position: 'left', dialogue: '치매 보험? 너 내가 추리 게임 단서 조합하는 거 보고도 그런 말이 나오냐.' },
+            { character: '도화', expression: 'neutral', position: 'left', dialogue: '엄살 아니라니까? 너희도 가구 옮기고 오만잡걸 다 정리하고 해 봐라. 내가 보장하는데 너흰 2주 안에 못 일어나.' },
+            { character: '도화', expression: 'neutral', position: 'left', dialogue: '와 잠실날다람쥐님 이사 비용 오만 원 감사합니다. 이걸 일찍 주셨으면 내가 이삿짐센터를 부르는 건데.' },
+            { character: '도화', expression: 'neutral', position: 'left', dialogue: '얘들아 백도화/사건사고가 무슨 말이냐? 자 농담이고 오늘 할 건…… 아!' },
+            { character: null, dialogue: '한순간의 사고였다. 채팅창을 보며 낄낄대던 도화가, 들고 있던 종이컵을 허공에 내려둔 것이다. 아마 그보다 조금 앞의 책상에 두려고 했던 거겠지.' },
+            { character: null, dialogue: '투명한 생수가 잔 밖으로 흘러넘쳤다. 미간을 찌푸린 도화가 종이컵을 줍기 위해 몸을 앞으로 숙인다.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '스톱!' }
         ]
     },
     {
-        title: '두 번째 피해자: 붉게 물든 펜',
+        title: '붉게 물든 쇄골',
         content: [
-            { character: null, dialogue: '두 번째 피해자는 평범한 기자였다. 그는 사건에 대해 깊이 파고들고 있었고, 그 대가로 붉게 물든 펜을 남겼다.' },
-            // ✅ position 속성 추가
-            { character: '도천영', expression: 'serious', position: 'right', dialogue: '사망 원인은 D-성분 노출입니다. 하지만 이번엔 농도가 매우 낮아요. 경고 살인입니다.' },
-            { character: '서도진', expression: 'angry', position: 'left', dialogue: '경고라니! 범인은 우리에게 자신의 이야기를 강요하고 있어!' }
+            { character: null, dialogue: '현이 액정을 두드려 동영상을 멈췄다. 몸을 숙인 도화의 오뚝한 콧날이 두드러지는 지점이었다.' },
+            { character: null, dialogue: '현은 두 손가락을 벌려 동영상의 어느 한 지점을 줌인했다. 후드티 안쪽으로 보이는 쇄골 지점이다. 볼록 튀어나온 목젖이 흐린 그림자를 만들고 움푹 들어간 쇄골의 굴곡이 짙은 그림자를 만드는.' },
+            { character: null, dialogue: '분홍색 후드티 안에는 받쳐 입은 게 없는지 그림자가 졌는데도 살색이 노골적이다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '뭐, 뭐 하는 거야?' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '여길 잘 보시라고요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '안 그래도 돼…….' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '네? 이상한 소리 하지 마세요. 보시라니깐요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '이, 이상한 소리 하지 마!' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '예?' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '이러면 안 될 거 같아…….' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '아뇨, 안 되는 짓을 하는 건 이렇게 애청자들을 기만하는 백도화 씨죠.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '기만……?' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '그러니까, 여기 보세요.' },
+            { character: null, dialogue: '도화의 매끈한 살이 여전히 화면을 가득 채우고 있었지만. 현의 손가락이 닿은 곳은 조금 달랐다.' },
+            { character: null, dialogue: '살색이 아니었다.' },
+            { character: null, dialogue: '쇄골에서 어깨 쪽으로 조금 떨어진 부근. 후드티로 가려져 잘은 보이지 않지만, 분명 붉게 물들어 있었다.' },
+            { character: null, dialogue: '어깨에서 시작된 울긋불긋한 흔적이 옷에 가려 보이지 않는 가슴께까지 길게 번져 있었다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '어…….' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '멍들었죠.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '그, 그렇네.' }
         ]
     },
     {
-        title: '숨겨진 단서: 미발표 논문',
+        title: '사라지지 않는 흔적',
         content: [
-            // ✅ position 속성 추가
-            { character: '박연우', expression: 'neutral', position: 'left', dialogue: '피해자 기자에게서 미발표된 화학 논문 초안이 발견되었습니다. 논문의 주제는 D-성분의 파생 물질입니다.' },
-            { character: '윤서천', expression: 'serious', position: 'right', dialogue: '파생 물질? 그건 제가 폐기한 연구입니다! 이 물질을 만들 수 있는 건... 저를 제외하고 단 한 사람뿐입니다.' },
-            { character: null, dialogue: '단서는 과거의 실패한 연구를 향하고 있었다.' }
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '다른 영상에서도 이래요. 이때만 일시적으로 멍이 든 게 아니란 말이죠.' },
+            { character: null, dialogue: '액정을 물린 현이 휴대전화를 툭툭 조작했다. 9월 초의 영상과 9월 말의 영상과 10월 초의 영상과…….' },
+            { character: null, dialogue: '그 안에서 웃고 화내는 도화의 어깨 부근은 항상 붉게 물들어 있었다.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '이 뒤로는 도화 씨도 뭔가 깨달은 게 있는지 안에 흰 티를 입으시더라고요. 그래서 요즘은 확인할 수가 없어요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '그냥 날이 추워져서 한 겹 더 입으신 건 아닐까…….' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '집에 있으면 안 춥거든요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(어깨부터 가슴까지 이어진 멍 자국. 꼭 무거운 뭔가를 하루 종일 맨 것처럼 남은 붉은 자국…….)' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(방송을 하지 않을 땐 누군가한테 협박당해서 천장에 대롱대롱 매달려있기라도 하는 건가…….)' }
         ]
     },
     {
-        title: '함정: 조작된 데이터',
+        title: '낮춘 목소리',
         content: [
-            // ✅ position 속성 추가
-            { character: '강은율', expression: 'serious', position: 'left', dialogue: '범인의 것으로 추정되는 데이터를 해킹했습니다. 하지만 분석 결과, 데이터에 "디지털 흔적 조작"의 징후가 있습니다.' },
-            { character: '백정문', expression: 'neutral', position: 'right', dialogue: '함정입니다. 범인은 우리가 잘못된 에너지 경로를 따르도록 유도하고 있어요. 빛을 따라가지 마십시오.' },
-            { character: null, dialogue: '모든 것이 조작된 상황. 진실은 데이터의 이면(裏面)에 숨어 있었다.' }
+            { character: null, dialogue: '차량, 하며 출입문에 달린 자그마한 종이 울렸다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(아직 일곱 시도 안 됐는데 필규가 왔나? 그럴 리가 없는데.)' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(아니면 이 시간에 손님이……?)' },
+            { character: null, dialogue: '문 앞에서 익숙한 얼굴의 손님이 멍한 눈을 하고 서 있었다.' },
+            { character: null, dialogue: '그는 창가 테이블에 모여 있는 사장과 손님을 잠시 쳐다보다가 고개를 살짝 숙였다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(아, 그 사람이다. 몇 달 전에 이사 온……. 서점에도 자주 들르는…….)' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(나는 많이 마주친 적 없지만 분명 필규는 출근하면서 자주 뵌다고 했지.)' },
+            { character: '필규', expression: 'neutral', position: 'right', dialogue: '(학교 선생님이시래요. 경기도에 사시는데 발령이 서울 쪽으로 나서 아예 집을 구하셨다나 봐요.)' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(처음 보는 사람이랑 그런 얘기도 하고 필규는 정말 대단하지…….)' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '어서 오세요.' },
+            { character: null, dialogue: '인사를 받은 손님은 곧장 문제집 코너로 걸어갔다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(그러고 보니 현이도 비슷한 얘기를 해 줬어.)' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '(고등학교 수학 선생님이시래요. 경기도에 사는데 발령이 서울로 나서 집을 구하셨대요.)' },
+            { character: null, dialogue: '손님은 문제집 서가 안으로 몸을 숨겼다. 바스락바스락 스윽 하며 책을 선별하는 소리가 들린다.' },
+            { character: null, dialogue: '두 사람은 손님의 기척을 의식하며 시선을 교환하다가, 이내 한껏 목소리를 낮춰 말문을 틀었다.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '낌새가 안 좋죠? 역시. 작가님도 그렇게 생각하시죠?' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(손님이 있을 땐 작가님이라는 단어를 쓰지 않아 줬으면 좋겠는데.)' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '어깨부터 가슴까지 멍이 들 일이 뭐가 있냐고요. 그것도 하루이틀도 아니고 한 달 내내요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '으음, 어디 묶여 계시는 거 아냐…….' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '그런데 방송할 때는 풀려나고요?' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '그러면, 도화 씨를 묶었다가 풀었다가 하는 상대는 도화 씨의 방송으로 뭔가의 이득을 본다고 봐야 하는데.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '묶어놓는 행위랑 보이게 하는 행위는 경향성이 너무 정반대죠.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '우리 너무 당연하게 도화 씨가 묶여있다고 전제하고 있는 거 아냐…….' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '그럴만한 일을 하시잖아요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '그럴만한 일을 하시기는 하지…….' }
         ]
     },
     {
-        title: '배신자의 얼굴: 가까운 그림자',
+        title: '소중한 배낭',
         content: [
-            // ✅ position 속성 추가
-            { character: '서도진', expression: 'serious', position: 'left', dialogue: '모든 용의자를 배제했을 때 남는 단 하나의 이름... 그가 이 모든 사건의 발단이었어.' },
-            { character: '독고유진', expression: 'neutral', position: 'right', dialogue: '가장 믿었던 이가 뒤에서 칼을 꽂는다는 결말은... 최악의 이야기입니다.' },
-            { character: '양석민', expression: 'serious', position: 'left', dialogue: '배신자가 정한 경로는 이미 명확합니다. 마지막 결전의 장소로 향해야 합니다.' }
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '계산을 좀 할 수 있을까요?' },
+            { character: '현', expression: 'neutral', position: 'left', dialogue: '어헉? 네!' },
+            { character: null, dialogue: '대체 언제 다가왔는지 모를 손님이 여전히 멍한 눈으로 두 사람을 바라보고 있었다. 한 손에 들린 매끈한 표지의 수학 문제집은 아래로 축 처진 채다.' },
+            { character: null, dialogue: '현은 답잖게 허둥지둥 카운터로 돌아갔다. 손님은 그를 뒤따르지 않았다. 도진의 어깨 너머에 있는 무언가를 빤히 보고 있다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(어, 내 노트북 화면을…….)' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(보고 있어……?)' },
+            { character: null, dialogue: '도진이 쾅 하고 노트북을 닫았다.' },
+            { character: null, dialogue: '선생은 뿔테 안경 뒤의 졸려 보이는 눈을 한 번 끔뻑이더니 시선을 도진에게로 옮긴다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '아, 아, 음, 왜, 아, 안녕하세요?' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '소설을 쓰시나요?' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '음, 그, 웨, 웹소설을, 조금.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '그러시군요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '저, 계, 계산.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '결혼을 하셨나요?' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '네?' },
+            { character: null, dialogue: '손님의 시선이 도진의 얼굴에서 손으로 떨어진다. 도진의 시선 역시 덩달아 추락한다. 왼손 약지에서 반지가 반짝이고 있다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '네, 네.' },
+            { character: null, dialogue: '도진은 긍정을 표했다. 결혼한 부부와 거진 동일한 생활을 하고 있음이 분명했다.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '아이는요?‘' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '네?' },
+            { character: null, dialogue: '헥? 에 가까운 발음이었지만 어찌저찌 의미는 통할 것이었다.' },
+            { character: null, dialogue: '손님을 기다리던 현은 불길하다는 표정을 만면에 걸고는 슬금슬금 이쪽으로 돌아오고 있었다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '어, 없, 없는데요.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '그러시군요.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '그, 그건 갑자기, 왜, 물어보시는지…….' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '손님, 계산해 드릴게요.' },
+            { character: null, dialogue: '도진을 빤히 내려다보던 그가 뒤를 휙 돌았다. 그 기세에 현도 흠칫하며 뒤로 한 걸음 물러난다.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '사장님은 결혼을 안 하셨지요?' },
+            { character: null, dialogue: '고저가 그다지 없는 나긋한 톤의 목소리는 학생들을 지도하는 데에 한 역할 톡톡히 할 것 같다. 사람을 겁박하는 데에도 쓸모가 있을 것 같다는 문제가 있긴 하다.' },
+            { character: null, dialogue: '현은 비즈니스 미소가 되다 만 애매한 미소를 입가에 걸고 만다.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '네, 아직 상대가 없어서.' },
+            { character: null, dialogue: '그러는 선생님은요, 하듯이 손님의 왼손으로 노골적인 시선을 보낸다.' },
+            { character: null, dialogue: '도진도 따라 훔쳐보면, 그의 손에는 아무런 치장이 되어 있지 않다.' },
+            { character: null, dialogue: '시선을 느낀 그는 제 왼손을 들어 내려다보더니.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '저는 했었습니다.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '아, 이거 실례가…….' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '아닙니다. 안사람은 떠났어도 딸아이랑 같이 열심히 살아가고 있으니까요.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '아, 따님이?' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '네. 지금은 고등학교 기숙사에서 타지 생활을 하고 있습니다만……. 항상 마음은 함께죠.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '그래서인지, 저는 알 것 같군요. 어깨와 가슴의 붉은 멍 말입니다.' },
+            { character: '현', expression: 'neutral', position: 'right', dialogue: '네? 아니, 그걸 다 듣고 계셨어요?' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '아, 예……. 귀는 닫을 수 없는 법이라서요.' },
+            { character: null, dialogue: '손님은 들고 있던 커다란 문제집을 옆구리에 끼었다.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '저도 그런 멍이 한때 생겼던 적이 있습니다. 전혀 익숙하지 않은 걸 매일 같이 매어야 했을 때가 있었거든요.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '끈이 짧아서 불편한 배낭이면 차라리 다행이죠. 어떻게든 편한 자세를 찾아서 매면 되는 일이니까요.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '하지만 그건 제가 편해서는 안 되는 배낭이었습니다. 배낭이 편한 자세를 찾아 그 자세를 유지해야만 했어요.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '그렇지 않으면 소중한 배낭에게 탈이 날 수도 있으니까…….' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(어라……? 설마, 아니…….)' },
+            { character: null, dialogue: '눈동자를 굴리니 경악을 숨기지 못하는 현의 얼굴이 시야의 가장자리에 비쳤다.' },
+            { character: null, dialogue: '도진은 눈을 질끈 감고 고개를 돌렸다.' },
+            { character: '도진', expression: 'neutral', position: 'left', dialogue: '(아아, 거짓말……. 설마 굳이 서울까지 이사하신 이유도…….)' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '두 분이 아이가 없으셔서 깨닫지 못하신 것 같습니다. 저는 바로 떠오르더군요. 그건 아기띠의 자국이라고.' }
         ]
     },
     {
-        title: '전반부: 마지막 선택', // 👈 제목 변경
-        // 👇 content 내용을 'eventStoryPart2.firstHalf'의 내용으로 교체
+        title: '왼손의 반지',
         content: [
-            // 장면 0
-            {
-                character: '서도진', expression: 'serious', position: 'left',
-                dialogue: '사건 현장에서 두 개의 결정적인 증거가 나왔어. 하나는 피해자의 다잉 메시지, 다른 하나는... 용의자의 지문이 묻은 찻잔이야.'
-            },
-            // 장면 1
-            {
-                character: '도천영', expression: 'neutral', position: 'right',
-                dialogue: '데이터는 거짓말을 하지 않죠. 하지만 다잉 메시지는 해석의 여지가 있고, 지문은 조작될 수 있습니다.'
-            },
-            // 장면 2
-            {
-                character: null,
-                dialogue: '두 개의 상반된 단서. 어떤 것을 더 신뢰해야 할까?'
-            },
-            // 장면 3 (선택지)
-            {
-                character: '서도진', expression: 'neutral', position: 'left',
-                dialogue: '이제 선택해야 해. 어떤 증거를 중심으로 수사를 진행할지...',
-                choices: [
-                    { text: '다잉 메시지를 믿는다.', nextScene: 4 },
-                    { text: '결정적인 지문을 믿는다.', nextScene: 5 }
-                ]
-            },
-            // 장면 4 (분기 1: 다잉 메시지)
-            {
-                character: null,
-                dialogue: '당신은 피해자가 마지막 힘을 다해 남긴 메시지에 더 무게를 두기로 했다.',
-                jumpTo: 6 
-            },
-            // 장면 5 (분기 2: 지문)
-            {
-                character: null,
-                dialogue: '당신은 과학적이고 물리적인 증거인 지문을 더 신뢰하기로 했다.',
-                jumpTo: 6 
-            },
-            // 장면 6 (공통 장면)
-            {
-                character: '서도진', expression: 'serious', position: 'left',
-                dialogue: '좋아, 그 방향으로 수사를 진행하지. 우리의 선택이 어떤 결과로 이어질지는... 아직 아무도 몰라.',
-                choices: [
-                    {
-                        text: '전반부 스토리 완료',
-                        statId: 'event_part2_final_choice',
-                        isFinalChoice: true
-                    }
-                ]
-            }
+            { character: null, dialogue: '엘리베이터에 선객이 있었다. 몇 달 전 최상층으로 이사 온 이웃이다.' },
+            { character: null, dialogue: '그는 엘리베이터 문간을 넘는 필규를 보고 작게 고개를 숙여 인사했다. 필규도 덩달아 목례한다.' },
+            { character: '필규', expression: 'neutral', position: 'left', dialogue: '안녕하세요, 날이 부쩍 추워졌네요.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '정말요, 아이들도 겉옷을 챙기기 시작하더군요.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '난방을 틀어달라고 성화입니다. 아직은 낮 기온이 따뜻해서 그럴 수 없다고 해도 억지를 부리는 게 참 아이들 다워요.' },
+            { character: null, dialogue: '필규는 순수하게 마음에서 우러나온 미소를 짓는다. 아이들, 이라는 단어에서 연상되는 푸릇한 이미지가 있었다.' },
+            { character: null, dialogue: '엘리베이터는 곧 지상에 다다른다. 문이 열리고 필규가 먼저 발걸음을 옮겼다.' },
+            { character: '필규', expression: 'neutral', position: 'left', dialogue: '그럼 좋은 하루 되세요.' },
+            { character: null, dialogue: '고개를 돌려 등 뒤의 이웃에게 가볍게 인사를 건넸다.' },
+            { character: '선생', expression: 'neutral', position: 'right', dialogue: '아아 예, 좋은 하루 되세요.' },
+            { character: null, dialogue: '왠지 시선을 아래로 보내고 있던 그가 적당히 인사를 받았다.' },
+            { character: '필규', expression: 'neutral', position: 'left', dialogue: '(뭘 보고 계셨던 거지?)' },
+            { character: null, dialogue: '상함을 느끼기도 잠시, 관성적으로 자가용에 올라타 시동을 건 필규는 폭이 썩 넓지 않은 아파트 정문을 지나 도로 다운 도로로 나간 뒤에야 그의 시선이 어디에 닿아 있었는지를 깨달았다.' },
+            { character: null, dialogue: '운전대 위의 왼손에서 어떤 함의를 띤 반지가 아침의 희끄무레한 빛을 받아 반짝이고 있었다.' }
         ]
     }
 ];
 
 // ✅ 1단계: 아래 코드를 game_data.js 파일에 추가하세요.
 
+// [이 코드로 기존 const eventStoryPart2 = {...} 블록 전체를 교체하세요]
 const eventStoryPart2 = {
-    // --- 전반부 스토리 ---
+    // --- 전반부 스토리 (선택지 때문에 이 부분은 필요합니다) ---
     firstHalf: [
         // 장면 0
         {
@@ -836,13 +924,13 @@ const eventStoryPart2 = {
         {
             character: null,
             dialogue: '당신은 피해자가 마지막 힘을 다해 남긴 메시지에 더 무게를 두기로 했다.',
-            jumpTo: 6 // ✅ 이 장면이 끝나면 6번 장면으로 점프하라고 알려줍니다.
+            jumpTo: 6 
         },
         // 장면 5 (분기 2: 지문)
         {
             character: null,
             dialogue: '당신은 과학적이고 물리적인 증거인 지문을 더 신뢰하기로 했다.',
-            jumpTo: 6 // ✅ 이 장면이 끝나면 6번 장면으로 점프하라고 알려줍니다.
+            jumpTo: 6 
         },
         // 장면 6 (공통 장면)
         {
@@ -857,105 +945,8 @@ const eventStoryPart2 = {
             ]
         }
     ],
-    // --- 후반부 스토리 ---
-    secondHalf: [
-        // === 1부 (기존 에피소드) ===
-        {
-            title: '분기점: 선택의 무게',
-            isBranching: true, 
-            branches: {
-                '결정적인 지문을 믿는다.': [
-                    { character: '도천영', expression: 'serious', position: 'right', dialogue: '지문 분석 결과가 나왔습니다. 하지만... 이상합니다. 지문이 너무 완벽해요.' },
-                    { character: '서도진', expression: 'surprised', position: 'left', dialogue: '너무 완벽하다고? 그게 무슨 소리지?' },
-                    { character: null, dialogue: '분석 결과, 지문은 실제 사람의 것이 아닌, 극도로 정교하게 제작된 \'인공 피부\'에서 찍힌 것으로 밝혀졌다. 범인은 우리를 완벽한 가짜 증거로 유인한 것이다.' }
-                ],
-                '다잉 메시지를 믿는다.': [
-                    { character: '박연우', expression: 'neutral', position: 'left', dialogue: '다잉 메시지를 재해독해 봤어요. 이건 사람 이름이 아니라... 분자 구조식의 일부였어요.' },
-                    { character: '서도진', expression: 'serious', position: 'right', dialogue: '분자 구조식이라고? 피해자는 죽기 직전, 범인의 이름이 아닌 \'그것\'의 정체를 알리려 했던 건가.' },
-                    { character: null, dialogue: '피해자가 남긴 마지막 메시지는 범인의 정체가 아닌, 사건의 핵심에 있는 미지의 물질을 가리키고 있었다.' }
-                ]
-            }
-        },
-        {
-            title: '진실의 성분: D-컴포넌트',
-            content: [
-                { character: '윤서천', expression: 'serious', position: 'right', dialogue: '당신들이 쫓는 건, 제가 과거에 \'D-컴포넌트\'라 이름 붙였던 물질입니다.' },
-                { character: '서도진', expression: 'neutral', position: 'left', dialogue: 'D-컴포넌트... 그게 대체 뭐지?' },
-                { character: '윤서천', expression: 'serious', position: 'right', dialogue: '단순한 독극물이 아닙니다. 인간의 뇌에 작용해... 현실과 허구의 경계를 무너뜨리는 환각제죠.' },
-                { character: null, dialogue: '피해자는 살해당한 것이 아니었다. D-컴포넌트에 중독되어, 스스로가 비극 소설의 주인공이 된 것처럼 행동하다 죽음에 이른 것이다.' }
-            ]
-        },
-        {
-            title: '실험 기록: K-사이드 프로젝트',
-            content: [
-                { character: '강은율', expression: 'neutral', position: 'left', dialogue: '해킹한 자료에서 암호화된 파일을 발견했습니다. 프로젝트 명은... K-side.' },
-                { character: null, dialogue: '파일에는 수많은 실험 기록이 담겨 있었다. 다양한 직업, 나이, 성별의 사람들이 \'피실험체\'가 되어 D-컴포넌트에 노출되었고, 그들의 반응이 상세히 기록되어 있었다.' },
-                { character: '도천영', expression: 'serious', position: 'right', dialogue: '이건... 단순 살인 사건이 아니었군요. 한 도시를 무대로 벌어지는 거대한 임상 실험입니다.' }
-            ]
-        },
-        {
-            title: '함정: 일그러진 서재',
-            content: [
-                { character: null, dialogue: '모든 단서는 도시 외곽의 낡은 도서관을 가리켰다. 하지만 그곳은 범인이 파놓은 함정이었다.' },
-                { character: '???', expression: 'neutral', position: 'right', dialogue: '어서 오세요, 나의 탐정님들. 여러분의 이야기는 잘 감상하고 있답니다.' },
-                { character: '서도진', expression: 'angry', position: 'left', dialogue: '누구냐! 정체를 밝혀!' },
-                { character: null, dialogue: '스피커에서 웃음소리가 터져 나온 뒤, 환기구에서 기체가 뿜어져 나오기 시작했다. D-컴포넌트였다. 책장의 책들이 녹아내리고, 글자들이 쏟아져 바닥을 기어 다녔다.' }
-            ]
-        },
-        {
-            title: '대면: 가면 속의 얼굴',
-            content: [
-                { character: null, dialogue: '환각 속에서, 탐정 일행은 마침내 프로젝트의 책임자, \'실장\'이라 불리는 인물과 마주한다.' },
-                { character: '실장', expression: 'neutral', position: 'left', dialogue: '당신들은 아주 훌륭한 \'등장인물\'이었어요. 당신들 덕분에 D-컴포넌트의 효능을 확실히 검증할 수 있었죠.' },
-                { character: '서도진', expression: 'serious', position: 'right', dialogue: '...이 모든 게, 그저 너의 유희를 위해서였단 말인가!' },
-                { character: '실장', expression: 'neutral', position: 'left', dialogue: '유희? 아니요. 이건 인류를 다음 단계로 진화시키기 위한 숭고한 \'집필\'입니다. 자, 이제 1부의 막을 내릴 시간이에요.' }
-            ]
-        },
-        // === 2부 (새로 추가된 에피소드) ===
-        {
-            title: '탈출: 각자의 무기',
-            content: [
-                { character: '서도진', expression: 'serious', position: 'left', dialogue: '젠장, 정신 똑바로 차려! 이건 전부 환각이야!' },
-                { character: '백정문', expression: 'neutral', position: 'right', dialogue: '모든 환각에도 \'에너지\'가 있습니다. 이 기체의 가장 약한 지점은... 저쪽 통풍구입니다!' },
-                { character: '한 현', expression: 'serious', position: 'left', dialogue: '길을 열죠. 뒤는 맡기겠습니다.' },
-                { character: null, dialogue: '각자의 특기를 살려, 탐정 일행은 간신히 환각의 도서관에서 탈출하는 데 성공한다. 하지만 \'실장\'이 남긴 작은 카드 한 장이 그들을 기다리고 있었다.' }
-            ]
-        },
-        {
-            title: '남겨진 카드: 새로운 수수께끼',
-            content: [
-                { character: '도천영', expression: 'neutral', position: 'right', dialogue: '카드에 적힌 건 의미 불명의 기호뿐입니다. 하지만 이 로고... 제약회사 \'NEXUS\'의 초기 로고와 일치합니다.' },
-                { character: '윤필규', expression: 'surprised', position: 'left', dialogue: '넥서스 제약? 평판이 아주 좋은 클린 기업인데요?' },
-                { character: null, dialogue: '가장 깨끗한 얼굴 뒤에 가장 추악한 진실이 숨어있는 법. K-사이드 프로젝트의 자금 출처와 배후가 서서히 드러나기 시작했다.' }
-            ]
-        },
-        {
-            title: '위장 잠입: 적의 심장부로',
-            content: [
-                { character: '강은율', expression: 'serious', position: 'left', dialogue: '넥서스 제약의 내부망에 침투했습니다. 오늘 밤, D-컴포넌트의 \'개량 샘플\'을 운송할 계획입니다. 잠입할 기회는 지금뿐입니다.' },
-                { character: '양석민', expression: 'neutral', position: 'right', dialogue: '가장 빠른 경로를 설계했습니다. 하지만 경비가 삼엄하니, 들키면 끝장입니다.' },
-                { character: null, dialogue: '탐정 일행은 연구원으로 위장해 넥서스 제약의 최심부, 격리된 연구 구역으로 향한다. 한 걸음 한 걸음이 살얼음판 위를 걷는 것 같았다.' }
-            ]
-        },
-        {
-            title: '프로젝트의 진실: 완벽한 이야기',
-            content: [
-                { character: null, dialogue: '연구 구역의 중앙 서버실. 그곳에서 K-사이드 프로젝트의 최종 목표가 드러났다.' },
-                { character: '서도진', expression: 'surprised', position: 'left', dialogue: '이건... 시나리오? \'최종장: 도시 정화\'라고 적혀있어.' },
-                { character: '도천영', expression: 'serious', position: 'right', dialogue: 'D-컴포넌트를 도시 전체에 살포하여, \'실장\'이 설계한 특정 시나리오대로 모든 시민이 행동하게 만들려는 계획입니다. 이건... 집단 세뇌입니다.' },
-                { character: null, dialogue: '그들이 막으려 했던 것은 연쇄 살인 사건이 아니었다. 한 도시의 현실을 통째로 뒤바꾸려는 거대한 음모였다.' }
-            ]
-        },
-        {
-            title: '최종장: 그리고, 이야기는 계속된다',
-            content: [
-                { character: '실장', expression: 'neutral', position: 'right', dialogue: '(모니터를 통해) 축하드립니다, 탐정님들. 드디어 이야기의 핵심에 도달하셨군요.' },
-                { character: '서도진', expression: 'angry', position: 'left', dialogue: '당장 멈춰!' },
-                { character: '실장', expression: 'neutral', position: 'right', dialogue: '멈추다니요? 이제 막 2부의 클라이맥스가 시작되었는걸요. 여러분의 활약 덕분에, 다음 이야기는 훨씬 더 재미있어질 겁니다.' },
-                { character: null, dialogue: '경보가 울리고 연구실의 문이 폐쇄된다. 모니터 속 \'실장\'은 미소 띤 얼굴로 손을 흔들었다. 그의 마지막 말은, 새로운 시작을 알리는 예고편과도 같았다.' }
-            ]
-        }
-    ]
+    // --- 후반부 스토리 (미니 이벤트이므로 비워둡니다) ---
+    secondHalf: [] // <--- 이 부분을 빈 배열로 만듭니다.
 };
 
             const eventShopItems = [
@@ -1260,16 +1251,14 @@ const characterProfiles = {
 };
 
 
-// [이 코드로 교체하세요]
 const currentEventInfo = {
-    title: "[ON] 승급전 세번만", // 이벤트 제목
-    startDate: EVENT_START_DATE, // 기존 이벤트 시작 날짜 변수 사용
-    endDate: EVENT_END_DATE,     // 기존 이벤트 종료 날짜 변수 사용
-    bannerImageUrl: "https://placehold.co/600x200/5a4fcf/ffffff?text=푸른+잉크와+그림자", // 이벤트 홈 배너 이미지
-    description: "'실패한 도시'를 떠난 백도화. 몇 달의 시간이 흐른 뒤, 긴 휴식기를 가졌던 그의 방송이 다시 시작된다. 그러나 방송을 보던 현은 무언가 이상한 낌새를 느끼고, 도진에게 의견을 구하는데….", // 이벤트 설명
-    gachaCharacterName: EVENT_CHARACTER_NAME // 기존 이벤트 뽑기 캐릭터 이름 변수 사용
+    title: "[ON] 승급전 세번만", // 이벤트 제목
+    startDate: EVENT_START_DATE, // 기존 이벤트 시작 날짜 변수 사용
+    endDate: EVENT_END_DATE,     // 기존 이벤트 종료 날짜 변수 사용
+    bannerImageUrl: "https://placehold.co/600x200/5a4fcf/ffffff?text=푸른+잉크와+그림자", // 이벤트 홈 배너 이미지
+    description: "'실패한 도시'를 떠난 백도화. 몇 달의 시간이 흐른 뒤, 긴 휴식기를 가졌던 그의 방송이 다시 시작된다. 그러나 방송을 보던 현은 무언가 이상한 낌새를 느끼고, 도진에게 의견을 구하는데….", // 이벤트 설명
+    gachaCharacterName: EVENT_CHARACTER_NAME // 기존 이벤트 뽑기 캐릭터 이름 변수 사용
 };
-
 
 
 
