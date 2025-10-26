@@ -1,51 +1,490 @@
 // --- 게임 설정 ---
             const characters = [
-                // name(고유), baseName, rarity, faction, stats, imageUrl, cardImageUrl, dialogues, skills, deathDialogue, story
-                { name: '[소설가] 서도진', baseName: '서도진', rarity: 'N', faction: '탐정', stats: { hp: 50, atk: 5, def: 5 }, imageUrl: 'https://placehold.co/300x500/a0aec0/ffffff?text=서도진', cardImageUrl: 'https://placehold.co/150x180/a0aec0/ffffff?text=서도진', dialogues: ['이야기의 시작은...'], skills: [{ name: '고뇌', dialogue: '음...', power: 1.2, type: 'damage' }], deathDialogue: '마감이...', story: `서재에 앉아 잉크 냄새를 맡는 것이 세상에서 가장 큰 행복이었던 남자, 서도진. 그는 베스트셀러 작가였지만, 세상의 명성보다는 자신만의 이야기 세계에 침잠하는 것을 더 즐겼다. 그의 손끝에서 태어나는 문장들은 때로는 날카로운 추리가 되고, 때로는 비극적인 사랑이 되었다. 독자들은 그의 이야기에 열광했지만, 정작 그 자신은 자신의 이야기가 현실을 침범하리라고는 상상조차 하지 못했다.\n\n그의 서재는 고요했다. 창밖의 도시 소음만이 희미하게 들려올 뿐, 공간을 채우는 것은 오직 오래된 종이 냄새와 그가 내쉬는 깊은 한숨뿐이었다. 벽면을 가득 채운 책들은 그가 걸어온 길이자, 앞으로 나아갈 길을 비추는 등대였다. 하지만 오늘따라 그 등대는 희미했다. 다음 작품의 마감이 코앞이었지만, 이야기의 마지막 조각이 맞춰지지 않았다. 마치 안개 속을 헤매는 기분이었다. 그의 주인공은 범인의 그림자를 쫓고 있었지만, 그 그림자는 손에 잡힐 듯 잡히지 않고 교묘하게 빠져나갔다. "젠장, 이럴 때가 아닌데..." 그는 헝클어진 머리를 거칠게 쓸어 넘겼다.[PAGE_BREAK]그러던 어느 날, 그의 오랜 친구이자 경쟁자였던 작가가 싸늘한 시신으로 발견되었다. 현장은 마치 소설의 한 장면처럼 기묘하게 꾸며져 있었고, 경찰은 단순 사고로 종결하려 했다. 하지만 서도진은 직감했다. 이것은 사고가 아니다. 누군가가 의도적으로 만들어낸, 잔혹한 이야기의 시작이라는 것을. 그는 친구의 억울한 죽음의 진실을 밝히기 위해, 그리고 자신의 이야기가 더는 더럽혀지는 것을 막기 위해 직접 사건에 뛰어들기로 결심한다. 그의 손에는 만년필 대신, 차가운 루페가 들려 있었다.` },
-                { name: '[탐정] 서도진', baseName: '서도진', rarity: 'R', faction: '탐정', stats: { hp: 100, atk: 15, def: 10 }, imageUrl: 'https://placehold.co/300x500/63b3ed/ffffff?text=서도진', cardImageUrl: 'https://placehold.co/150x180/63b3ed/ffffff?text=서도진', dialogues: ['사건 현장은 보존해주시죠.'], skills: [{ name: '추리', dialogue: '범인은 바로 당신!', power: 1.5, type: 'damage' }], deathDialogue: '이런... 실수를...', story: '사건을 파헤치기 위해, 그는 펜 대신 돋보기를 들었다. 그의 날카로운 시선은 거짓을 꿰뚫는다.' },
-                { name: '[악몽] 서도진', baseName: '서도진', rarity: 'SR', faction: '범인', stats: { hp: 200, atk: 30, def: 15 }, imageUrl: 'https://i.imgur.com/SXNh4TG.png', cardImageUrl: 'https://i.imgur.com/fgU3cqD.png', dialogues: ['그렇게 물어도 말이야, 꿈속이니까 말해보라는 핑계를 덧붙여도 말이야. 내가 입에 담을 수 있는 건 그저...'], skills: [{ name: '현실 침식', dialogue: '이게 꿈이 아니라고 확신할 수 있어서 좋겠어.', power: 1.8, type: 'damage' }], deathDialogue: '이 악몽은... 이제 시작일 뿐이야...', story: '그가 쓴 소설은 단순한 이야기가 아니다. 독자의 마음속 가장 깊은 공포를 파고드는 현실의 악몽 그 자체다. 그는 자신의 펜 끝에서 벌어지는 비극을 즐긴다.' },
-                { name: '[작가의 우울] 서도진', baseName: '서도진', rarity: 'SSR', faction: '탐정', stats: { hp: 380, atk: 42, def: 28 }, imageUrl: 'https://placehold.co/300x500/4a5568/ffffff?text=서도진', cardImageUrl: 'https://placehold.co/150x180/4a5568/ffffff?text=서도진', dialogues: ['이야기의 끝은... 언제나 비극이지.'], skills: [{ name: '행간 읽기', dialogue: '모든 비극엔 이유가 있는 법.', power: 2.2, type: 'damage' }, { name: '에필로그', dialogue: '이제, 이 이야기의 막을 내리죠.', power: 1.5, type: 'debuff_def' }], deathDialogue: '결국... 나 또한 이야기의 일부였을 뿐인가...', story: '범인의 마음을 너무 깊이 이해해버린 천재 작가. 그는 사건의 진실을 꿰뚫어 볼수록, 인간 내면의 깊은 어둠과 마주하며 끝없는 우울에 잠긴다.', enhancementSuccessDialogue: '이것이... 이야기의 새로운 경지로군.'},
-                { name: '[편집자] 윤필규', baseName: '윤필규', rarity: 'N', faction: '조수', stats: { hp: 60, atk: 8, def: 3 }, imageUrl: 'https://placehold.co/300x500/a0aec0/ffffff?text=윤필규', cardImageUrl: 'https://placehold.co/150x180/a0aec0/ffffff?text=윤필규', dialogues: ['오타입니다.'], skills: [{ name: '교정', dialogue: '이 문장은 틀렸습니다.', power: 1.3, type: 'damage' }], deathDialogue: '마감만은... 제발...', story: '그저 성실한 편집자일 뿐이었다. 담당 작가의 사건에 휘말리기 전까진.' },
-                { name: '[조수] 윤필규', baseName: '윤필규', rarity: 'R', faction: '조수', stats: { hp: 110, atk: 14, def: 11 }, imageUrl: 'https://placehold.co/300x500/63b3ed/ffffff?text=윤필규', cardImageUrl: 'https://placehold.co/150x180/63b3ed/ffffff?text=윤필규', dialogues: ['제가 돕겠습니다.'], skills: [{ name: '자료 조사', dialogue: '찾았습니다!', power: 1.4, type: 'damage' }], deathDialogue: '죄송합니다...', story: '어리숙해 보이지만, 그의 꼼꼼함은 사건 해결의 중요한 실마리가 된다.' },
-                { name: '[동거인] 윤필규', baseName: '윤필규', rarity: 'SR', faction: '조수', stats: { hp: 240, atk: 26, def: 19 }, imageUrl: 'https://placehold.co/300x500/b794f4/ffffff?text=윤필규', cardImageUrl: 'https://placehold.co/150x180/b794f4/ffffff?text=윤필규', dialogues: ['집세... 잊지 않으셨죠?'], skills: [{ name: '잔소리', dialogue: '방 좀 치우세요!', power: 1.9, type: 'damage' }], deathDialogue: '그래도... 즐거웠어...', story: '사건에 휘말린 작가와 함께 살며, 본의 아니게 사건의 중심에 서게 된다.' },
-                { name: '[올곧은 정의] 윤필규', baseName: '윤필규', rarity: 'SSR', faction: '조수', stats: { hp: 370, atk: 43, def: 29 }, imageUrl: 'https://placehold.co/300x500/f6e05e/000000?text=윤필규', cardImageUrl: 'https://placehold.co/150x180/f6e05e/000000?text=윤필규', dialogues: ['진실을 외면할 순 없습니다.'], skills: [{ name: '내부고발', dialogue: '제가 모든 것을 밝히겠습니다.', power: 2.4, type: 'damage' }, { name: '굳은 의지', dialogue: '저는 꺾이지 않습니다!', power: 1.8, type: 'vampire' }], deathDialogue: '정의는... 살아있다...', story: '평범했던 그는, 수많은 불의를 목격하며 스스로가 정의의 목소리가 되기로 결심했다.' },
-                { name: '[연구자] 윤서천', baseName: '윤서천', rarity: 'N', faction: '조수', stats: { hp: 45, atk: 9, def: 4 }, imageUrl: 'https://placehold.co/300x500/a0aec0/ffffff?text=윤서천', cardImageUrl: 'https://placehold.co/150x180/a0aec0/ffffff?text=윤서천', dialogues: ['흥미로운 샘플이군.'], skills: [{ name: '분석', dialogue: '결과가 나왔군.', power: 1.3, type: 'damage' }], deathDialogue: '데이터가... 부족해...', story: '그의 연구 노트에는 이해할 수 없는 화학식들만 가득했다.' },
-                { name: '[범인] 윤서천', baseName: '윤서천', rarity: 'R', faction: '범인', stats: { hp: 100, atk: 17, def: 9 }, imageUrl: 'https://placehold.co/300x500/63b3ed/ffffff?text=윤서천', cardImageUrl: 'https://placehold.co/150x180/63b3ed/ffffff?text=윤서천', dialogues: ['계획通り...'], skills: [{ name: '독극물', dialogue: '치사량이야.', power: 1.6, type: 'damage' }], deathDialogue: '계획에 없었는데...', story: '천재적인 두뇌는 때로는 위험한 방향으로 흐르기도 한다.' },
-                { name: '[실험쥐] 윤서천', baseName: '윤서천', rarity: 'SR', faction: '범인', stats: { hp: 260, atk: 24, def: 17 }, imageUrl: 'https://placehold.co/300x500/b794f4/ffffff?text=윤서천', cardImageUrl: 'https://placehold.co/150x180/b794f4/ffffff?text=윤서천', dialogues: ['이 주사... 정말 괜찮은 건가?'], skills: [{ name: '이상 반응', dialogue: '몸이... 뜨거워...!', power: 2.0, type: 'damage' }], deathDialogue: '결과는... 실패인가...', story: '스스로를 실험체로 삼는 것. 그것은 광기인가, 아니면 위대한 희생인가.' },
-                { name: '[in vivo] 윤서천', baseName: '윤서천', rarity: 'SSR', faction: '탐정', stats: { hp: 340, atk: 48, def: 24 }, imageUrl: 'https://placehold.co/300x500/f6e05e/000000?text=윤서천', cardImageUrl: 'https://placehold.co/150x180/f6e05e/000000?text=윤서천', dialogues: ['인류를 위한 희생이다.'], skills: [{ name: '임상실험', dialogue: '넌 훌륭한 샘플이야.', power: 2.5, type: 'damage' }, { name: '부작용', dialogue: '예상 밖인데!', power: 1.4, type: 'debuff_def' }], deathDialogue: '최고의... 샘플이었는데...', story: '그는 자신의 연구가 세상을 구원할 것이라 굳게 믿고 있다. 그 과정에서 발생하는 사소한 희생은 어쩔 수 없다고 생각한다.' },
-                { name: '[서점 주인] 한 현', baseName: '한 현', rarity: 'N', faction: '조수', stats: { hp: 70, atk: 6, def: 6 }, imageUrl: 'https://placehold.co/300x500/a0aec0/ffffff?text=한현', cardImageUrl: 'https://placehold.co/150x180/a0aec0/ffffff?text=한현', dialogues: ['어서오세요.'], skills: [{ name: '책 추천', dialogue: '이건 어떠신지?', power: 1.1, type: 'damage' }], deathDialogue: '가게는... 누가...', story: '동네의 작은 서점을 운영하는 평범한 청년. 그가 숨겨진 과거를 가지고 있다는 사실을 아는 이는 거의 없다.' },
-                { name: '[조수] 한 현', baseName: '한 현', rarity: 'R', faction: '조수', stats: { hp: 140, atk: 14, def: 13 }, imageUrl: 'https://placehold.co/300x500/63b3ed/ffffff?text=한현', cardImageUrl: 'https://placehold.co/150x180/63b3ed/ffffff?text=한현', dialogues: ['제가 가보겠습니다.'], skills: [{ name: '현장 조사', dialogue: '뭔가 있군요.', power: 1.4, type: 'damage' }], deathDialogue: '제가... 너무 나섰나요...', story: '사건의 진상을 파헤치는 탐정을 보며, 그는 잊고 있던 과거의 자신을 떠올린다.' },
-                { name: '[동행인] 한 현', baseName: '한 현', rarity: 'SR', faction: '조수', stats: { hp: 230, atk: 28, def: 20 }, imageUrl: 'https://placehold.co/300x500/b794f4/ffffff?text=한현', cardImageUrl: 'https://placehold.co/150x180/b794f4/ffffff?text=한현', dialogues: ['혼자 가게 둘 순 없죠.'], skills: [{ name: '엄호', dialogue: '뒤는 맡겨주세요!', power: 1.7, type: 'damage' }], deathDialogue: '먼저... 가세요...', story: '위험한 길이라는 것을 알면서도, 그는 동료를 위해 기꺼이 그 길에 함께 오른다.' },
-                { name: '[한때는, 탐정] 한 현', baseName: '한 현', rarity: 'SSR', faction: '탐정', stats: { hp: 390, atk: 40, def: 30 }, imageUrl: 'https://placehold.co/300x500/f6e05e/000000?text=한현', cardImageUrl: 'https://placehold.co/150x180/f6e05e/000000?text=한현', dialogues: ['오랜만이군, 이 감각.'], skills: [{ name: '오래된 통찰', dialogue: '범인은... 이 안에 없어.', power: 2.2, type: 'damage' }, { name: '감싸기', dialogue: '더는 다치게 둘 수 없지!', power: 1.9, type: 'vampire' }], deathDialogue: '결국... 여기까지인가...', story: '과거의 명성을 뒤로 하고 평범한 삶을 택했던 그. 하지만 눈앞의 사건은 그를 다시 탐정의 길로 이끈다.' },
-                // ==================== 도천영 ====================
-                { name: '[연구자] 도천영', baseName: '도천영', rarity: 'N', faction: '탐정', stats: { hp: 65, atk: 7, def: 5 }, imageUrl: 'https://placehold.co/300x500/4fd1c5/ffffff?text=도천영', cardImageUrl: 'https://placehold.co/150x180/4fd1c5/ffffff?text=도천영', dialogues: ['가설을 세워보죠.'], skills: [{ name: '데이터 분석', dialogue: '변수를 통제해야 합니다.', power: 1.1, type: 'damage' }], deathDialogue: '데이터가... 부족했어...', story: '세상의 모든 현상을 데이터로 이해하려는 냉철한 연구자. 그의 연구실은 언제나 서늘한 공기가 감돈다.' },
-                { name: '[탐정] 도천영', baseName: '도천영', rarity: 'R', faction: '탐정', stats: { hp: 130, atk: 15, def: 12 }, imageUrl: 'https://placehold.co/300x500/319795/ffffff?text=도천영', cardImageUrl: 'https://placehold.co/150x180/319795/ffffff?text=도천영', dialogues: ['현장은 거짓말을 하지 않습니다.'], skills: [{ name: '증거 수집', dialogue: '이건... 흥미롭군요.', power: 1.4, type: 'damage' }], deathDialogue: '이런 변수는... 계산에 없었는데...', story: '사건 현장을 하나의 거대한 실험실로 간주한다. 그에게 미제 사건이란 아직 증명되지 않은 가설일 뿐이다.' },
-                { name: '[in vitro] 도천영', baseName: '도천영', rarity: 'SR', faction: '탐정', stats: { hp: 220, atk: 29, def: 19 }, imageUrl: 'https://placehold.co/300x500/086f83/ffffff?text=도천영', cardImageUrl: 'https://placehold.co/150x180/086f83/ffffff?text=도천영', dialogues: ['자, 실험을 시작하죠.'], skills: [{ name: '가설 검증', dialogue: '결과는 명확하군요.', power: 1.8, type: 'damage' }], deathDialogue: '오염... 됐어...', story: '통제된 환경, 완벽한 변수 통제 하에 진실을 규명한다. 그의 손끝에서 벌어지는 작은 실험은 사건 전체를 뒤흔든다.' },
-                // ==================== 박연우 ====================
-                { name: '[연구자] 박연우', baseName: '박연우', rarity: 'N', faction: '탐정', stats: { hp: 75, atk: 5, def: 6 }, imageUrl: 'https://placehold.co/300x500/f6ad55/ffffff?text=박연우', cardImageUrl: 'https://placehold.co/150x180/f6ad55/ffffff?text=박연우', dialogues: ['기초부터 차근차근.'], skills: [{ name: '문헌 조사', dialogue: '선행 연구를 참고하죠.', power: 1.1, type: 'damage' }], deathDialogue: '아직...이었는데...', story: '언제나 미소를 잃지 않는 긍정적인 성격의 유기화학 연구자. 복잡한 화학 구조식 속에서 아름다움을 찾는다.' },
-                { name: '[탐정] 박연우', baseName: '박연우', rarity: 'R', faction: '탐정', stats: { hp: 150, atk: 12, def: 14 }, imageUrl: 'https://placehold.co/300x500/dd6b20/ffffff?text=박연우', cardImageUrl: 'https://placehold.co/150x180/dd6b20/ffffff?text=박연우', dialogues: ['조각들을 맞춰볼까요?'], skills: [{ name: '알리바이 분석', dialogue: '이 시간엔... 이게 불가능해요.', power: 1.4, type: 'damage' }], deathDialogue: '마지막 퍼즐이...', story: '흩어진 단서들을 모아 하나의 진실로 완성시키는 과정을 즐긴다. 그에게 사건 해결은 곧 완벽한 분자를 합성하는 것과 같다.' },
-                { name: '[total synthesis] 박연우', baseName: '박연우', rarity: 'SR', faction: '탐정', stats: { hp: 240, atk: 25, def: 22 }, imageUrl: 'https://placehold.co/300x500/c05621/ffffff?text=박연우', cardImageUrl: 'https://placehold.co/150x180/c05621/ffffff?text=박연우', dialogues: ['자, 모든 것이 모였습니다.'], skills: [{ name: '전합성', dialogue: '이것이 바로 진실의 구조입니다!', power: 1.8, type: 'damage' }], deathDialogue: '반응이... 멈췄어...', story: '아무것도 없는 곳에서 시작하여 단 하나의 완벽한 진실을 구축해낸다. 그의 통찰력은 사건의 전모를 꿰뚫는다.' },
-                // ==================== 강은율 ====================
-                { name: '[연구자] 강은율', baseName: '강은율', rarity: 'N', faction: '조수', stats: { hp: 60, atk: 8, def: 5 }, imageUrl: 'https://placehold.co/300x500/76e4f7/000000?text=강은율', cardImageUrl: 'https://placehold.co/150x180/76e4f7/000000?text=강은율', dialogues: ['시뮬레이션을 돌려보겠습니다.'], skills: [{ name: '모델링', dialogue: '예상 결과는 이렇습니다.', power: 1.1, type: 'damage' }], deathDialogue: '계산 오류인가...', story: '컴퓨터와 숫자를 더 신뢰하는 계산화학 연구자. 복잡한 현실보다는 깔끔한 가상 세계에서의 계산을 선호한다.' },
-                { name: '[조수] 강은율', baseName: '강은율', rarity: 'R', faction: '조수', stats: { hp: 125, atk: 16, def: 11 }, imageUrl: 'https://placehold.co/300x500/0bc5ea/ffffff?text=강은율', cardImageUrl: 'https://placehold.co/150x180/0bc5ea/ffffff?text=강은율', dialogues: ['필요한 정보는 전부 모았습니다.'], skills: [{ name: '정보 처리', dialogue: '여기서 유의미한 패턴이...', power: 1.4, type: 'damage' }], deathDialogue: '제 정보가... 틀렸을 리 없는데...', story: '탐정의 요청에 따라 방대한 양의 데이터를 수집하고 분석하며 그의 활동을 돕는다. 여전히 사람보단 숫자를 믿는다.' },
-                { name: '[in silico] 강은율', baseName: '강은율', rarity: 'SR', faction: '조수', stats: { hp: 210, atk: 30, def: 18 }, imageUrl: 'https://placehold.co/300x500/0987a0/ffffff?text=강은율', cardImageUrl: 'https://placehold.co/150x180/0987a0/ffffff?text=강은율', dialogues: ['모든 경우의 수를 예측했습니다.'], skills: [{ name: '예측 분석', dialogue: '범인은, 그리로 갈 겁니다.', power: 1.8, type: 'damage' }], deathDialogue: '최적해가... 아니었단 말인가...', story: '사건의 모든 정보를 데이터로 변환하여 가장 가능성이 높은 진실을 도출해낸다. 그의 예측은 거의 빗나가는 법이 없다.' },
-                // ==================== 백정문 ====================
-                { name: '[연구자] 백정문', baseName: '백정문', rarity: 'N', faction: '탐정', stats: { hp: 70, atk: 6, def: 6 }, imageUrl: 'https://placehold.co/300x500/fbb6ce/000000?text=백정문', cardImageUrl: 'https://placehold.co/150x180/fbb6ce/000000?text=백정문', dialogues: ['에너지를 측정해보죠.'], skills: [{ name: '분광학', dialogue: '빛이 모든 걸 말해줄 겁니다.', power: 1.1, type: 'damage' }], deathDialogue: '에너지가... 부족해...', story: '들뜬 상태의 분자를 연구하는 물리화학자. 평소엔 차분하지만, 흥미로운 현상을 발견하면 누구보다 뜨거워진다.' },
-                { name: '[탐정] 백정문', baseName: '백정문', rarity: 'R', faction: '탐정', stats: { hp: 140, atk: 14, def: 13 }, imageUrl: 'https://placehold.co/300x500/f687b3/ffffff?text=백정문', cardImageUrl: 'https://placehold.co/150x180/f687b3/ffffff?text=백정문', dialogues: ['보이지 않는 에너지가 느껴지는군요.'], skills: [{ name: '열 추적', dialogue: '아직... 온기가 남아있어.', power: 1.4, type: 'damage' }], deathDialogue: '결정적인 순간에...', story: '사건 현장에 남은 미세한 에너지의 흔적을 쫓아 진실에 다가간다. 그의 눈에는 보이지 않는 것들이 보인다.' },
-                { name: '[삼중항] 백정문', baseName: '백정문', rarity: 'SR', faction: '탐정', stats: { hp: 230, atk: 28, def: 20 }, imageUrl: 'https://placehold.co/300x500/d53f8c/ffffff?text=백정문', cardImageUrl: 'https://placehold.co/150x180/d53f8c/ffffff?text=백정문', dialogues: ['자, 들떠볼 시간입니다!'], skills: [{ name: '인광(燐光)', dialogue: '숨어있는 진실을 비춰라!', power: 1.8, type: 'damage' }], deathDialogue: '다시... 바닥상태로...', story: '사건이 교착 상태에 빠졌을 때, 그는 평범한 상태에서는 보이지 않는 진실을 꿰뚫어 보는 힘을 발휘한다.' },
-                // ==================== 독고유진 ====================
-                { name: '[소설가] 독고유진', baseName: '독고유진', rarity: 'N', faction: '조수', stats: { hp: 80, atk: 6, def: 5 }, imageUrl: 'https://placehold.co/300x500/9f7aea/ffffff?text=독고유진', cardImageUrl: 'https://placehold.co/150x180/9f7aea/ffffff?text=독고유진', dialogues: ['재미있는 이야기네요.'], skills: [{ name: '인물 설정', dialogue: '그 사람은... 그런 말을 할 리가 없어요.', power: 1.1, type: 'damage' }], deathDialogue: '결말이... 이래선 안되는데...', story: '사람들의 이야기를 듣고 쓰는 것을 좋아하는 미스터리 소설가. 그의 상상력은 때로 현실보다 더 현실 같다.' },
-                { name: '[조수] 독고유진', baseName: '독고유진', rarity: 'R', faction: '조수', stats: { hp: 160, atk: 13, def: 13 }, imageUrl: 'https://placehold.co/300x500/805ad5/ffffff?text=독고유진', cardImageUrl: 'https://placehold.co/150x180/805ad5/ffffff?text=독고유진', dialogues: ['다음 이야기가 궁금해졌거든요.'], skills: [{ name: '복선 파악', dialogue: '이건 그때 그 사건과 이어져있어!', power: 1.4, type: 'damage' }], deathDialogue: '제가... 너무 깊이 들어왔나요...', story: '자신이 쓰던 소설보다 더 소설 같은 현실의 사건에 휘말린다. 그는 이야기의 끝을 보기 위해 탐정과 동행하기로 한다.' },
-                { name: '[무사] 독고유진', baseName: '독고유진', rarity: 'SR', faction: '조수', stats: { hp: 250, atk: 30, def: 18 }, imageUrl: 'https://placehold.co/300x500/553c9a/ffffff?text=독고유진', cardImageUrl: 'https://placehold.co/150x180/553c9a/ffffff?text=독고유진', dialogues: ['이야기를 지키기 위해서라면.'], skills: [{ name: '일필휘지(一筆揮之)', dialogue: '이 검으로, 결말을 쓰겠다!', power: 1.8, type: 'damage' }], deathDialogue: '여기까지가... 제 이야기인가 봅니다...', story: '그가 쓰는 것은 더 이상 펜이 아니다. 소중한 사람들과 자신이 만든 이야기를 지키기 위해, 그는 잊고 있던 검을 다시 잡았다.' },
-                // ==================== 양석민 ====================
-                { name: '[연구자] 양석민', baseName: '양석민', rarity: 'N', faction: '탐정', stats: { hp: 70, atk: 7, def: 5 }, imageUrl: 'https://placehold.co/300x500/38a169/ffffff?text=양석민', cardImageUrl: 'https://placehold.co/150x180/38a169/ffffff?text=양석민', dialogues: ['흐름을 읽어야 합니다.'], skills: [{ name: '촉매 작용', dialogue: '반응을 이끌어내죠.', power: 1.1, type: 'damage' }], deathDialogue: '길을... 잃었군...', story: '반응의 경로를 설계하고 예측하는 것을 전문으로 하는 연구원. 언제나 가장 효율적인 길을 찾으려 노력한다.' },
-                { name: '[탐정] 양석민', baseName: '양석민', rarity: 'R', faction: '탐정', stats: { hp: 145, atk: 15, def: 11 }, imageUrl: 'https://placehold.co/300x500/2f855a/ffffff?text=양석민', cardImageUrl: 'https://placehold.co/150x180/2f855a/ffffff?text=양석민', dialogues: ['사건의 흐름이 보입니다.'], skills: [{ name: '경로 예측', dialogue: '범인은 분명 그곳으로 향했을 겁니다.', power: 1.4, type: 'damage' }], deathDialogue: '예상치 못한... 경로였습니다...', story: '용의자의 행동 패턴과 사건의 전개 과정을 분석하여 다음 단계를 예측한다. 그의 예측은 대부분 현실이 된다.' },
-                { name: '[인도자] 양석민', baseName: '양석민', rarity: 'SR', faction: '탐정', stats: { hp: 235, atk: 27, def: 21 }, imageUrl: 'https://placehold.co/300x500/22543d/ffffff?text=양석민', cardImageUrl: 'https://placehold.co/150x180/22543d/ffffff?text=양석민', dialogues: ['제가, 길을 보여드리죠.'], skills: [{ name: '최단 경로', dialogue: '진실로 가는 가장 빠른 길입니다.', power: 1.8, type: 'damage' }], deathDialogue: '여기까지... 안내하는 것이 제 역할...', story: '복잡하게 얽힌 사건 속에서 헤매는 동료들을 위해 가장 확실하고 빠른 길을 제시하는 길잡이. 그와 함께라면 길을 잃지 않는다.' },
-                // ==================== 윤유준 ====================
-                { name: '[학생] 윤유준', baseName: '윤유준', rarity: 'N', faction: '조수', stats: { hp: 65, atk: 5, def: 8 }, imageUrl: 'https://placehold.co/300x500/e53e3e/ffffff?text=윤유준', cardImageUrl: 'https://placehold.co/150x180/e53e3e/ffffff?text=윤유준', dialogues: ['어? 저건...'], skills: [{ name: '목격', dialogue: '제가 본 게 맞다면...', power: 1.1, type: 'damage' }], deathDialogue: '못 본 척... 했어야 했는데...', story: '호기심 많고 관찰력이 뛰어난 학생. 우연히 사건의 결정적인 순간을 목격하게 된다.' },
-                { name: '[조수] 윤유준', baseName: '윤유준', rarity: 'R', faction: '조수', stats: { hp: 135, atk: 12, def: 15 }, imageUrl: 'https://placehold.co/300x500/c53030/ffffff?text=윤유준', cardImageUrl: 'https://placehold.co/150x180/c53030/ffffff?text=윤유준', dialogues: ['제가 봤어요. 확실해요.'], skills: [{ name: '증언', dialogue: '그날, 그 사람은 거기에 있었어요.', power: 1.4, type: 'damage' }], deathDialogue: '제가... 도움이 되었을까요?', story: '자신의 목격이 사건 해결에 중요한 단서가 된다는 것을 알고, 용기를 내어 탐정을 돕기 시작한다.' },
-                { name: '[방관자] 윤유준', baseName: '윤유준', rarity: 'SR', faction: '조수', stats: { hp: 225, atk: 26, def: 23 }, imageUrl: 'https://placehold.co/300x500/742a2a/ffffff?text=윤유준', cardImageUrl: 'https://placehold.co/150x180/742a2a/ffffff?text=윤유준', dialogues: ['...저는 그저, 보고 있을 뿐입니다.'], skills: [{ name: '객관적 시선', dialogue: '감정은... 배제하는 편이 좋습니다.', power: 1.8, type: 'damage' }], deathDialogue: '결국... 아무것도 하지 못했군.', story: '사건의 추악한 진실과 마주한 후, 그는 한 걸음 물러나 모든 것을 지켜보기로 결심한다. 더 이상 섣불리 개입하지 않으리라 다짐하면서.' }
-            ];
+    // name(고유), baseName, rarity, faction, stats, imageUrl, cardImageUrl, dialogues, skills, deathDialogue, story
+    { 
+        name: '[소설가] 서도진', 
+        baseName: '서도진', 
+        rarity: 'N', 
+        faction: '탐정', 
+        stats: { hp: 50, atk: 5, def: 5 }, 
+        imageUrl: 'https://placehold.co/300x500/a0aec0/ffffff?text=서도진', 
+        cardImageUrl: 'https://placehold.co/150x180/a0aec0/ffffff?text=서도진', 
+        dialogues: ['하아... 마감이 코앞인데.', '이 이야기는 어떻게 끝내야 할까.'], 
+        skills: [{ name: '퇴고', dialogue: '이 문장은... 영 별로군.', power: 1.2, type: 'damage' }], // 스킬명 변경
+        deathDialogue: '내 소설은... 미완성으로...', 
+        story: `서재에 앉아 잉크 냄새를 맡는 것이 세상에서 가장 큰 행복이었던 남자, 서도진. 그는 베스트셀러 작가였지만, 세상의 명성보다는 자신만의 이야기 세계에 침잠하는 것을 더 즐겼다. 담당 편집자 윤필규의 격려 덕분에 겨우 글쟁이 생활을 이어가고 있다.\n\n그의 서재는 고요했다. 창밖의 도시 소음만이 희미하게 들려올 뿐, 공간을 채우는 것은 오직 오래된 종이 냄새와 그가 내쉬는 깊은 한숨뿐이었다. 다음 작품의 마감이 코앞이었지만, 이야기의 마지막 조각이 맞춰지지 않았다. 마치 안개 속을 헤매는 기분이었다. "젠장, 이럴 때가 아닌데..." 그는 헝클어진 머리를 거칠게 쓸어 넘겼다.[PAGE_BREAK]그러던 어느 날, 그의 오랜 친구이자 경쟁자였던 작가가 싸늘한 시신으로 발견되었다. 현장은 마치 소설의 한 장면처럼 기묘하게 꾸며져 있었고, 경찰은 단순 사고로 종결하려 했다. 하지만 서도진은 직감했다. 이것은 사고가 아니다. 누군가가 의도적으로 만들어낸, 잔혹한 이야기의 시작이라는 것을. 그는 친구의 억울한 죽음의 진실을 밝히기 위해, 그리고 자신의 이야기가 더는 더럽혀지는 것을 막기 위해 직접 사건에 뛰어들기로 결심한다. 그의 손에는 만년필 대신, 차가운 루페가 들려 있었다.` 
+    },
+    { 
+        name: '[탐정] 서도진', 
+        baseName: '서도진', 
+        rarity: 'R', 
+        faction: '탐정', 
+        stats: { hp: 100, atk: 15, def: 10 }, 
+        imageUrl: 'https://placehold.co/300x500/63b3ed/ffffff?text=서도진', 
+        cardImageUrl: 'https://placehold.co/150x180/63b3ed/ffffff?text=서도진', 
+        dialogues: ['사건 현장은 보존해주시죠.', '진실은 하나뿐입니다.'], 
+        skills: [{ name: '추리', dialogue: '모든 단서는... 당신을 가리키는군요.', power: 1.5, type: 'damage' }], 
+        deathDialogue: '이런... 중요한 단서를 놓쳤군...', 
+        story: '떠밀려 시작한 탐정 일이지만, 그의 날카로운 관찰력과 작가 특유의 상상력은 사건의 이면에 숨겨진 진실을 꿰뚫어 본다. 그는 이제 이야기 속 인물이 아닌, 현실의 탐정이다.' 
+    },
+    // [악몽] 서도진 카드는 제외
+    { name: '[악몽] 서도진', baseName: '서도진', rarity: 'SR', faction: '범인', stats: { hp: 200, atk: 30, def: 15 }, imageUrl: 'https://i.imgur.com/SXNh4TG.png', cardImageUrl: 'https://i.imgur.com/fgU3cqD.png', dialogues: ['그렇게 물어도 말이야, 꿈속이니까 말해보라는 핑계를 덧붙여도 말이야. 내가 입에 담을 수 있는 건 그저...'], skills: [{ name: '현실 침식', dialogue: '이게 꿈이 아니라고 확신할 수 있어서 좋겠어.', power: 1.8, type: 'damage' }], deathDialogue: '이 악몽은... 이제 시작일 뿐이야...', story: '그가 쓴 소설은 단순한 이야기가 아니다. 독자의 마음속 가장 깊은 공포를 파고드는 현실의 악몽 그 자체다. 그는 자신의 펜 끝에서 벌어지는 비극을 즐긴다.' },
+    { 
+        name: '[작가의 우울] 서도진', 
+        baseName: '서도진', 
+        rarity: 'SSR', 
+        faction: '탐정', 
+        stats: { hp: 380, atk: 42, def: 28 }, 
+        imageUrl: 'https://placehold.co/300x500/4a5568/ffffff?text=서도진', 
+        cardImageUrl: 'https://placehold.co/150x180/4a5568/ffffff?text=서도진', 
+        dialogues: ['이야기의 끝은... 언제나 비극이지.', '이해하고 싶지 않았는데...'], 
+        skills: [
+            { name: '행간 읽기', dialogue: '진실은 언제나... 쓰디쓴 법.', power: 2.2, type: 'damage' }, 
+            { name: '에필로그', dialogue: '이제, 이 이야기의 막을 내리죠.', power: 1.5, type: 'debuff_def' }
+        ], 
+        deathDialogue: '결국... 나 또한 이야기의 일부였을 뿐인가...', 
+        story: '범인의 마음을 너무 깊이 이해해버린 천재 작가. 그는 사건의 진실을 꿰뚫어 볼수록, 인간 내면의 깊은 어둠과 마주하며 끝없는 우울에 잠긴다. 이야기가 그를 잠식하고 있다.', 
+        enhancementSuccessDialogue: '이것이... 이야기의 새로운 경지로군.'
+    },
+    { 
+        name: '[편집자] 윤필규', 
+        baseName: '윤필규', 
+        rarity: 'N', 
+        faction: '조수', 
+        stats: { hp: 60, atk: 8, def: 3 }, 
+        imageUrl: 'https://placehold.co/300x500/a0aec0/ffffff?text=윤필규', 
+        cardImageUrl: 'https://placehold.co/150x180/a0aec0/ffffff?text=윤필규', 
+        dialogues: ['선생님, 마감은 지키셔야 합니다.', '여기 오타가 있네요.'], 
+        skills: [{ name: '교정', dialogue: '이 문장은 틀렸습니다. 다시 쓰시죠.', power: 1.3, type: 'damage' }], 
+        deathDialogue: '제 원고는... 아직인데!', 
+        story: '서도진의 담당 편집자. 슬럼프에 빠진 작가를 다독이며 마감을 지키게 하는 것이 그의 주된 업무다. 가끔은 편집자보다 보호자에 가깝다.' 
+    },
+    { 
+        name: '[조수] 윤필규', 
+        baseName: '윤필규', 
+        rarity: 'R', 
+        faction: '조수', 
+        stats: { hp: 110, atk: 14, def: 11 }, 
+        imageUrl: 'https://placehold.co/300x500/63b3ed/ffffff?text=윤필규', 
+        cardImageUrl: 'https://placehold.co/150x180/63b3ed/ffffff?text=윤필규', 
+        dialogues: ['제가 도울 일이 있을까요?', '선생님 혼자 보내드릴 순 없죠.'], 
+        skills: [{ name: '자료 조사', dialogue: '관련 자료는 전부 찾아왔습니다!', power: 1.4, type: 'damage' }], 
+        deathDialogue: '제가 너무 부족했나요?', 
+        story: '사건에 휘말린 서도진을 걱정하며 그의 곁을 지킨다. 어딘가 어설프지만, 그의 꼼꼼함과 성실함은 사건 해결에 중요한 실마리를 제공한다.' 
+    },
+    { 
+        name: '[동거인] 윤필규', 
+        baseName: '윤필규', 
+        rarity: 'SR', 
+        faction: '조수', 
+        stats: { hp: 240, atk: 26, def: 19 }, 
+        imageUrl: 'https://placehold.co/300x500/b794f4/ffffff?text=윤필규', 
+        cardImageUrl: 'https://placehold.co/150x180/b794f4/ffffff?text=윤필규', 
+        dialogues: ['선생님! 또 밤새신 거예요? 식사는요?', '집세… 잊지 않으셨죠?'], 
+        skills: [{ name: '생활 관리', dialogue: '건강 생각도 좀 하세요!', power: 1.9, type: 'damage' }], // 스킬명 변경
+        deathDialogue: '그래도 선생님 원고는 지켰어요.', 
+        story: '작가와 함께 살면서 그의 생활 전반을 관리한다. 때로는 편집자보다 엄마 같은 잔소리를 늘어놓지만, 그만큼 서도진을 깊이 걱정하고 있다.' 
+    },
+    { 
+        name: '[올곧은 정의] 윤필규', 
+        baseName: '윤필규', 
+        rarity: 'SSR', 
+        faction: '조수', 
+        stats: { hp: 370, atk: 43, def: 29 }, 
+        imageUrl: 'https://placehold.co/300x500/f6e05e/000000?text=윤필규', 
+        cardImageUrl: 'https://placehold.co/150x180/f6e05e/000000?text=윤필규', 
+        dialogues: ['진실을 외면할 순 없습니다!', '제가 반드시 바로잡겠습니다.'], 
+        skills: [
+            { name: '내부 고발', dialogue: '제가 알고 있는 모든 것을 밝히겠습니다!', power: 2.4, type: 'damage' }, 
+            { name: '굳은 의지', dialogue: '저는 여기서 물러서지 않습니다!', power: 1.8, type: 'vampire' }
+        ], 
+        deathDialogue: '정의는 반드시… 살아있습니다…', 
+        story: '평범해 보였던 편집자. 하지만 그의 마음 속에는 불의를 참지 못하는 뜨거운 정의감이 숨겨져 있었다. 그는 더 이상 침묵하지 않기로 결심했다.' 
+    },
+    { 
+        name: '[연구자] 윤서천', 
+        baseName: '윤서천', 
+        rarity: 'N', 
+        faction: '조수', 
+        stats: { hp: 45, atk: 9, def: 4 }, 
+        imageUrl: 'https://placehold.co/300x500/a0aec0/ffffff?text=윤서천', 
+        cardImageUrl: 'https://placehold.co/150x180/a0aec0/ffffff?text=윤서천', 
+        dialogues: ['이 반응, 예상 밖인데.', '데이터가 더 필요하군.'], 
+        skills: [{ name: '분석', dialogue: '결과를 다시 검토해야겠군.', power: 1.3, type: 'damage' }], 
+        deathDialogue: '변수가 너무 많았어!', 
+        story: '일본 유학 중 지도 교수를 잃고 귀국한 화학과 대학원생. 조용하고 내성적인 성격이지만, 연구에 대한 집념은 누구보다 강하다.' 
+    },
+    { 
+        name: '[범인] 윤서천', 
+        baseName: '윤서천', 
+        rarity: 'R', 
+        faction: '범인', 
+        stats: { hp: 100, atk: 17, def: 9 }, 
+        imageUrl: 'https://placehold.co/300x500/63b3ed/ffffff?text=윤서천', 
+        cardImageUrl: 'https://placehold.co/150x180/63b3ed/ffffff?text=윤서천', 
+        dialogues: ['계획대로 진행되고 있군.', '이 정도면 충분하겠지.'], 
+        skills: [{ name: '독극물 제조', dialogue: '완벽한 비율이야.', power: 1.6, type: 'damage' }], 
+        deathDialogue: '내 계산이 틀렸을 리가!', 
+        story: '잃어버린 지도 교수의 연구를 완성하기 위해서라면, 그는 어떤 수단도 가리지 않는다. 그의 천재적인 두뇌는 위험한 길로 향하고 있다.' 
+    },
+    { 
+        name: '[실험쥐] 윤서천', 
+        baseName: '윤서천', 
+        rarity: 'SR', 
+        faction: '범인', 
+        stats: { hp: 260, atk: 24, def: 17 }, 
+        imageUrl: 'https://placehold.co/300x500/b794f4/ffffff?text=윤서천', 
+        cardImageUrl: 'https://placehold.co/150x180/b794f4/ffffff?text=윤서천', 
+        dialogues: ['내 몸으로 직접 증명하겠어.', '이 정도 고통은 예상 범위 내다.'], 
+        skills: [{ name: '이상 반응', dialogue: '크윽! 이게… 그 효과인가!', power: 2.0, type: 'damage' }], 
+        deathDialogue: '데이터는 확보했나…?', 
+        story: '연구의 완성을 위해 자신의 몸을 기꺼이 실험 대상으로 삼는다. 그의 눈빛에는 광기와 희생 정신이 뒤섞여 있다.' 
+    },
+    { 
+        name: '[in vivo] 윤서천', 
+        baseName: '윤서천', 
+        rarity: 'SSR', 
+        faction: '탐정', 
+        stats: { hp: 340, atk: 48, def: 24 }, 
+        imageUrl: 'https://placehold.co/300x500/f6e05e/000000?text=윤서천', 
+        cardImageUrl: 'https://placehold.co/150x180/f6e05e/000000?text=윤서천', 
+        dialogues: ['더 위대한 결과를 위해선… 감수해야지.', '인류를 위한 희생이다.'], 
+        skills: [
+            { name: '임상 실험', dialogue: '네 희생은 헛되지 않을 거다.', power: 2.5, type: 'damage' }, 
+            { name: '부작용 제어', dialogue: '이런 반응은… 예상 밖인데! 제어해야 해!', power: 1.4, type: 'debuff_def' } // 스킬명 변경
+        ], 
+        deathDialogue: '연구는… 계속되어야 한다…', 
+        story: '그는 자신의 연구가 인류를 구원할 것이라 굳게 믿는다. 그 과정에서 발생하는 사소한 희생은 불가피하다고 생각하며, 때로는 탐정 일행에게 협력하기도 한다.' 
+    },
+    { 
+        name: '[서점 주인] 한 현', 
+        baseName: '한 현', 
+        rarity: 'N', 
+        faction: '조수', 
+        stats: { hp: 70, atk: 6, def: 6 }, 
+        imageUrl: 'https://placehold.co/300x500/a0aec0/ffffff?text=한현', 
+        cardImageUrl: 'https://placehold.co/150x180/a0aec0/ffffff?text=한현', 
+        dialogues: ['찾으시는 책이라도 있으신가요?', '어서 오세요.'], 
+        skills: [{ name: '책 정리', dialogue: '분류는 정확해야죠.', power: 1.1, type: 'damage' }], 
+        deathDialogue: '서점 문은… 닫아야 하는데…', 
+        story: '동네의 작은 서점을 운영하는 평범하고 조용한 청년. 가끔 보이는 날카로운 눈빛은 그가 평범하지만은 않다는 것을 암시한다.' 
+    },
+    { 
+        name: '[조수] 한 현', 
+        baseName: '한 현', 
+        rarity: 'R', 
+        faction: '조수', 
+        stats: { hp: 140, atk: 14, def: 13 }, 
+        imageUrl: 'https://placehold.co/300x500/63b3ed/ffffff?text=한현', 
+        cardImageUrl: 'https://placehold.co/150x180/63b3ed/ffffff?text=한현', 
+        dialogues: ['이 근처라면 제가 잘 압니다.', '도움이 필요하시면 말씀하세요.'], 
+        skills: [{ name: '현장 안내', dialogue: '이쪽입니다. 조심하세요.', power: 1.4, type: 'damage' }], 
+        deathDialogue: '제가 도움이 되었을지 모르겠네요.', 
+        story: '사건의 진상을 파헤치는 탐정을 보며, 그는 잊고 있던 과거의 자신을 떠올린다. 그는 망설임 끝에 탐정을 돕기로 결심한다.' 
+    },
+    { 
+        name: '[동행인] 한 현', 
+        baseName: '한 현', 
+        rarity: 'SR', 
+        faction: '조수', 
+        stats: { hp: 230, atk: 28, def: 20 }, 
+        imageUrl: 'https://placehold.co/300x500/b794f4/ffffff?text=한현', 
+        cardImageUrl: 'https://placehold.co/150x180/b794f4/ffffff?text=한현', 
+        dialogues: ['혼자 가게 둘 순 없죠.', '위험한 곳이라도 괜찮습니다.'], 
+        skills: [{ name: '길 찾기', dialogue: '지름길을 알고 있습니다!', power: 1.7, type: 'damage' }], 
+        deathDialogue: '먼저 가십시오!', 
+        story: '위험한 길이라는 것을 알면서도, 그는 동료를 위해 기꺼이 그 길에 함께 오른다. 조용하지만 굳건한 그의 존재는 큰 힘이 된다.' 
+    },
+    { 
+        name: '[한때는, 탐정] 한 현', 
+        baseName: '한 현', 
+        rarity: 'SSR', 
+        faction: '탐정', 
+        stats: { hp: 390, atk: 40, def: 30 }, 
+        imageUrl: 'https://placehold.co/300x500/f6e05e/000000?text=한현', 
+        cardImageUrl: 'https://placehold.co/150x180/f6e05e/000000?text=한현', 
+        dialogues: ['오랜만이군, 이 감각.', '사건은 스스로 말하는 법이지.'], 
+        skills: [
+            { name: '오래된 통찰', dialogue: '범인은… 아직 이 안에 있어.', power: 2.2, type: 'damage' }, 
+            { name: '보호', dialogue: '제 뒤에 계십시오!', power: 1.9, type: 'vampire' }
+        ], 
+        deathDialogue: '결국… 여기까지인가.', 
+        story: '과거의 명성을 뒤로 하고 평범한 삶을 택했던 그. 하지만 눈앞의 사건은 그를 다시 탐정의 길로 이끈다. 녹슨 칼날은 여전히 날카롭다.' 
+    },
+    { 
+        name: '[연구자] 도천영', 
+        baseName: '도천영', 
+        rarity: 'N', 
+        faction: '탐정', 
+        stats: { hp: 65, atk: 7, def: 5 }, 
+        imageUrl: 'https://placehold.co/300x500/4fd1c5/ffffff?text=도천영', 
+        cardImageUrl: 'https://placehold.co/150x180/4fd1c5/ffffff?text=도천영', 
+        dialogues: ['연구에는 열의가 필요합니다.', 'FM대로 진행합시다.'], 
+        skills: [{ name: '데이터 분석', dialogue: '이 패턴은… 의미가 있군요.', power: 1.1, type: 'damage' }], 
+        deathDialogue: '연구비가… 부족했어.', 
+        story: '서울 모 대학 화학과 부교수. FM 스타일이지만 연구에 대한 열정은 아직 남아있다. 그의 마이너한 연구 주제에 관심을 보이는 학생이 없어 고민이다.' 
+    },
+    { 
+        name: '[탐정] 도천영', 
+        baseName: '도천영', 
+        rarity: 'R', 
+        faction: '탐정', 
+        stats: { hp: 130, atk: 15, def: 12 }, 
+        imageUrl: 'https://placehold.co/300x500/319795/ffffff?text=도천영', 
+        cardImageUrl: 'https://placehold.co/150x180/319795/ffffff?text=도천영', 
+        dialogues: ['현장의 데이터는 거짓말을 하지 않습니다.', '감정보단 증거를 믿어야죠.'], 
+        skills: [{ name: '증거 수집', dialogue: '이 미세한 차이가… 결정적이군요.', power: 1.4, type: 'damage' }], 
+        deathDialogue: '이런 변수는… 계산에 없었는데.', 
+        story: '사건 현장을 하나의 거대한 실험실로 간주한다. 감정보단 데이터와 증거를 신뢰하며, 냉철한 분석으로 진실에 다가선다.' 
+    },
+    { 
+        name: '[in vitro] 도천영', 
+        baseName: '도천영', 
+        rarity: 'SR', 
+        faction: '탐정', 
+        stats: { hp: 220, atk: 29, def: 19 }, 
+        imageUrl: 'https://placehold.co/300x500/086f83/ffffff?text=도천영', 
+        cardImageUrl: 'https://placehold.co/150x180/086f83/ffffff?text=도천영', 
+        dialogues: ['자, 실험 결과를 확인하죠.', '변수는 완벽히 통제되었습니다.'], 
+        skills: [{ name: '가설 검증', dialogue: '제 가설이 옳았습니다.', power: 1.8, type: 'damage' }], 
+        deathDialogue: '실험… 실패인가.', 
+        story: '통제된 환경, 완벽한 변수 통제 하에 진실을 규명한다. 그의 손끝에서 벌어지는 작은 실험은 때로 사건 전체를 뒤흔드는 중요한 단서가 된다.' 
+    },
+    { 
+        name: '[연구자] 박연우', 
+        baseName: '박연우', 
+        rarity: 'N', 
+        faction: '탐정', 
+        stats: { hp: 75, atk: 5, def: 6 }, 
+        imageUrl: 'https://placehold.co/300x500/f6ad55/ffffff?text=박연우', 
+        cardImageUrl: 'https://placehold.co/150x180/f6ad55/ffffff?text=박연우', 
+        dialogues: ['하아... 퇴근하고 싶다.', '오늘 점심은 뭐 먹지...'], 
+        skills: [{ name: '문헌 조사', dialogue: '관련 논문을 찾아보죠... 귀찮지만.', power: 1.1, type: 'damage' }], 
+        deathDialogue: '드디어... 쉴 수 있겠군...', 
+        story: '서울 모 대학 화학과 교수. 한때 학계의 혜성이었으나 지금은 삶의 의지마저 희미해 보인다. 그녀의 연구실은 학생들의 자발적인 협조로 겨우 유지되고 있다.' 
+    },
+    { 
+        name: '[탐정] 박연우', 
+        baseName: '박연우', 
+        rarity: 'R', 
+        faction: '탐정', 
+        stats: { hp: 150, atk: 12, def: 14 }, 
+        imageUrl: 'https://placehold.co/300x500/dd6b20/ffffff?text=박연우', 
+        cardImageUrl: 'https://placehold.co/150x180/dd6b20/ffffff?text=박연우', 
+        dialogues: ['어쩔 수 없지, 한번 볼까요?', '귀찮은 일에 휘말렸네...'], 
+        skills: [{ name: '알리바이 분석', dialogue: '이 시간엔... 이게 불가능해요. 알리바이가 깨졌네요.', power: 1.4, type: 'damage' }], 
+        deathDialogue: '마지막 퍼즐 조각이... 어디 갔지...', 
+        story: '귀찮아하면서도 사건에 휘말리면 특유의 통찰력으로 단서를 엮어 진실을 만들어낸다. 그에게 사건 해결은 복잡하지만 흥미로운 퍼즐 맞추기와 같다.' 
+    },
+    { 
+        name: '[total synthesis] 박연우', 
+        baseName: '박연우', 
+        rarity: 'SR', 
+        faction: '탐정', 
+        stats: { hp: 240, atk: 25, def: 22 }, 
+        imageUrl: 'https://placehold.co/300x500/c05621/ffffff?text=박연우', 
+        cardImageUrl: 'https://placehold.co/150x180/c05621/ffffff?text=박연우', 
+        dialogues: ['자, 이제 모든 조각이 모였네요.', '시작은 미미했지만, 결과는 완벽하죠.'], 
+        skills: [{ name: '전합성', dialogue: '이것이 바로 진실의 구조입니다! 깔끔하죠?', power: 1.8, type: 'damage' }], 
+        deathDialogue: '반응 경로가... 막혔어.', 
+        story: '아무것도 없는 곳에서 시작하여 단 하나의 완벽한 진실을 구축해낸다. 한때 학계의 혜성이었던 그녀의 번뜩이는 통찰력은 여전히 살아있다.' 
+    },
+    { 
+        name: '[연구자] 강은율', 
+        baseName: '강은율', 
+        rarity: 'N', 
+        faction: '조수', 
+        stats: { hp: 60, atk: 8, def: 5 }, 
+        imageUrl: 'https://placehold.co/300x500/76e4f7/000000?text=강은율', 
+        cardImageUrl: 'https://placehold.co/150x180/76e4f7/000000?text=강은율', 
+        dialogues: ['네? 아… 네, 알겠습니다.', '4f 오비탈은 정말 아름답죠.'], 
+        skills: [{ name: '모델링', dialogue: '계산 결과는 이렇게 나왔습니다.', power: 1.1, type: 'damage' }], 
+        deathDialogue: '오차가… 있었나.', 
+        story: '서울 모 대학 화학과 조교수. 언제나 미소를 잃지 않는 긍정적인 성격이다. 복잡한 란타넘족 원소들의 전자 배치를 계산하는 것을 좋아한다.' 
+    },
+    { 
+        name: '[조수] 강은율', 
+        baseName: '강은율', 
+        rarity: 'R', 
+        faction: '조수', 
+        stats: { hp: 125, atk: 16, def: 11 }, 
+        imageUrl: 'https://placehold.co/300x500/0bc5ea/ffffff?text=강은율', 
+        cardImageUrl: 'https://placehold.co/150x180/0bc5ea/ffffff?text=강은율', 
+        dialogues: ['요청하신 정보, 여기 있습니다.', '제가 도울 수 있어 기쁩니다.'], 
+        skills: [{ name: '정보 처리', dialogue: '여기서 유의미한 패턴을 발견했습니다.', power: 1.4, type: 'damage' }], 
+        deathDialogue: '제 계산이… 틀렸을 리 없는데.', 
+        story: '탐정의 요청에 따라 방대한 양의 데이터를 수집하고 분석하며 그의 활동을 돕는다. 긍정적인 태도로 팀의 분위기를 밝게 만든다.' 
+    },
+    { 
+        name: '[in silico] 강은율', 
+        baseName: '강은율', 
+        rarity: 'SR', 
+        faction: '조수', 
+        stats: { hp: 210, atk: 30, def: 18 }, 
+        imageUrl: 'https://placehold.co/300x500/0987a0/ffffff?text=강은율', 
+        cardImageUrl: 'https://placehold.co/150x180/0987a0/ffffff?text=강은율', 
+        dialogues: ['모든 가능성을 시뮬레이션했습니다.', '결과는 분명합니다.'], 
+        skills: [{ name: '예측 분석', dialogue: '범인은, 다음엔 이곳으로 갈 겁니다. 확률 98.7%죠.', power: 1.8, type: 'damage' }], 
+        deathDialogue: '예외 케이스였나…', 
+        story: '사건의 모든 정보를 데이터로 변환하여 가장 가능성이 높은 진실을 도출해낸다. 그의 미소 뒤에는 날카로운 분석력이 숨겨져 있다.' 
+    },
+    { 
+        name: '[연구자] 백정문', 
+        baseName: '백정문', 
+        rarity: 'N', 
+        faction: '탐정', 
+        stats: { hp: 70, atk: 6, def: 6 }, 
+        imageUrl: 'https://placehold.co/300x500/fbb6ce/000000?text=백정문', 
+        cardImageUrl: 'https://placehold.co/150x180/fbb6ce/000000?text=백정문', 
+        dialogues: ['수학적으로 접근해보죠.', '이 문제는 흥미롭군요.'], 
+        skills: [{ name: '미분방정식 풀이', dialogue: '이 변수를 풀면 답이 보일 겁니다.', power: 1.1, type: 'damage' }], // 스킬명 변경
+        deathDialogue: '증명이… 미완성인데.', 
+        story: '서울 모 대학 수학과 조교수. 부드러운 인상과 달리 복잡한 문제를 푸는 것을 즐긴다. 학생들에게 인기가 많지만, 어딘가 다른 모습이 있다는 소문도 있다.' 
+    },
+    { 
+        name: '[탐정] 백정문', 
+        baseName: '백정문', 
+        rarity: 'R', 
+        faction: '탐정', 
+        stats: { hp: 140, atk: 14, def: 13 }, 
+        imageUrl: 'https://placehold.co/300x500/f687b3/ffffff?text=백정문', 
+        cardImageUrl: 'https://placehold.co/150x180/f687b3/ffffff?text=백정문', 
+        dialogues: ['이 문제, 아름답군요.', '논리적으로 생각해보시죠.'], 
+        skills: [{ name: '위상수학적 분석', dialogue: '구멍을 찾았습니다. 논리의 허점이군요.', power: 1.4, type: 'damage' }], 
+        deathDialogue: '결정적인 순간에… 계산 착오라니.', 
+        story: '사건을 하나의 거대한 수학 문제처럼 접근한다. 숨겨진 패턴과 논리의 허점을 찾아내 진실로 향하는 방정식을 풀어낸다.' 
+    },
+    { 
+        name: '[삼중항] 백정문', 
+        baseName: '백정문', 
+        rarity: 'SR', 
+        faction: '탐정', 
+        stats: { hp: 230, atk: 28, def: 20 }, 
+        imageUrl: 'https://placehold.co/300x500/d53f8c/ffffff?text=백정문', 
+        cardImageUrl: 'https://placehold.co/150x180/d53f8c/ffffff?text=백정문', 
+        dialogues: ['후후, 이제 좀 재밌어지겠네요!', '예측 불가능한 변수가 세상을 움직이죠.'], 
+        skills: [{ name: '카오스 이론 적용', dialogue: '나비의 날갯짓이 폭풍을 부르죠!', power: 1.8, type: 'damage' }], // 스킬명 변경
+        deathDialogue: '결국… 엔트로피는 증가하는 건가.', 
+        story: '평소의 부드러운 모습 뒤에 숨겨진 또 다른 얼굴. 예측 불가능하고 혼란스러운 상황 속에서 오히려 그는 더욱 명료하게 진실을 꿰뚫어 본다.' 
+    },
+    { 
+        name: '[소설가] 독고유진', 
+        baseName: '독고유진', 
+        rarity: 'N', 
+        faction: '조수', 
+        stats: { hp: 80, atk: 6, def: 5 }, 
+        imageUrl: 'https://placehold.co/300x500/9f7aea/ffffff?text=독고유진', 
+        cardImageUrl: 'https://placehold.co/150x180/9f7aea/ffffff?text=독고유진', 
+        dialogues: ['오싹한 이야기네요. 마음에 들어요.', '이건 소설 소재로 딱인데.'], 
+        skills: [{ name: '인물 설정 분석', dialogue: '이 캐릭터는… 이런 상황에서 이렇게 행동할 리가 없어요.', power: 1.1, type: 'damage' }], // 스킬명 변경
+        deathDialogue: '결말이… 마음에 안 드는데.', 
+        story: '호러 소설가. 소설보다 더 소설 같은 현실의 사건에 흥미를 느끼고, 교수 양석민을 따라다니며 사건 해결을 돕는다. 때로는 그의 직감이 결정적인 단서가 된다.' 
+    },
+    { 
+        name: '[조수] 독고유진', 
+        baseName: '독고유진', 
+        rarity: 'R', 
+        faction: '조수', 
+        stats: { hp: 160, atk: 13, def: 13 }, 
+        imageUrl: 'https://placehold.co/300x500/805ad5/ffffff?text=독고유진', 
+        cardImageUrl: 'https://placehold.co/150x180/805ad5/ffffff?text=독고유진', 
+        dialogues: ['이 사건, 결말이 궁금해졌거든요.', '교수님, 이번엔 어떤가요?'], 
+        skills: [{ name: '복선 파악', dialogue: '이건 그때 그 이야기와 이어져있어!', power: 1.4, type: 'damage' }], 
+        deathDialogue: '제가 너무 깊이 들어왔나요?', 
+        story: '사건 현장에서 소설의 복선을 찾아내듯 숨겨진 단서를 발견한다. 그는 이야기의 끝을 보기 위해 기꺼이 위험 속으로 뛰어든다.' 
+    },
+    { 
+        name: '[무사] 독고유진', 
+        baseName: '독고유진', 
+        rarity: 'SR', 
+        faction: '조수', 
+        stats: { hp: 250, atk: 30, def: 18 }, 
+        imageUrl: 'https://placehold.co/300x500/553c9a/ffffff?text=독고유진', 
+        cardImageUrl: 'https://placehold.co/150x180/553c9a/ffffff?text=독고유진', 
+        dialogues: ['이야기를 지키기 위해서라면, 뭐든지.', '펜보다는 검이 빠를 때도 있죠.'], 
+        skills: [{ name: '일필휘지(一筆揮之)', dialogue: '이 검으로, 결말을 새로 쓰겠다!', power: 1.8, type: 'damage' }], 
+        deathDialogue: '여기까지가… 제 이야기인가 봅니다.', 
+        story: '그가 쓰는 것은 더 이상 펜이 아니다. 소중한 사람들과 자신이 만든 이야기를 지키기 위해, 그는 잊고 있던 검을 다시 잡았다. 호러 소설가의 숨겨진 모습이다.' 
+    },
+    { 
+        name: '[연구자] 양석민', 
+        baseName: '양석민', 
+        rarity: 'N', 
+        faction: '탐정', 
+        stats: { hp: 70, atk: 7, def: 5 }, 
+        imageUrl: 'https://placehold.co/300x500/38a169/ffffff?text=양석민', 
+        cardImageUrl: 'https://placehold.co/150x180/38a169/ffffff?text=양석민', 
+        dialogues: ['흐름을 읽어야 합니다. 모든 것에는 이유가 있지요.', '오래된 기록을 살펴보죠.'], 
+        skills: [{ name: '문헌 연구', dialogue: '오래된 기록에 답이 있을지도 모릅니다.', power: 1.1, type: 'damage' }], 
+        deathDialogue: '길을… 잃었군.', 
+        story: '충청 모 대학 민속학과 교수. 인간과 외우주의 종교를 연구한다. 그의 연구실에는 기묘한 유물과 고문서가 가득하다.' 
+    },
+    { 
+        name: '[탐정] 양석민', 
+        baseName: '양석민', 
+        rarity: 'R', 
+        faction: '탐정', 
+        stats: { hp: 145, atk: 15, def: 11 }, 
+        imageUrl: 'https://placehold.co/300x500/2f855a/ffffff?text=양석민', 
+        cardImageUrl: 'https://placehold.co/150x180/2f855a/ffffff?text=양석민', 
+        dialogues: ['사건의 흐름이 보이기 시작했습니다.', '이것은 고대의 의식과 관련이 있을지도.'], 
+        skills: [{ name: '민속학적 분석', dialogue: '이 현상은… 특정 전승과 일치하는군요.', power: 1.4, type: 'damage' }], // 스킬명 변경
+        deathDialogue: '예상치 못한… 변수였습니다.', 
+        story: '사건 현장에 남겨진 기묘한 상징이나 패턴을 민속학적 지식으로 분석하여, 범인의 의도나 다음 행동을 예측한다. 그의 지식은 때로 현대 과학을 뛰어넘는다.' 
+    },
+    { 
+        name: '[인도자] 양석민', 
+        baseName: '양석민', 
+        rarity: 'SR', 
+        faction: '탐정', 
+        stats: { hp: 235, atk: 27, def: 21 }, 
+        imageUrl: 'https://placehold.co/300x500/22543d/ffffff?text=양석민', 
+        cardImageUrl: 'https://placehold.co/150x180/22543d/ffffff?text=양석민', 
+        dialogues: ['제가, 진실로 가는 길을 보여드리죠.', '길을 잃지 않도록 조심하십시오.'], 
+        skills: [{ name: '고대의 지혜', dialogue: '오래된 지혜가 우리를 인도할 겁니다.', power: 1.8, type: 'damage' }], // 스킬명 변경
+        deathDialogue: '여기까지… 안내하는 것이 제 역할이었군요.', 
+        story: '복잡하게 얽힌 사건 속에서 헤매는 동료들을 위해 가장 확실하고 빠른 길을 제시하는 길잡이. 그의 오래된 지식은 미궁 속에서 한 줄기 빛이 된다.' 
+    },
+    { 
+        name: '[학생] 윤유준', 
+        baseName: '윤유준', 
+        rarity: 'N', 
+        faction: '조수', 
+        stats: { hp: 65, atk: 5, def: 8 }, 
+        imageUrl: 'https://placehold.co/300x500/e53e3e/ffffff?text=윤유준', 
+        cardImageUrl: 'https://placehold.co/150x180/e53e3e/ffffff?text=윤유준', 
+        dialogues: ['어? 저건… 뭔가 이상한데요?', '이 약, 이름이 뭐였더라…'], 
+        skills: [{ name: '목격', dialogue: '제가 본 게 맞다면… 저 사람이 범인일지도 몰라요!', power: 1.1, type: 'damage' }], 
+        deathDialogue: '못 본 척… 했어야 했는데.', 
+        story: '충청 모 대학 약학과 학생. 오컬트를 좋아하지만 깊이 믿지는 않는다. 괴담 블로그를 즐겨보다가 우연히 사건의 결정적인 순간을 목격하게 된다.' 
+    },
+    { 
+        name: '[조수] 윤유준', 
+        baseName: '윤유준', 
+        rarity: 'R', 
+        faction: '조수', 
+        stats: { hp: 135, atk: 12, def: 15 }, 
+        imageUrl: 'https://placehold.co/300x500/c53030/ffffff?text=윤유준', 
+        cardImageUrl: 'https://placehold.co/150x180/c53030/ffffff?text=윤유준', 
+        dialogues: ['제가 봤어요. 저 사람이 확실해요.', '이 약의 성분은…'], 
+        skills: [{ name: '증언', dialogue: '그날 밤, 그 사람은 분명히 거기에 있었어요!', power: 1.4, type: 'damage' }], 
+        deathDialogue: '제가… 도움이 되었을까요?', 
+        story: '자신의 목격과 약학 지식이 사건 해결에 중요한 단서가 된다는 것을 알고, 용기를 내어 탐정 일행을 돕기 시작한다.' 
+    },
+    { 
+        name: '[방관자] 윤유준', 
+        baseName: '윤유준', 
+        rarity: 'SR', 
+        faction: '조수', 
+        stats: { hp: 225, atk: 26, def: 23 }, 
+        imageUrl: 'https://placehold.co/300x500/742a2a/ffffff?text=윤유준', 
+        cardImageUrl: 'https://placehold.co/150x180/742a2a/ffffff?text=윤유준', 
+        dialogues: ['…저는 그저, 이 모든 걸 지켜볼 뿐입니다.', '결과는 이미 정해져 있을지도 모르죠.'], 
+        skills: [{ name: '객관적 시선', dialogue: '감정은… 배제하는 편이 진실에 가까워지는 길입니다.', power: 1.8, type: 'damage' }], 
+        deathDialogue: '결국… 아무것도 바뀌지 않았군.', 
+        story: '사건의 추악한 진실과 인간의 어두운 면을 마주한 후, 그는 한 걸음 물러나 모든 것을 냉정하게 지켜보기로 결심한다. 더 이상 섣불리 개입하지 않으리라 다짐하면서.' 
+    }
+];
             
             const monsters = {
                 // 1장 초반부 일반 몬스터
@@ -743,85 +1182,92 @@ const RARITY_COST_MULTIPLIER = {
 const characterProfiles = {
     '서도진': {
         name: '서도진',
-        age: 29,
-        job: '미스터리 소설가',
-        description: '베스트셀러 작가. 자신의 이야기가 현실을 침범하기 시작하며 사건에 휘말린다. 날카로운 추리력을 지녔지만, 때로는 이야기에 과하게 몰입하여 우울에 잠기기도 한다.',
+        age: 37,
+        job: '추리소설가',
+        description: '베스트셀러 추리소설가. 남에게 떠밀려 투고된 글이 공전의 히트를 쳤다. 이런 관심 받고 싶지 않지만, 담당 편집자의 격려로 어찌어찌 글쟁이 생활을 이어나가는 중.',
         imageUrl: 'https://placehold.co/300x500/a0aec0/ffffff?text=서도진+프로필' // 대표 프로필 이미지
     },
     '윤필규': {
         name: '윤필규',
-        age: 27,
-        job: '편집자 / 탐정 조수',
-        description: '서도진의 담당 편집자. 꼼꼼하고 성실한 성격으로, 사건에 휘말린 서도진을 돕는다. 때로는 잔소리가 심한 동거인 같기도 하다. 올곧은 정의감을 숨기고 있다.',
+        age: 32,
+        job: '편집자',
+        description: '서도진의 담당 편집자. 꼼꼼하고 성실한 성격으로, 틈만 나면 슬럼프에 빠지는 서도진과 동거하며 그의 생활을 돕는다. 어디서 나온지 모를 올곧은 정의감을 숨기고 있다.',
         imageUrl: 'https://placehold.co/300x500/63b3ed/ffffff?text=윤필규+프로필'
     },
     '윤서천': {
         name: '윤서천',
         age: 31,
-        job: '화학 연구자',
-        description: '천재적인 두뇌를 지닌 화학자. 자신의 연구가 세상을 구원할 것이라 믿으며, 그 과정에서 발생하는 희생은 감수해야 한다고 생각한다. 윤필규의 형이기도 하다.',
+        job: '화학과 대학원생',
+        description: '일본에서 박사과정을 밟다가 모종의 사건으로 지도교수를 잃고 귀국한 연구자. 윤필규의 동생이자 도천영의 학생.',
         imageUrl: 'https://placehold.co/300x500/f6e05e/000000?text=윤서천+프로필'
     },
     '한 현': {
         name: '한 현',
-        age: 34,
-        job: '서점 주인',
-        description: '동네의 작은 서점을 운영하는 평범한 청년. 하지만 그 정체는 과거의 명성을 뒤로하고 은퇴한 전직 탐정이다. 눈앞의 사건이 그를 다시 현장으로 이끈다.',
+        age: 32,
+        job: '동네서점 주인',
+        description: '동네의 작은 서점을 운영하는 평범한 청년. 눈앞의 사건이 그를 다시 현장으로 이끈다.',
         imageUrl: 'https://placehold.co/300x500/f6e05e/000000?text=한+현+프로필'
     },
     '도천영': {
         name: '도천영',
-        age: 32,
-        job: '계산화학 연구자 / 탐정',
-        description: '세상의 모든 현상을 데이터로 이해하려는 냉철한 연구자. 사건 현장을 하나의 거대한 실험실로 간주하며, 감정보다는 증거와 데이터를 신뢰한다.',
+        age: 42,
+        job: '화학과 부교수',
+        description: '서울 모 대학교 화학과 소속 부교수. 아직은 열의가 있는 FM. 연구 주제가 마이너해 학생이 별로 오지 않는 게 고민이다.',
         imageUrl: 'https://placehold.co/300x500/086f83/ffffff?text=도천영+프로필'
     },
     '박연우': {
         name: '박연우',
-        age: 28,
-        job: '유기화학 연구자 / 탐정',
-        description: '언제나 미소를 잃지 않는 긍정적인 성격의 연구자. 흩어진 단서들을 모아 하나의 완벽한 진실(구조)로 합성해내는 과정을 즐긴다.',
+        age: 46,
+        job: '화학과 교수',
+        description: '서울 모 대학교 화학과 소속 교수. 한때 학계의 혜성으로 소개되었으나 현재는 열의는 커녕 삶의 의지도 영 보이지 않는다. 그녀의 유기화학 연구실은 학생들의 협조로 어찌어찌 돌아가는 중.',
         imageUrl: 'https://placehold.co/300x500/c05621/ffffff?text=박연우+프로필'
     },
     '강은율': {
         name: '강은율',
-        age: 26,
-        job: '계산화학 연구자 / 조수',
-        description: '컴퓨터와 숫자를 사람보다 더 신뢰한다. 방대한 양의 데이터를 수집하고 시뮬레이션하여 가장 가능성이 높은 진실을 도출해내는 정보 분석 전문가.',
+        age: 36,
+        job: '화학과 조교수',
+        description: '서울 모 대학교 화학과 소속 조교수. 언제나 미소를 잃지 않는 긍정적인 성격의 연구자. 제일 좋아하는 건 4f 오비탈.',
         imageUrl: 'https://placehold.co/300x500/0987a0/ffffff?text=강은율+프로필'
     },
     '백정문': {
         name: '백정문',
-        age: 30,
-        job: '물리화학자 / 탐정',
-        description: '사건 현장에 남은 미세한 에너지의 흔적을 쫓아 진실에 다가간다. 평소엔 차분하지만, 흥미로운 현상을 발견하면 누구보다 뜨거워진다.',
+        age: 32,
+        job: '수학자',
+        description: '서울 모 대학교 수학과 소속 조교수. 부드러운 성격으로 학생들에게 소소하게 인기가 있다. 개인 시간에는 어쩐지 성격이 다르다는 모양이지만...',
         imageUrl: 'https://placehold.co/300x500/d53f8c/ffffff?text=백정문+프로필'
     },
     '독고유진': {
         name: '독고유진',
-        age: 25,
-        job: '미스터리 소설가 / 조수',
-        description: '사람들의 이야기를 듣고 쓰는 것을 좋아하는 소설가. 소설보다 더 소설 같은 현실의 사건에 휘말리며, 이야기의 끝을 보기 위해 탐정과 동행한다.',
+        age: 39,
+        job: '호러소설가',
+        description: '소설보다 더 소설 같은 현실의 사건을 해결하는 호러소설가. 아니, 사실 해결은 나 말고 교수님이 하신다고 봐야 하지만. 손 정도는 빌려드리니까 말이야.',
         imageUrl: 'https://placehold.co/300x500/553c9a/ffffff?text=독고유진+프로필'
     },
     '양석민': {
         name: '양석민',
-        age: 33,
-        job: '화학 연구원 / 탐정',
-        description: '반응의 경로를 설계하고 예측하는 전문가. 용의자의 행동 패턴과 사건의 전개 과정을 분석하여 다음 단계를 예측한다. 가장 효율적인 길을 선호한다.',
+        age: 48,
+        job: '민속학과 교수',
+        description: '충청 모 대학 민속학과 소속 교수. 세부전공이 무어나고? 종교학이란다. 인간의 종교도 외우주의 종교도 연구하고 있지. 외우주의 종교가 무어냐고? 후후...',
         imageUrl: 'https://placehold.co/300x500/22543d/ffffff?text=양석민+프로필'
     },
     '윤유준': {
         name: '윤유준',
-        age: 18,
-        job: '학생 / 조수',
-        description: '호기심 많고 관찰력이 뛰어난 학생. 우연히 사건의 결정적인 순간을 목격하게 되면서 탐정 일행을 돕는다. 때로는 한발 물러서서 방관하기도 한다.',
+        age: 29,
+        job: '약학과 학생',
+        description: '충청 모 대학 약학과 소속 학부생. 오컬트를 좋아하기는 하지만 막 믿지는 않았다고요. 재미삼아 괴담 블로그 정도나 자주 봤을 뿐인데, 설마 이렇게 될 거라고는.',
         imageUrl: 'https://placehold.co/300x500/742a2a/ffffff?text=윤유준+프로필'
     }
 };
 
 
-
+const currentEventInfo = {
+    title: "푸른 잉크와 그림자", // 이벤트 제목
+    startDate: EVENT_START_DATE, // 기존 이벤트 시작 날짜 변수 사용
+    endDate: EVENT_END_DATE,     // 기존 이벤트 종료 날짜 변수 사용
+    bannerImageUrl: "https://placehold.co/600x200/5a4fcf/ffffff?text=푸른+잉크와+그림자", // 이벤트 홈 배너 이미지
+    description: "도시 곳곳에서 기묘한 사건이 발생하기 시작했다. 푸른 잉크로 쓰인 경고장, 사라진 연구 기록... 사건의 그림자를 쫓아 진실을 밝혀내세요! 이벤트 전투를 통해 포인트를 모아 특별한 보상을 획득할 수 있습니다.", // 이벤트 설명
+    gachaCharacterName: EVENT_CHARACTER_NAME // 기존 이벤트 뽑기 캐릭터 이름 변수 사용
+};
 
 
 
