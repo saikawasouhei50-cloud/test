@@ -1232,8 +1232,8 @@ const eventStoryPart2 = {
 			const rarityProbabilities = { 'SSR': 3, 'SR': 12, 'R': 35, 'N': 50 };
             const eventRarityProbabilities = { 'SSR': 6, 'SR': 14, 'R': 30, 'N': 50 };
             const EVENT_CHARACTER_NAME = '[결혼 반지는 아니지만] 서도진';
-            const EVENT_START_DATE = new Date('2025-10-14T00:00:00');
-            const EVENT_END_DATE = new Date('2025-10-24T23:59:59');
+            const EVENT_START_DATE = new Date('2025-10-26T00:00:00');
+            const EVENT_END_DATE = new Date('2025-11-9T23:59:59');
 			// --- 강화(퇴고) 비용 설정 ---
 
 // 레벨 0->1, 1->2, ..., 8->9로 갈 때 필요한 만년필의 기본 비용
