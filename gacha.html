@@ -3468,6 +3468,17 @@ document.getElementById('goto-event-gacha').addEventListener('click', () => {
     switchGachaTab('event'); // 이벤트 뽑기 서브 탭 활성화
 });
 
+// 5. '이벤트 홈'의 '이벤트 상점' 버튼 클릭 시 (신규 추가)
+            document.getElementById('goto-event-shop').addEventListener('click', () => {
+                // 기존 event-view를 보여주고, '상점' 서브 탭을 활성화
+                document.getElementById('event-home-view').classList.add('hidden');
+                document.getElementById('event-view').classList.remove('hidden');
+                displayEventView(); // 전투/스토리/상점 목록을 그림
+                
+                // '상점' 탭을 활성화하기 위해 eventSubTabShop 변수(DOM 요소)를 전달
+                switchSubTab(document.getElementById('event-view'), eventSubTabShop); 
+            });
+
 // ======================================================================
 
 
