@@ -269,7 +269,7 @@ body.pointer-events-none {
                     이벤트 전투
                 </button>
             </div>
-       
+        </div>
 
     </div>
 </div>
@@ -1213,13 +1213,22 @@ function saveGame() {
     
     // 1. 모든 뷰 숨기기 및 탭 비활성화
     allViews.forEach(view => {
-        // 뷰 요소가 유효한지 확인 후 hidden 클래스 추가
         if (view) view.classList.add('hidden'); 
     });
     allTabs.forEach(tab => tab.classList.remove('active'));
     
     // 2. 선택된 뷰 활성화
-    const targetView = document.getElementById(`${tabName}-view`);
+    // ================== [시작] 수정된 부분 ==================
+    let targetView;
+    // '이벤트' 탭을 누르면 'event-home-view'(앙스타 레이아웃)를 보여줍니다.
+    if (tabName === 'event') {
+        targetView = document.getElementById('event-home-view'); 
+    } else {
+    // 나머지 탭은 기존 규칙(예: 'home' -> 'home-view')을 따릅니다.
+        targetView = document.getElementById(`${tabName}-view`);
+    }
+    // ================== [끝] 수정된 부분 ==================
+    
     const targetTab = document.getElementById(`tab-${tabName}`);
 
     // ✨ 방어 코드: 뷰가 존재하지 않으면 함수를 종료합니다. ✨
@@ -1231,14 +1240,14 @@ function saveGame() {
     targetView.classList.remove('hidden');
     targetTab.classList.add('active');
     
-    // 3. 뷰별 렌더링 함수 호출
+    // 3. 뷰별 렌더링 함수 호출 (이 부분은 기존 코드 유지)
     if (tabName === 'home') displayHomeView();
     else if (tabName === 'inventory') displayInventory(); 
     else if (tabName === 'deck') displayDeckManagement();
     else if (tabName === 'combat') displayCombatView();
-    else if (tabName === 'collection') displayCollectionView(); // 👈 함수 이름 변경
+    else if (tabName === 'collection') displayCollectionView();
     else if (tabName === 'story') displayStoryView();
-    else if (tabName === 'event') displayEventHomeView(); // 👈 함수 이름 변경
+    else if (tabName === 'event') displayEventHomeView(); // event-home-view의 데이터를 채웁니다.
     else if (tabName === 'achievements') displayAchievements();
 }
             function switchSubTab(viewContainer, button) {
@@ -3729,7 +3738,6 @@ eventSubTabShop.addEventListener('click', () => {
    </script>
 </body>
 </html>
-
 
 
 
