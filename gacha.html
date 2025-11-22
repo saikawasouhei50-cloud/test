@@ -2155,6 +2155,157 @@ window.buyFurniture = function(furnitureId) {
         alert('보석이 부족합니다.');
     }
 };
+
+		// ================== 🔨 배치 모드(Edit Mode) 로직 시작 ==================
+
+let isEditMode = false; // 현재 배치 모드인지 여부
+let draggedFurniture = null; // 드래그 중인 가구 요소
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+
+// 1. 배치 모드 토글 함수
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    const btn = document.getElementById('myroom-edit-mode');
+    const container = document.getElementById('room-container');
+    const roomLayer = document.getElementById('room-layer');
+
+    if (isEditMode) {
+        // 배치 모드 켜짐
+        btn.textContent = '✅ 저장 완료';
+        btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+        btn.classList.add('bg-green-600', 'hover:bg-green-700');
+        
+        container.classList.add('border-yellow-400'); // 테두리로 편집 모드임 알림
+        
+        // 캐릭터 숨기기 (가구 배치 방해되지 않게)
+        document.querySelectorAll('.chibi-character').forEach(el => el.classList.add('hidden'));
+        
+        // 가구들에 드래그 가능 스타일 추가
+        document.querySelectorAll('.placed-furniture').forEach(el => {
+            el.style.cursor = 'grab';
+            el.style.pointerEvents = 'auto'; // 클릭 가능하게
+        });
+
+        showMessage('가구를 드래그하여 위치를 이동하세요. (우클릭: 회수)', 'text-yellow-300', messageArea);
+
+    } else {
+        // 배치 모드 꺼짐 (저장)
+        btn.textContent = '🔨 배치 모드';
+        btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        btn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        
+        container.classList.remove('border-yellow-400');
+        
+        // 캐릭터 다시 보이기
+        document.querySelectorAll('.chibi-character').forEach(el => el.classList.remove('hidden'));
+        
+        // 가구 스타일 원상복구
+        document.querySelectorAll('.placed-furniture').forEach(el => {
+            el.style.cursor = 'default';
+        });
+
+        // 변경사항 저장
+        saveGame();
+        showMessage('배치가 저장되었습니다.', 'text-green-300', messageArea);
+    }
+}
+
+// 2. 마우스 이벤트 초기화 (드래그 앤 드롭)
+function initDragEvents() {
+    const container = document.getElementById('room-container');
+
+    // (1) 마우스 누름 (드래그 시작)
+    container.addEventListener('mousedown', (e) => {
+        if (!isEditMode) return;
+        
+        if (e.target.classList.contains('placed-furniture')) {
+            e.preventDefault(); // 이미지 끌기 방지
+            draggedFurniture = e.target;
+            draggedFurniture.style.cursor = 'grabbing';
+            draggedFurniture.style.zIndex = 1000; // 맨 앞으로 가져오기
+            
+            // 클릭한 지점과 요소의 왼쪽 상단 사이의 거리 계산 (픽셀 단위)
+            const rect = draggedFurniture.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+        }
+    });
+
+    // (2) 마우스 이동 (드래그 중)
+    window.addEventListener('mousemove', (e) => {
+        if (!isEditMode || !draggedFurniture) return;
+        e.preventDefault();
+
+        const containerRect = container.getBoundingClientRect();
+        
+        // 컨테이너 내부에서의 마우스 좌표 계산
+        let newX = e.clientX - containerRect.left - dragOffsetX;
+        let newY = e.clientY - containerRect.top - dragOffsetY;
+
+        // 픽셀 좌표를 백분율(%)로 변환
+        let percentX = (newX / containerRect.width) * 100;
+        let percentY = (newY / containerRect.height) * 100;
+
+        // 화면 밖으로 나가지 않게 제한 (0% ~ 90% 사이)
+        percentX = Math.max(0, Math.min(90, percentX));
+        percentY = Math.max(0, Math.min(85, percentY));
+
+        draggedFurniture.style.left = `${percentX}%`;
+        draggedFurniture.style.top = `${percentY}%`;
+    });
+
+    // (3) 마우스 뗌 (드래그 종료)
+    window.addEventListener('mouseup', () => {
+        if (!isEditMode || !draggedFurniture) return;
+
+        // 최종 위치를 데이터에 업데이트
+        const currentLeft = parseFloat(draggedFurniture.style.left);
+        const currentTop = parseFloat(draggedFurniture.style.top);
+        
+        // 현재 드래그 중인 가구의 원래 데이터 찾기 (좌표로 대조하거나 ID를 데이터셋에 넣는 게 좋음)
+        // 여기서는 간단히 DOM 요소의 순서나, 새로 구현할 ID 매칭을 사용해야 합니다.
+        // **개선**: displayMyRoom에서 가구 생성 시 data-id를 넣도록 수정하겠습니다.
+        
+        const furnitureId = draggedFurniture.dataset.id;
+        const uniqueKey = draggedFurniture.dataset.key; // 중복 가구 구분을 위한 키
+
+        // playerRoom.furniture 배열에서 해당 가구를 찾아 좌표 업데이트
+        // (같은 가구가 여러 개일 수 있으므로 인덱스로 찾습니다)
+        const itemIndex = playerRoom.furniture.findIndex((f, idx) => idx == uniqueKey);
+        
+        if (itemIndex > -1) {
+            playerRoom.furniture[itemIndex].x = currentLeft;
+            playerRoom.furniture[itemIndex].y = currentTop;
+        }
+
+        // 스타일 초기화
+        draggedFurniture.style.cursor = 'grab';
+        draggedFurniture.style.zIndex = Math.floor(currentTop); // Y좌표에 따른 깊이 재설정
+        draggedFurniture = null;
+    });
+    
+    // (4) 우클릭 시 가구 회수 (삭제)
+    container.addEventListener('contextmenu', (e) => {
+        if (!isEditMode) return;
+        if (e.target.classList.contains('placed-furniture')) {
+            e.preventDefault();
+            
+            if(confirm('이 가구를 회수하시겠습니까?')) {
+                const uniqueKey = e.target.dataset.key;
+                // 배열에서 삭제
+                playerRoom.furniture.splice(uniqueKey, 1);
+                // 화면 다시 그리기 (삭제 반영 및 인덱스 재정렬)
+                displayMyRoom();
+                // 배치 모드 스타일 다시 적용
+                toggleEditMode(); 
+                toggleEditMode(); // 껐다 켜서 스타일 재적용 (꼼수지만 확실함)
+            }
+        }
+    });
+}
+
+// ================== 🔨 배치 모드 로직 끝 ==================
 // ================== ✨ 마이룸 로직 끝 ✨ ==================
 
             function displayDeckManagement() {
@@ -4045,6 +4196,7 @@ eventSubTabShop.addEventListener('click', () => {
    </script>
 </body>
 </html>
+
 
 
 
