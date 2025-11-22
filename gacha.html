@@ -29,8 +29,8 @@
     transform: translate(-50%, -50%) rotateX(60deg) rotateZ(45deg);
     
     /* 확인용 테두리 (위치 맞춘 후에는 지우거나 transparent로 변경) */
-    border: 2px dashed red; 
-    background-color: transparent;
+   /* border: 2px dashed red; */
+    background-color: transparent; 
     
     pointer-events: none;
     z-index: 0;
@@ -2192,17 +2192,49 @@ function startChibiMovement(element) {
     if (element.dataset.moveInterval) clearInterval(element.dataset.moveInterval);
 
     const move = () => {
-        if (!document.getElementById('myroom-view') || document.getElementById('myroom-view').classList.contains('hidden')) return;
+        const myRoomView = document.getElementById('myroom-view');
+        if (!myRoomView || myRoomView.classList.contains('hidden')) return;
 
-        // 1. 랜덤한 목적지 그리드 좌표 생성 (0~90 범위)
-        const targetGridX = Math.random() * 90;
-        const targetGridY = Math.random() * 90;
-        
-        // 2. 아이소메트릭 화면 좌표로 변환
+        // 1. 이동할 랜덤 목적지 생성 (0~90 범위)
+        let targetGridX, targetGridY;
+        let attempts = 0;
+        let isValidPosition = false;
+
+        // 2. 유효한 위치를 찾을 때까지 최대 10번 시도 (가구랑 겹치는지 확인)
+        while (attempts < 10) {
+            targetGridX = Math.random() * 90;
+            targetGridY = Math.random() * 90;
+
+            // 가구 충돌 체크 (간단한 거리 계산)
+            let collision = false;
+            for (const furniture of playerRoom.furniture) {
+                // 벽걸이 가구(게시판)나 러그는 밟아도 됨 -> 충돌 체크 제외
+                // furnitureItems 데이터에서 해당 가구의 type을 찾아야 함
+                const itemData = furnitureItems.find(i => i.id === furniture.id);
+                if (!itemData || itemData.type === 'wall' || itemData.type === 'rug') continue;
+
+                // 가구와의 거리 계산 (가구 크기에 따라 범위가 다르지만 대략적으로 10~15 거리 내면 충돌로 간주)
+                const dist = Math.sqrt(Math.pow(targetGridX - furniture.x, 2) + Math.pow(targetGridY - furniture.y, 2));
+                if (dist < 15) { // 가구 주변 15 거리 이내는 피함
+                    collision = true;
+                    break;
+                }
+            }
+
+            if (!collision) {
+                isValidPosition = true;
+                break;
+            }
+            attempts++;
+        }
+
+        // 10번 시도해도 자리가 없으면 그냥 제자리 유지 (이동 안 함)
+        if (!isValidPosition) return;
+
+        // 3. 좌표 변환 및 이동
         const iso = getIsoPos(targetGridX, targetGridY);
         
-        // 3. 방향 전환 (좌우)
-        // 화면상 left 값이 커지면 오른쪽, 작아지면 왼쪽으로 이동
+        // 방향 전환 (좌우 반전)
         const currentLeft = parseFloat(element.style.left);
         const img = element.querySelector('img');
         if (iso.left < currentLeft) {
@@ -2211,9 +2243,12 @@ function startChibiMovement(element) {
             img.style.transform = 'scaleX(-1)'; // 오른쪽 보기
         }
 
-        // 4. 위치 및 z-index 업데이트
+        // 위치 이동
         element.style.left = `${iso.left}%`;
         element.style.top = `${iso.top}%`;
+        
+        // z-index 업데이트 (아래쪽으로 올수록 앞으로 오게)
+        // 캐릭터는 가구보다 살짝 앞에 서야 자연스러우므로 +50 유지
         element.style.zIndex = iso.zIndex + 50;
         
         // 현재 그리드 위치 업데이트
@@ -2221,6 +2256,7 @@ function startChibiMovement(element) {
         element.dataset.gridY = targetGridY;
     };
 
+    // 3~6초마다 이동 시도
     const interval = setInterval(move, Math.random() * 3000 + 3000);
     element.dataset.moveInterval = interval;
 }
@@ -4453,6 +4489,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
