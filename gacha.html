@@ -10,6 +10,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
 
+		/* 아이소메트릭(마름모) 바닥 가이드 */
+.iso-floor {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80%; /* 바닥 크기 조절 */
+    height: 80%;
+    background-image:
+        linear-gradient(30deg, #444 1px, transparent 1px),
+        linear-gradient(150deg, #444 1px, transparent 1px);
+    background-size: 40px 40px; /* 타일 크기 */
+    background-color: rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%) rotateX(60deg) rotateZ(45deg); /* 마름모로 눕히기 */
+    border: 4px solid #5a4fcf;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    pointer-events: none; /* 클릭 통과 */
+    z-index: 0;
+}
+
 body.pointer-events-none {
     pointer-events: none;
 }
@@ -560,12 +579,16 @@ body.pointer-events-none {
                     <p class="text-gray-200">탐정 사무소를 꾸미고 등장인물들의 휴식을 지켜보세요.</p>
                 </div>
 
-                <div id="room-container" class="relative w-full max-w-3xl mx-auto h-96 bg-gray-800 rounded-xl overflow-hidden shadow-2xl border-4 border-gray-700">
-                    <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(#4a5568 1px, transparent 1px); background-size: 20px 20px;"></div>
-                    
-                    <div id="room-layer" class="relative w-full h-full">
-                        </div>
-                </div>
+                <div id="room-container" class="relative w-full max-w-3xl mx-auto h-96 bg-gray-800 rounded-xl overflow-hidden shadow-2xl border-4 border-gray-700 perspective-1000">
+    
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('image_6a1d34.png'); opacity: 0.8;"></div>
+    
+    <div class="iso-floor"></div>
+    
+    <div id="room-layer" class="relative w-full h-full z-10">
+    </div>
+
+</div>
 
                 <div class="flex justify-center gap-4 mt-6">
     <button id="open-furniture-shop" onclick="openFurnitureShop()" class="gacha-button bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded-full">🪑 가구 상점</button>
@@ -2005,39 +2028,87 @@ function addCardToInventory(cardName) {
 		// ================== ✨ 마이룸 & 가구 상점 로직 시작 ✨ ==================
 
 // 1. 마이룸 화면 표시 (캐릭터 & 가구 렌더링)
+		// ================== ✨ 아이소메트릭(마름모) 변환 로직 ✨ ==================
+
+// 1. 그리드 좌표(0~100)를 화면 좌표(CSS left/top %)로 변환
+function getIsoPos(gridX, gridY) {
+    // gridX, gridY: 0 ~ 100 사이의 값
+    // 마름모 꼴로 변환 공식
+    // 화면 중앙(50, 40)을 기준으로 X는 오른쪽 아래, Y는 왼쪽 아래로 퍼짐
+    
+    const centerX = 50; 
+    const centerY = 20; // 바닥의 꼭대기 높이 조절
+    
+    // 아이소메트릭 투영 공식 응용
+    // x가 커지면 오른쪽(+), y가 커지면 왼쪽(-) -> 가로 위치
+    // x, y 둘 다 커지면 아래로(+) -> 세로 위치
+    
+    const screenX = centerX + (gridX - gridY) * 0.6; // 0.6은 너비 계수 (넓게 퍼지게)
+    const screenY = centerY + (gridX + gridY) * 0.35; // 0.35는 높이 계수 (납작하게)
+    
+    // z-index는 화면 아래쪽(Y가 클수록)에 있을수록 커야 함 -> (gridX + gridY)가 클수록 앞
+    const zIndex = Math.floor(gridX + gridY);
+    
+    return { left: screenX, top: screenY, zIndex: zIndex };
+}
+
+// 2. 화면 좌표(CSS left/top %)를 그리드 좌표(0~100)로 역변환 (드래그용)
+function getGridPosFromScreen(screenX, screenY) {
+    const centerX = 50;
+    const centerY = 20;
+    
+    const dx = (screenX - centerX) / 0.6;
+    const dy = (screenY - centerY) / 0.35;
+    
+    // 연립방정식 풀이
+    // dx = x - y
+    // dy = x + y
+    // x = (dx + dy) / 2
+    // y = (dy - dx) / 2
+    
+    let gridX = (dx + dy) / 2;
+    let gridY = (dy - dx) / 2;
+    
+    // 범위 제한 (0~100)
+    gridX = Math.max(0, Math.min(100, gridX));
+    gridY = Math.max(0, Math.min(100, gridY));
+    
+    return { x: gridX, y: gridY };
+}
+
+
+// ================== ✨ 수정된 displayMyRoom ✨ ==================
 function displayMyRoom() {
     const roomLayer = document.getElementById('room-layer');
-    if (!roomLayer) return; // 방이 없으면 중단
+    if (!roomLayer) return;
     roomLayer.innerHTML = '';
 
-    // (1) 가구 렌더링 [수정된 부분 시작]
-    // forEach에 index 매개변수를 추가하여 몇 번째 가구인지 추적합니다.
-    playerRoom.furniture.forEach((item, index) => { 
+    // (1) 가구 렌더링
+    playerRoom.furniture.forEach((item, index) => {
         const furnitureData = furnitureItems.find(f => f.id === item.id);
         if (furnitureData) {
             const el = document.createElement('img');
             el.src = furnitureData.imageUrl;
-            el.className = 'placed-furniture absolute';
-            
-            // ✨ [핵심 수정] 드래그 시 식별을 위해 id와 key(인덱스)를 심어줍니다.
+            el.className = 'placed-furniture absolute transition-transform duration-200'; // 부드러운 움직임 추가
             el.dataset.id = item.id;
-            el.dataset.key = index; 
+            el.dataset.key = index;
 
-            // 백분율(%) 좌표로 위치 및 크기 지정
-            el.style.left = `${item.x}%`;
-            el.style.top = `${item.y}%`;
-            el.style.width = `${furnitureData.size.w * 10}%`; 
+            // ✨ 아이소메트릭 좌표 변환 적용
+            const iso = getIsoPos(item.x, item.y);
             
-            // z-index를 Y축 좌표에 맞춰 설정 (아래에 있는 가구가 앞에 오도록)
-            el.style.zIndex = Math.floor(item.y);
+            el.style.left = `${iso.left}%`;
+            el.style.top = `${iso.top}%`;
+            // 중심점을 바닥 중앙으로 맞추기 위해 transform 사용 (가구 크기에 따라 조정 필요)
+            el.style.transform = 'translate(-50%, -50%)'; 
+            el.style.width = `${furnitureData.size.w * 8}%`; // 크기 살짝 조정
+            el.style.zIndex = iso.zIndex; // 원근감 적용
+
             roomLayer.appendChild(el);
         }
     });
-    // [수정된 부분 끝]
 
-    // (2) SD 캐릭터 렌더링 (덱에 있는 캐릭터 5명, 없으면 인벤토리 앞 5명)
+    // (2) SD 캐릭터 렌더링
     const activeCharacters = playerDeck.length > 0 ? playerDeck : playerInventory.slice(0, 5);
-    
     activeCharacters.forEach((card, index) => {
         const charData = findCharacter(card.name);
         if (!charData) return;
@@ -2046,31 +2117,32 @@ function displayMyRoom() {
         el.className = 'chibi-character absolute cursor-pointer transition-all duration-[2000ms] ease-linear';
         el.id = `chibi-${index}`;
         
-        // 초기 랜덤 위치 (10% ~ 80% 사이)
-        const startX = Math.random() * 70 + 10;
-        const startY = Math.random() * 50 + 20;
-        el.style.left = `${startX}%`;
-        el.style.top = `${startY}%`;
-        el.style.width = '60px'; 
+        // 초기 랜덤 위치 (그리드 좌표 0~90)
+        const gridX = Math.random() * 90;
+        const gridY = Math.random() * 90;
+        const iso = getIsoPos(gridX, gridY);
+
+        el.style.left = `${iso.left}%`;
+        el.style.top = `${iso.top}%`;
+        el.style.transform = 'translate(-50%, -100%)'; // 캐릭터 발이 좌표에 오도록 위로 올림
+        el.style.width = '60px';
         el.style.height = '60px';
-        el.style.zIndex = Math.floor(startY) + 10; // 가구보다 살짝 위에
+        el.style.zIndex = iso.zIndex + 50; // 가구보다 살짝 위에 (캐릭터 우선)
 
         // 캐릭터 이미지
         const img = document.createElement('img');
-        // chibiImages가 정의되지 않았을 경우를 대비해 cardImageUrl 사용
         img.src = (typeof chibiImages !== 'undefined' && chibiImages[charData.baseName]) ? chibiImages[charData.baseName] : charData.cardImageUrl;
         img.className = 'w-full h-full object-contain drop-shadow-lg';
         el.appendChild(img);
 
-        // 대사 말풍선
+        // 말풍선 (기존 코드 동일)
         const bubble = document.createElement('div');
         bubble.className = 'chibi-bubble absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-2 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 transition-opacity duration-300 pointer-events-none z-20 border border-gray-300 shadow-sm';
         bubble.innerText = charData.dialogues[0];
         el.appendChild(bubble);
 
-        // 클릭 시 대사 출력
         el.addEventListener('click', (e) => {
-            e.stopPropagation(); // 뒤에 있는 가구 클릭 방지
+            e.stopPropagation();
             const randomDialogue = charData.dialogues[Math.floor(Math.random() * charData.dialogues.length)];
             bubble.innerText = randomDialogue;
             bubble.style.opacity = 1;
@@ -2078,41 +2150,159 @@ function displayMyRoom() {
         });
 
         roomLayer.appendChild(el);
-
-        // (3) 랜덤 이동 시작
+        
+        // 현재 그리드 위치 저장 (이동 로직용)
+        el.dataset.gridX = gridX;
+        el.dataset.gridY = gridY;
+        
         startChibiMovement(el);
     });
 }
 
-// 캐릭터 랜덤 이동 함수
+
+// ================== ✨ 수정된 startChibiMovement ✨ ==================
 function startChibiMovement(element) {
-    // 이미 움직임 인터벌이 있다면 제거 (중복 방지)
     if (element.dataset.moveInterval) clearInterval(element.dataset.moveInterval);
 
     const move = () => {
         if (!document.getElementById('myroom-view') || document.getElementById('myroom-view').classList.contains('hidden')) return;
 
-        const newX = Math.random() * 70 + 10;
-        const newY = Math.random() * 50 + 20;
+        // 1. 랜덤한 목적지 그리드 좌표 생성 (0~90 범위)
+        const targetGridX = Math.random() * 90;
+        const targetGridY = Math.random() * 90;
         
-        // 방향 전환 (이미지 좌우 반전)
-        const currentX = parseFloat(element.style.left);
+        // 2. 아이소메트릭 화면 좌표로 변환
+        const iso = getIsoPos(targetGridX, targetGridY);
+        
+        // 3. 방향 전환 (좌우)
+        // 화면상 left 값이 커지면 오른쪽, 작아지면 왼쪽으로 이동
+        const currentLeft = parseFloat(element.style.left);
         const img = element.querySelector('img');
-        if (newX < currentX) {
-            img.style.transform = 'scaleX(1)'; // 왼쪽
+        if (iso.left < currentLeft) {
+            img.style.transform = 'scaleX(1)'; // 왼쪽 보기
         } else {
-            img.style.transform = 'scaleX(-1)'; // 오른쪽
+            img.style.transform = 'scaleX(-1)'; // 오른쪽 보기
         }
 
-        element.style.left = `${newX}%`;
-        element.style.top = `${newY}%`;
-        element.style.zIndex = Math.floor(newY) + 10;
+        // 4. 위치 및 z-index 업데이트
+        element.style.left = `${iso.left}%`;
+        element.style.top = `${iso.top}%`;
+        element.style.zIndex = iso.zIndex + 50;
+        
+        // 현재 그리드 위치 업데이트
+        element.dataset.gridX = targetGridX;
+        element.dataset.gridY = targetGridY;
     };
 
-    // 3~6초마다 이동
     const interval = setInterval(move, Math.random() * 3000 + 3000);
     element.dataset.moveInterval = interval;
 }
+
+
+// ================== ✨ 수정된 initDragEvents (배치 모드) ✨ ==================
+function initDragEvents() {
+    const container = document.getElementById('room-container');
+
+    const handleStart = (e) => {
+        if (!isEditMode) return;
+        let target = e.target;
+        
+        if (e.type === 'touchstart') {
+            const touch = e.touches[0];
+            target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (!target || !target.classList.contains('placed-furniture')) return;
+        }
+
+        if (target && target.classList.contains('placed-furniture')) {
+            if (e.cancelable) e.preventDefault();
+            draggedFurniture = target;
+            draggedFurniture.style.cursor = 'grabbing';
+            draggedFurniture.style.zIndex = 9999; // 드래그 중엔 맨 위로
+            draggedFurniture.style.transition = 'none'; // 드래그 중엔 애니메이션 끔
+
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+            const rect = draggedFurniture.getBoundingClientRect();
+            
+            // 중심점 기준 드래그를 위해 오프셋 조정
+            dragOffsetX = clientX - rect.left - (rect.width / 2);
+            dragOffsetY = clientY - rect.top - (rect.height / 2);
+        }
+    };
+
+    const handleMove = (e) => {
+        if (!isEditMode || !draggedFurniture) return;
+        if (e.cancelable) e.preventDefault();
+
+        const containerRect = container.getBoundingClientRect();
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+        // 화면상 좌표 (%, 픽셀 -> 퍼센트 변환)
+        let screenX = ((clientX - containerRect.left) / containerRect.width) * 100;
+        let screenY = ((clientY - containerRect.top) / containerRect.height) * 100;
+
+        // 시각적 업데이트
+        draggedFurniture.style.left = `${screenX}%`;
+        draggedFurniture.style.top = `${screenY}%`;
+    };
+
+    const handleEnd = (e) => {
+        if (!isEditMode || !draggedFurniture) return;
+
+        // 드래그가 끝난 시점의 화면 좌표(%)
+        const currentLeft = parseFloat(draggedFurniture.style.left);
+        const currentTop = parseFloat(draggedFurniture.style.top);
+        
+        // ✨ 화면 좌표를 다시 그리드 좌표(x, y)로 역변환하여 저장
+        const gridPos = getGridPosFromScreen(currentLeft, currentTop);
+        
+        const uniqueKey = draggedFurniture.dataset.key;
+        if (uniqueKey !== undefined && playerRoom.furniture[uniqueKey]) {
+            playerRoom.furniture[uniqueKey].x = gridPos.x;
+            playerRoom.furniture[uniqueKey].y = gridPos.y;
+        }
+
+        // z-index 재계산 및 스타일 복구
+        const newIso = getIsoPos(gridPos.x, gridPos.y);
+        draggedFurniture.style.zIndex = newIso.zIndex;
+        draggedFurniture.style.cursor = 'grab';
+        draggedFurniture.style.transition = ''; // 애니메이션 복구
+        
+        // 최종 위치 보정 (정확한 그리드 위치로 스냅)
+        draggedFurniture.style.left = `${newIso.left}%`;
+        draggedFurniture.style.top = `${newIso.top}%`;
+
+        draggedFurniture = null;
+    };
+
+    container.addEventListener('mousedown', handleStart);
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+
+    container.addEventListener('touchstart', handleStart, { passive: false });
+    window.addEventListener('touchmove', handleMove, { passive: false });
+    window.addEventListener('touchend', handleEnd);
+
+    container.addEventListener('contextmenu', (e) => {
+        if (!isEditMode) return;
+        if (e.target.classList.contains('placed-furniture')) {
+            e.preventDefault();
+            if(confirm('이 가구를 회수하시겠습니까?')) {
+                const uniqueKey = e.target.dataset.key;
+                if (uniqueKey !== undefined) {
+                    playerRoom.furniture.splice(uniqueKey, 1);
+                    displayMyRoom();
+                    saveGame();
+                    toggleEditMode(); 
+                    toggleEditMode(); 
+                }
+            }
+        }
+    });
+}
+
+
 
 // ================== ✨ [신규] 가구 보관함 기능 시작 ✨ ==================
 
@@ -2309,133 +2499,8 @@ function toggleEditMode() {
 
 		
 
-// 2. 마우스 및 터치 이벤트 초기화 (드래그 앤 드롭)
-function initDragEvents() {
-    const container = document.getElementById('room-container');
 
-    // 공통: 드래그 시작 처리 함수
-    const handleStart = (e) => {
-        if (!isEditMode) return;
-
-        // 이벤트 타겟이 가구인지 확인
-        let target = e.target;
-        
-        // 터치 이벤트일 경우 타겟 보정 (가끔 엉뚱한 게 잡힐 수 있음)
-        if (e.type === 'touchstart') {
-            // 터치한 위치의 요소를 찾음
-            const touch = e.touches[0];
-            target = document.elementFromPoint(touch.clientX, touch.clientY);
-            
-            // 타겟이 이미지 내부라면 상위 요소 확인 등 안전장치 (필요시)
-            if (!target.classList.contains('placed-furniture')) {
-                return; // 가구가 아니면 무시
-            }
-        }
-
-        if (target && target.classList.contains('placed-furniture')) {
-            // 모바일에서 가구 드래그 시 화면 스크롤 방지
-            if (e.cancelable) e.preventDefault();
-
-            draggedFurniture = target;
-            draggedFurniture.style.cursor = 'grabbing';
-            draggedFurniture.style.zIndex = 1000; // 맨 앞으로
-
-            // 좌표 계산 (마우스 vs 터치)
-            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-
-            const rect = draggedFurniture.getBoundingClientRect();
-            dragOffsetX = clientX - rect.left;
-            dragOffsetY = clientY - rect.top;
-        }
-    };
-
-    // 공통: 드래그 이동 처리 함수
-    const handleMove = (e) => {
-        if (!isEditMode || !draggedFurniture) return;
-        
-        // 화면 스크롤 방지 (필수)
-        if (e.cancelable) e.preventDefault();
-
-        const containerRect = container.getBoundingClientRect();
-        
-        // 좌표 계산 (마우스 vs 터치)
-        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-
-        // 컨테이너 내부에서의 좌표 계산
-        let newX = clientX - containerRect.left - dragOffsetX;
-        let newY = clientY - containerRect.top - dragOffsetY;
-
-        // 픽셀 좌표를 백분율(%)로 변환
-        let percentX = (newX / containerRect.width) * 100;
-        let percentY = (newY / containerRect.height) * 100;
-
-        // 화면 밖으로 나가지 않게 제한 (0% ~ 90%)
-        percentX = Math.max(0, Math.min(90, percentX));
-        percentY = Math.max(0, Math.min(85, percentY));
-
-        draggedFurniture.style.left = `${percentX}%`;
-        draggedFurniture.style.top = `${percentY}%`;
-    };
-
-    // 공통: 드래그 종료 처리 함수
-    const handleEnd = (e) => {
-        if (!isEditMode || !draggedFurniture) return;
-
-        // 최종 위치 저장 로직
-        const currentLeft = parseFloat(draggedFurniture.style.left);
-        const currentTop = parseFloat(draggedFurniture.style.top);
-        
-        // 아까 수정한 data-key를 이용해 배열 인덱스를 찾음
-        const uniqueKey = draggedFurniture.dataset.key; 
-
-        // playerRoom.furniture 배열 업데이트
-        if (uniqueKey !== undefined && playerRoom.furniture[uniqueKey]) {
-            playerRoom.furniture[uniqueKey].x = currentLeft;
-            playerRoom.furniture[uniqueKey].y = currentTop;
-        }
-
-        // 스타일 초기화
-        draggedFurniture.style.cursor = 'grab';
-        draggedFurniture.style.zIndex = Math.floor(currentTop); 
-        draggedFurniture = null;
-    };
-
-    // --- 이벤트 리스너 등록 ---
-
-    // 1. 마우스 이벤트 (PC)
-    container.addEventListener('mousedown', handleStart);
-    window.addEventListener('mousemove', handleMove);
-    window.addEventListener('mouseup', handleEnd);
-
-    // 2. 터치 이벤트 (모바일) - passive: false는 preventDefault() 사용을 위해 필수
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    window.addEventListener('touchmove', handleMove, { passive: false });
-    window.addEventListener('touchend', handleEnd);
-
-    // 3. 우클릭/길게 터치 시 가구 회수 (Context Menu)
-    container.addEventListener('contextmenu', (e) => {
-        if (!isEditMode) return;
-        if (e.target.classList.contains('placed-furniture')) {
-            e.preventDefault();
-            
-            if(confirm('이 가구를 회수하시겠습니까?')) {
-                const uniqueKey = e.target.dataset.key;
-                if (uniqueKey !== undefined) {
-                    // 배열에서 삭제
-                    playerRoom.furniture.splice(uniqueKey, 1);
-                    // 화면 갱신 및 저장
-                    displayMyRoom();
-                    saveGame();
-                    // 강제로 에딧모드 재적용 (드래그 가능 상태 유지)
-                    toggleEditMode(); 
-                    toggleEditMode(); 
-                }
-            }
-        }
-    });
-}
+    
 
 // ================== 🔨 배치 모드 로직 끝 ==================
 // ================== ✨ 마이룸 로직 끝 ✨ ==================
@@ -4361,6 +4426,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
