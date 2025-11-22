@@ -2309,81 +2309,112 @@ function toggleEditMode() {
 
 		
 
-// 2. 마우스 이벤트 초기화 (드래그 앤 드롭)
+// 2. 마우스 및 터치 이벤트 초기화 (드래그 앤 드롭)
 function initDragEvents() {
     const container = document.getElementById('room-container');
 
-    // (1) 마우스 누름 (드래그 시작)
-    container.addEventListener('mousedown', (e) => {
+    // 공통: 드래그 시작 처리 함수
+    const handleStart = (e) => {
         if (!isEditMode) return;
-        
-        if (e.target.classList.contains('placed-furniture')) {
-            e.preventDefault(); // 이미지 끌기 방지
-            draggedFurniture = e.target;
-            draggedFurniture.style.cursor = 'grabbing';
-            draggedFurniture.style.zIndex = 1000; // 맨 앞으로 가져오기
-            
-            // 클릭한 지점과 요소의 왼쪽 상단 사이의 거리 계산 (픽셀 단위)
-            const rect = draggedFurniture.getBoundingClientRect();
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
-        }
-    });
 
-    // (2) 마우스 이동 (드래그 중)
-    window.addEventListener('mousemove', (e) => {
+        // 이벤트 타겟이 가구인지 확인
+        let target = e.target;
+        
+        // 터치 이벤트일 경우 타겟 보정 (가끔 엉뚱한 게 잡힐 수 있음)
+        if (e.type === 'touchstart') {
+            // 터치한 위치의 요소를 찾음
+            const touch = e.touches[0];
+            target = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            // 타겟이 이미지 내부라면 상위 요소 확인 등 안전장치 (필요시)
+            if (!target.classList.contains('placed-furniture')) {
+                return; // 가구가 아니면 무시
+            }
+        }
+
+        if (target && target.classList.contains('placed-furniture')) {
+            // 모바일에서 가구 드래그 시 화면 스크롤 방지
+            if (e.cancelable) e.preventDefault();
+
+            draggedFurniture = target;
+            draggedFurniture.style.cursor = 'grabbing';
+            draggedFurniture.style.zIndex = 1000; // 맨 앞으로
+
+            // 좌표 계산 (마우스 vs 터치)
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+            const rect = draggedFurniture.getBoundingClientRect();
+            dragOffsetX = clientX - rect.left;
+            dragOffsetY = clientY - rect.top;
+        }
+    };
+
+    // 공통: 드래그 이동 처리 함수
+    const handleMove = (e) => {
         if (!isEditMode || !draggedFurniture) return;
-        e.preventDefault();
+        
+        // 화면 스크롤 방지 (필수)
+        if (e.cancelable) e.preventDefault();
 
         const containerRect = container.getBoundingClientRect();
         
-        // 컨테이너 내부에서의 마우스 좌표 계산
-        let newX = e.clientX - containerRect.left - dragOffsetX;
-        let newY = e.clientY - containerRect.top - dragOffsetY;
+        // 좌표 계산 (마우스 vs 터치)
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+        // 컨테이너 내부에서의 좌표 계산
+        let newX = clientX - containerRect.left - dragOffsetX;
+        let newY = clientY - containerRect.top - dragOffsetY;
 
         // 픽셀 좌표를 백분율(%)로 변환
         let percentX = (newX / containerRect.width) * 100;
         let percentY = (newY / containerRect.height) * 100;
 
-        // 화면 밖으로 나가지 않게 제한 (0% ~ 90% 사이)
+        // 화면 밖으로 나가지 않게 제한 (0% ~ 90%)
         percentX = Math.max(0, Math.min(90, percentX));
         percentY = Math.max(0, Math.min(85, percentY));
 
         draggedFurniture.style.left = `${percentX}%`;
         draggedFurniture.style.top = `${percentY}%`;
-    });
+    };
 
-    // (3) 마우스 뗌 (드래그 종료)
-    window.addEventListener('mouseup', () => {
+    // 공통: 드래그 종료 처리 함수
+    const handleEnd = (e) => {
         if (!isEditMode || !draggedFurniture) return;
 
-        // 최종 위치를 데이터에 업데이트
+        // 최종 위치 저장 로직
         const currentLeft = parseFloat(draggedFurniture.style.left);
         const currentTop = parseFloat(draggedFurniture.style.top);
         
-        // 현재 드래그 중인 가구의 원래 데이터 찾기 (좌표로 대조하거나 ID를 데이터셋에 넣는 게 좋음)
-        // 여기서는 간단히 DOM 요소의 순서나, 새로 구현할 ID 매칭을 사용해야 합니다.
-        // **개선**: displayMyRoom에서 가구 생성 시 data-id를 넣도록 수정하겠습니다.
-        
-        const furnitureId = draggedFurniture.dataset.id;
-        const uniqueKey = draggedFurniture.dataset.key; // 중복 가구 구분을 위한 키
+        // 아까 수정한 data-key를 이용해 배열 인덱스를 찾음
+        const uniqueKey = draggedFurniture.dataset.key; 
 
-        // playerRoom.furniture 배열에서 해당 가구를 찾아 좌표 업데이트
-        // (같은 가구가 여러 개일 수 있으므로 인덱스로 찾습니다)
-        const itemIndex = playerRoom.furniture.findIndex((f, idx) => idx == uniqueKey);
-        
-        if (itemIndex > -1) {
-            playerRoom.furniture[itemIndex].x = currentLeft;
-            playerRoom.furniture[itemIndex].y = currentTop;
+        // playerRoom.furniture 배열 업데이트
+        if (uniqueKey !== undefined && playerRoom.furniture[uniqueKey]) {
+            playerRoom.furniture[uniqueKey].x = currentLeft;
+            playerRoom.furniture[uniqueKey].y = currentTop;
         }
 
         // 스타일 초기화
         draggedFurniture.style.cursor = 'grab';
-        draggedFurniture.style.zIndex = Math.floor(currentTop); // Y좌표에 따른 깊이 재설정
+        draggedFurniture.style.zIndex = Math.floor(currentTop); 
         draggedFurniture = null;
-    });
-    
-    // (4) 우클릭 시 가구 회수 (삭제)
+    };
+
+    // --- 이벤트 리스너 등록 ---
+
+    // 1. 마우스 이벤트 (PC)
+    container.addEventListener('mousedown', handleStart);
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+
+    // 2. 터치 이벤트 (모바일) - passive: false는 preventDefault() 사용을 위해 필수
+    container.addEventListener('touchstart', handleStart, { passive: false });
+    window.addEventListener('touchmove', handleMove, { passive: false });
+    window.addEventListener('touchend', handleEnd);
+
+    // 3. 우클릭/길게 터치 시 가구 회수 (Context Menu)
     container.addEventListener('contextmenu', (e) => {
         if (!isEditMode) return;
         if (e.target.classList.contains('placed-furniture')) {
@@ -2391,13 +2422,16 @@ function initDragEvents() {
             
             if(confirm('이 가구를 회수하시겠습니까?')) {
                 const uniqueKey = e.target.dataset.key;
-                // 배열에서 삭제
-                playerRoom.furniture.splice(uniqueKey, 1);
-                // 화면 다시 그리기 (삭제 반영 및 인덱스 재정렬)
-                displayMyRoom();
-                // 배치 모드 스타일 다시 적용
-                toggleEditMode(); 
-                toggleEditMode(); // 껐다 켜서 스타일 재적용 (꼼수지만 확실함)
+                if (uniqueKey !== undefined) {
+                    // 배열에서 삭제
+                    playerRoom.furniture.splice(uniqueKey, 1);
+                    // 화면 갱신 및 저장
+                    displayMyRoom();
+                    saveGame();
+                    // 강제로 에딧모드 재적용 (드래그 가능 상태 유지)
+                    toggleEditMode(); 
+                    toggleEditMode(); 
+                }
             }
         }
     });
@@ -4327,6 +4361,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
