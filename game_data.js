@@ -1373,7 +1373,7 @@ const furnitureItems = [
         type: 'floor', // 바닥에 놓는 물건
         size: { w: 2, h: 1 }, 
         cost: 0, 
-        imageUrl: 'desk.png' // 👈 잘라낸 책상 이미지 파일명
+        imageUrl: 'https://i.imgur.com/HEUmcZf.png' // 👈 잘라낸 책상 이미지 파일명
     },
     // 2. 게시판 (벽걸이 - 높이 보정 필요)
     { 
@@ -1429,6 +1429,7 @@ const chibiImages = {
     '윤필규': 'https://placehold.co/60x60/63b3ed/ffffff?text=SD+윤필규',
     // ... 나머지 캐릭터들도 추가
 };
+
 
 
 
