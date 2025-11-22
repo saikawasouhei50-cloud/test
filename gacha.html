@@ -15,26 +15,22 @@
 .iso-floor {
     position: absolute;
     
-    /* 배경 이미지의 바닥 위치에 맞게 조절한 값들 */
-   top: 70%;       /* 58% -> 70% : 전체적으로 아래로 내리기 */
-    left: 50%;      /* 50% : 좌우 중앙은 유지 */
-    width: 90%;     /* 55% -> 90% : 좌우 벽 끝까지 닿도록 넓히기 */
-    height: 50%;    /* 65% -> 50% : 납작하게 눌러서 바닥 각도 맞추기 */
+    /* 1. 바닥의 중심을 다시 화면 중앙으로 잡습니다 */
+    top: 55%;       
+    left: 50%;      
     
-    /* 기존의 격자무늬 배경 제거 (투명하게) */
-    background-color: transparent; 
-   background-color: rgba(255, 0, 0, 0.3); 
+    /* 2. 가로/세로 길이를 '똑같이' 맞추는 게 핵심입니다! (정사각형 -> 마름모) */
+    width: 70%;     
+    height: 70%;    
     
-    /* 마름모 형태로 변형 */
-    /* rotateX(60deg) rotateZ(45deg)는 일반적인 아이소메트릭 각도입니다. */
-    /* 배경 그림의 각도에 따라 조금씩 수정이 필요할 수 있습니다. */
+    /* 변형 속성 유지 */
     transform: translate(-50%, -50%) rotateX(60deg) rotateZ(45deg);
     
-    /* 테두리도 투명하게 (위치 잡을 땐 색깔 넣어서 확인 추천) */
-    border: 2px dashed rgba(255, 255, 255, 0.0); 
-  border: 2px dashed red;
+    /* 위치 확인을 위해 빨간 테두리를 켰습니다. 위치가 맞으면 나중에 지우세요 */
+    border: 2px dashed red; 
+    background-color: transparent;
     
-    pointer-events: none; /* 클릭 통과 */
+    pointer-events: none;
     z-index: 0;
 }
 
@@ -4474,6 +4470,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
