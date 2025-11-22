@@ -2194,6 +2194,8 @@ function openFurnitureShop() {
     modal.classList.remove('hidden');
 }
 
+		window.openFurnitureShop = openFurnitureShop;
+
 // 3. 가구 구매 (HTML onclick에서 호출됨)
 window.buyFurniture = function(furnitureId) {
     const item = furnitureItems.find(f => f.id === furnitureId);
@@ -4306,6 +4308,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
