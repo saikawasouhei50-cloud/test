@@ -2184,6 +2184,132 @@ function displayMyRoom() {
         
         startChibiMovement(el);
     });
+	initInteractionSystem();
+}
+
+		// ================== ✨ 캐릭터 상호작용 시스템 ✨ ==================
+
+let interactionCheckInterval = null;
+
+function initInteractionSystem() {
+    if (interactionCheckInterval) clearInterval(interactionCheckInterval);
+
+    // 1초마다 캐릭터들의 거리를 확인
+    interactionCheckInterval = setInterval(() => {
+        const myRoomView = document.getElementById('myroom-view');
+        if (!myRoomView || myRoomView.classList.contains('hidden')) return;
+
+        const characters = document.querySelectorAll('.chibi-character');
+        if (characters.length < 2) return;
+
+        // 이중 루프로 두 캐릭터 간의 거리 비교
+        for (let i = 0; i < characters.length; i++) {
+            for (let j = i + 1; j < characters.length; j++) {
+                const charA = characters[i];
+                const charB = characters[j];
+
+                // 이미 대화 중이면 패스
+                if (charA.dataset.isInteracting === 'true' || charB.dataset.isInteracting === 'true') continue;
+
+                // 쿨타임 체크 (대화가 끝난지 얼마 안 됐으면 패스)
+                const now = Date.now();
+                if (charA.dataset.lastInteraction && now - charA.dataset.lastInteraction < 10000) continue;
+                if (charB.dataset.lastInteraction && now - charB.dataset.lastInteraction < 10000) continue;
+
+                // 거리 계산 (Grid 좌표 기준)
+                const x1 = parseFloat(charA.dataset.gridX);
+                const y1 = parseFloat(charA.dataset.gridY);
+                const x2 = parseFloat(charB.dataset.gridX);
+                const y2 = parseFloat(charB.dataset.gridY);
+
+                const dist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+                // 거리가 15 이내이면 상호작용 시작!
+                if (dist < 15) {
+                    triggerInteraction(charA, charB);
+                    return; // 한 번에 한 쌍만 대화 시작 (너무 시끄럽지 않게)
+                }
+            }
+        }
+    }, 1000);
+}
+
+function triggerInteraction(charA, charB) {
+    // 1. 상태를 '대화 중'으로 변경 (이동 멈춤)
+    charA.dataset.isInteracting = 'true';
+    charB.dataset.isInteracting = 'true';
+
+    // 2. 서로 마주 보게 하기
+    const ax = parseFloat(charA.style.left);
+    const bx = parseFloat(charB.style.left);
+    const imgA = charA.querySelector('img');
+    const imgB = charB.querySelector('img');
+
+    if (ax < bx) { // A가 왼쪽, B가 오른쪽
+        imgA.style.transform = 'scaleX(-1)'; // A는 오른쪽 봄
+        imgB.style.transform = 'scaleX(1)';  // B는 왼쪽 봄
+    } else {
+        imgA.style.transform = 'scaleX(1)';  // A는 왼쪽 봄
+        imgB.style.transform = 'scaleX(-1)'; // B는 오른쪽 봄
+    }
+
+    // 3. 대사 찾기
+    // id가 'chibi-0' 형태이므로 인덱스를 추출하여 원본 데이터 이름 찾기
+    const indexA = parseInt(charA.id.split('-')[1]);
+    const indexB = parseInt(charB.id.split('-')[1]);
+    
+    // 현재 덱/인벤토리에 표시된 리스트 기준
+    const list = playerDeck.length > 0 ? playerDeck : playerInventory.slice(0, 5);
+    const nameA = findCharacter(list[indexA].name).baseName;
+    const nameB = findCharacter(list[indexB].name).baseName;
+
+    // 매칭되는 대사 찾기
+    let dialoguePair = null;
+    
+    // 정방향 검색
+    let match = interactionDialogues.find(d => d.pair[0] === nameA && d.pair[1] === nameB);
+    if (match) {
+        const randomPick = match.dialogues[Math.floor(Math.random() * match.dialogues.length)];
+        dialoguePair = { a: randomPick[0], b: randomPick[1] };
+    } else {
+        // 역방향 검색
+        match = interactionDialogues.find(d => d.pair[0] === nameB && d.pair[1] === nameA);
+        if (match) {
+            const randomPick = match.dialogues[Math.floor(Math.random() * match.dialogues.length)];
+            dialoguePair = { a: randomPick[1], b: randomPick[0] }; // 순서 반대로
+        }
+    }
+
+    // 매칭되는 게 없으면 범용 대사 사용
+    if (!dialoguePair) {
+        const randomPick = genericInteractions[Math.floor(Math.random() * genericInteractions.length)];
+        dialoguePair = { a: randomPick[0], b: randomPick[1] };
+    }
+
+    // 4. 말풍선 띄우기
+    showBubble(charA, dialoguePair.a);
+    setTimeout(() => showBubble(charB, dialoguePair.b), 1000); // 1초 뒤 상대방 대답
+
+    // 5. 대화 종료 후 해제 (4초 뒤)
+    setTimeout(() => {
+        charA.dataset.isInteracting = 'false';
+        charB.dataset.isInteracting = 'false';
+        charA.dataset.lastInteraction = Date.now();
+        charB.dataset.lastInteraction = Date.now();
+    }, 4000);
+}
+
+function showBubble(charEl, text) {
+    const bubble = charEl.querySelector('.chibi-bubble');
+    if (bubble) {
+        bubble.innerText = text;
+        bubble.style.opacity = 1;
+        bubble.style.zIndex = 100; // 말풍선 맨 위로
+        setTimeout(() => {
+            bubble.style.opacity = 0;
+            bubble.style.zIndex = 20;
+        }, 3000);
+    }
 }
 
 
@@ -2195,6 +2321,7 @@ function startChibiMovement(element) {
     const move = () => {
         const myRoomView = document.getElementById('myroom-view');
         if (!myRoomView || myRoomView.classList.contains('hidden')) return;
+		if (element.dataset.isInteracting === 'true') return;
 
         // 1. 이동할 랜덤 목적지 생성
         let targetGridX, targetGridY;
@@ -2239,22 +2366,24 @@ function startChibiMovement(element) {
         
         const currentLeft = parseFloat(element.style.left);
         const img = element.querySelector('img');
+        i// ✨ [중요] 방향 전환 시 이미지 태그에 클래스를 붙여서 현재 방향을 기록해둠 (상호작용 때 쓰임)
         if (iso.left < currentLeft) {
             img.style.transform = 'scaleX(1)'; 
+            element.dataset.facing = 'left'; // 기록
         } else {
             img.style.transform = 'scaleX(-1)'; 
+            element.dataset.facing = 'right'; // 기록
         }
 
         element.style.left = `${iso.left}%`;
         element.style.top = `${iso.top}%`;
-        
-        // 캐릭터는 가구보다 앞에 보이도록 z-index 보정
         element.style.zIndex = iso.zIndex + 50;
         
         element.dataset.gridX = targetGridX;
         element.dataset.gridY = targetGridY;
     };
 
+    // 3~6초마다 이동
     const interval = setInterval(move, Math.random() * 3000 + 3000);
     element.dataset.moveInterval = interval;
 }
@@ -4550,6 +4679,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
