@@ -4179,23 +4179,38 @@ speed1xButton.addEventListener('click', () => setCombatSpeed(1));
 speed2xButton.addEventListener('click', () => setCombatSpeed(2));
 speed4xButton.addEventListener('click', () => setCombatSpeed(4));
 
+		
+
 // ✨ 이벤트 뷰의 서브 탭 (수정됨)
-eventSubTabBattle.addEventListener('click', () => {
-    displayEventView(); // 👈 내용 먼저 그리기
-    switchSubTab(document.getElementById('event-view'), eventSubTabBattle); 
-});
-eventSubTabStory.addEventListener('click', () => {
-    displayEventView(); // 👈 내용 먼저 그리기
-    switchSubTab(document.getElementById('event-view'), eventSubTabStory); 
-});
-eventSubTabShop.addEventListener('click', () => {
-    displayEventView(); // 👈 내용 먼저 그리기
-    switchSubTab(document.getElementById('event-view'), eventSubTabShop); 
-});
-});
-   </script>
+        eventSubTabBattle.addEventListener('click', () => {
+            displayEventView(); 
+            switchSubTab(document.getElementById('event-view'), eventSubTabBattle); 
+        });
+        eventSubTabStory.addEventListener('click', () => {
+            displayEventView(); 
+            switchSubTab(document.getElementById('event-view'), eventSubTabStory); 
+        });
+        eventSubTabShop.addEventListener('click', () => {
+            displayEventView(); 
+            switchSubTab(document.getElementById('event-view'), eventSubTabShop); 
+        });
+
+        // 👇👇👇 [여기]에 이 코드를 붙여넣으세요! 👇👇👇
+        
+        // --- [수정] 마이룸 배치 모드 활성화 코드 ---
+        const myRoomEditBtn = document.getElementById('myroom-edit-mode');
+        if (myRoomEditBtn) {
+            myRoomEditBtn.addEventListener('click', toggleEditMode);
+        }
+        // 드래그 기능 초기화
+        initDragEvents();
+        // ----------------------------------------
+
+    }); // <--- DOMContentLoaded 닫는 괄호
+    </script>
 </body>
 </html>
+
 
 
 
