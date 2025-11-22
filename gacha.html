@@ -557,17 +557,23 @@ body.pointer-events-none {
                 </div>
 
                 <div class="flex justify-center gap-4 mt-6">
-                    <button id="open-furniture-shop" class="gacha-button bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded-full">🪑 가구 상점</button>
-                    <button id="myroom-edit-mode" class="gacha-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full">🔨 배치 모드</button>
-                </div>
+    <button id="open-furniture-shop" class="gacha-button bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded-full">🪑 가구 상점</button>
+    
+    <button id="open-furniture-storage" class="hidden gacha-button bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-full">📦 보관함</button>
+    <button id="myroom-edit-mode" class="gacha-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full">🔨 배치 모드</button>
+</div>
 
-                <div id="furniture-shop-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-                    <div class="bg-gray-800 p-6 rounded-lg max-w-2xl w-full">
-                        <h3 class="text-2xl font-bold text-yellow-300 mb-4">가구 상점</h3>
-                        <div id="furniture-list" class="grid grid-cols-3 gap-4 max-h-96 overflow-y-auto mb-4"></div>
-                        <button id="close-furniture-shop" class="gacha-button bg-red-500 text-white py-2 px-4 rounded-full w-full">닫기</button>
-                    </div>
-                </div>
+<div id="furniture-storage-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div class="bg-gray-800 p-6 rounded-lg max-w-2xl w-full">
+        <h3 class="text-2xl font-bold text-purple-300 mb-4">가구 보관함</h3>
+        <p class="text-gray-400 mb-4 text-sm">배치하지 않은 가구들이 여기에 보관됩니다.</p>
+        
+        <div id="storage-list" class="grid grid-cols-3 gap-4 max-h-96 overflow-y-auto mb-4 bg-black/20 p-4 rounded-lg min-h-[100px]">
+            </div>
+        
+        <button id="close-furniture-storage" class="gacha-button bg-red-500 text-white py-2 px-4 rounded-full w-full">닫기</button>
+    </div>
+</div>
             </div>
 
             <div id="toast-notification" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-black font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 z-50">
@@ -2089,6 +2095,68 @@ function startChibiMovement(element) {
     element.dataset.moveInterval = interval;
 }
 
+// ================== ✨ [신규] 가구 보관함 기능 시작 ✨ ==================
+
+// 1. 가구 보관함 열기 (보유 중이지만 방에 없는 가구만 표시)
+function openFurnitureStorage() {
+    const list = document.getElementById('storage-list');
+    const modal = document.getElementById('furniture-storage-modal');
+    if (!list || !modal) return;
+
+    list.innerHTML = '';
+
+    // 현재 방에 배치된 가구들의 ID 목록 추출
+    const placedFurnitureIds = playerRoom.furniture.map(f => f.id);
+
+    // 보유 중인 가구 중 배치되지 않은 것들 필터링
+    const unplacedFurnitureIds = ownedFurniture.filter(id => !placedFurnitureIds.includes(id));
+
+    if (unplacedFurnitureIds.length === 0) {
+        list.innerHTML = `<p class="col-span-3 text-center text-gray-500 py-4">보관 중인 가구가 없습니다.<br>상점에서 구매하거나 배치된 가구를 회수하세요.</p>`;
+    } else {
+        unplacedFurnitureIds.forEach(id => {
+            const item = furnitureItems.find(f => f.id === id);
+            if (!item) return;
+
+            const div = document.createElement('div');
+            div.className = 'bg-black/40 p-3 rounded flex flex-col items-center text-center border border-purple-500/30 hover:bg-purple-900/20 transition-colors cursor-pointer';
+            
+            // 클릭 시 배치 함수 호출
+            div.onclick = () => placeFurnitureFromStorage(id);
+
+            div.innerHTML = `
+                <div class="h-16 w-full flex items-center justify-center mb-2 bg-black/20 rounded pointer-events-none">
+                    <img src="${item.imageUrl}" class="max-h-full max-w-full">
+                </div>
+                <p class="font-bold text-white text-sm mb-1 pointer-events-none">${item.name}</p>
+                <p class="text-green-400 text-xs pointer-events-none">클릭하여 배치</p>
+            `;
+            list.appendChild(div);
+        });
+    }
+    modal.classList.remove('hidden');
+}
+
+// 2. 보관함에서 가구 꺼내기 (배치)
+function placeFurnitureFromStorage(furnitureId) {
+    const item = furnitureItems.find(f => f.id === furnitureId);
+    if (!item) return;
+
+    // 방 중앙에 배치
+    playerRoom.furniture.push({ id: item.id, x: 45, y: 45 });
+    
+    showMessage(`${item.name} 배치 완료!`, 'text-green-300', messageArea);
+    
+    // 화면 갱신
+    displayMyRoom();
+    saveGame();
+    
+    // 보관함 목록 갱신 (방금 꺼낸 건 사라져야 함)
+    openFurnitureStorage();
+}
+
+// ================== ✨ 가구 보관함 기능 끝 ✨ ==================
+		
 // 2. 가구 상점 열기
 function openFurnitureShop() {
     const list = document.getElementById('furniture-list');
@@ -2168,48 +2236,57 @@ function toggleEditMode() {
     isEditMode = !isEditMode;
     const btn = document.getElementById('myroom-edit-mode');
     const container = document.getElementById('room-container');
-    const roomLayer = document.getElementById('room-layer');
+    
+    // ✨ [추가] 보관함 버튼 요소 가져오기
+    const storageBtn = document.getElementById('open-furniture-storage');
 
     if (isEditMode) {
-        // 배치 모드 켜짐
+        // [ON] 배치 모드 켜짐
         btn.textContent = '✅ 저장 완료';
         btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
         btn.classList.add('bg-green-600', 'hover:bg-green-700');
         
-        container.classList.add('border-yellow-400'); // 테두리로 편집 모드임 알림
+        container.classList.add('border-yellow-400'); 
         
-        // 캐릭터 숨기기 (가구 배치 방해되지 않게)
+        // ✨ [추가] 보관함 버튼 보이기
+        if(storageBtn) storageBtn.classList.remove('hidden');
+
+        // 캐릭터 숨기기
         document.querySelectorAll('.chibi-character').forEach(el => el.classList.add('hidden'));
         
-        // 가구들에 드래그 가능 스타일 추가
+        // 가구 드래그 활성화
         document.querySelectorAll('.placed-furniture').forEach(el => {
             el.style.cursor = 'grab';
-            el.style.pointerEvents = 'auto'; // 클릭 가능하게
+            el.style.pointerEvents = 'auto';
         });
-
-        showMessage('가구를 드래그하여 위치를 이동하세요. (우클릭: 회수)', 'text-yellow-300', messageArea);
+        
+        // 안내 메시지 수정 (회수하면 보관함으로 간다는 내용 추가)
+        showMessage('가구를 드래그하여 이동하거나, 우클릭하여 보관함에 넣으세요.', 'text-yellow-300', messageArea);
 
     } else {
-        // 배치 모드 꺼짐 (저장)
+        // [OFF] 배치 모드 꺼짐
         btn.textContent = '🔨 배치 모드';
         btn.classList.remove('bg-green-600', 'hover:bg-green-700');
         btn.classList.add('bg-blue-500', 'hover:bg-blue-600');
         
         container.classList.remove('border-yellow-400');
         
-        // 캐릭터 다시 보이기
+        // ✨ [추가] 보관함 버튼 숨기기
+        if(storageBtn) storageBtn.classList.add('hidden');
+
+        // 캐릭터 보이기
         document.querySelectorAll('.chibi-character').forEach(el => el.classList.remove('hidden'));
         
-        // 가구 스타일 원상복구
         document.querySelectorAll('.placed-furniture').forEach(el => {
             el.style.cursor = 'default';
         });
 
-        // 변경사항 저장
         saveGame();
         showMessage('배치가 저장되었습니다.', 'text-green-300', messageArea);
     }
 }
+
+		
 
 // 2. 마우스 이벤트 초기화 (드래그 앤 드롭)
 function initDragEvents() {
@@ -4202,6 +4279,25 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
         if (myRoomEditBtn) {
             myRoomEditBtn.addEventListener('click', toggleEditMode);
         }
+
+		// ✨✨ [추가] 가구 보관함 버튼 연결 ✨✨
+        const openStorageBtn = document.getElementById('open-furniture-storage');
+        if (openStorageBtn) openStorageBtn.addEventListener('click', openFurnitureStorage);
+
+        const closeStorageBtn = document.getElementById('close-furniture-storage');
+        const storageModal = document.getElementById('furniture-storage-modal');
+        
+        if (closeStorageBtn) {
+            closeStorageBtn.addEventListener('click', () => {
+                storageModal.classList.add('hidden');
+            });
+        }
+        
+        if (storageModal) {
+            storageModal.addEventListener('click', (e) => {
+                if (e.target === storageModal) storageModal.classList.add('hidden');
+            });
+        }
         // 드래그 기능 초기화
         initDragEvents();
         // ----------------------------------------
@@ -4210,6 +4306,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
