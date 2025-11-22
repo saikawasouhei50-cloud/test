@@ -2038,20 +2038,15 @@ function addCardToInventory(cardName) {
 // 1. 마이룸 화면 표시 (캐릭터 & 가구 렌더링)
 		// ================== ✨ 아이소메트릭(마름모) 변환 로직 ✨ ==================
 
-// 1. 그리드 좌표(0~100)를 화면 좌표(CSS left/top %)로 변환
+// 1. 그리드 좌표 변환 함수 (배경 이미지에 맞게 범위 축소)
 function getIsoPos(gridX, gridY) {
     const centerX = 50; 
+    const centerY = 35; // 바닥 높이 조절 (30 -> 35로 내려서 안정감 있게)
     
-    // ✨ [수정 1] 바닥 꼭대기 점을 조금 더 위로 (32 -> 30)
-    const centerY = 30; 
-    
-    // ✨ [수정 2] 너비 계수 증가 (0.45 -> 0.5)
-    // 화면 좌우 끝(0% ~ 100%)까지 꽉 채웁니다.
-    const widthFactor = 0.5;  
-    
-    // ✨ [수정 3] 높이 계수 대폭 증가 (0.25 -> 0.32)
-    // 이제 바닥 좌표가 화면 하단 94% 지점까지 내려갑니다.
-    const heightFactor = 0.32; 
+    // ✨ [수정] 방 크기에 맞춰 계수 축소 (0.5 -> 0.32)
+    // 이제 좌표가 화면 끝까지 가지 않고, 방 안쪽 마름모에 맞춰집니다.
+    const widthFactor = 0.32;  
+    const heightFactor = 0.20; 
     
     const screenX = centerX + (gridX - gridY) * widthFactor;
     const screenY = centerY + (gridX + gridY) * heightFactor;
@@ -2061,14 +2056,13 @@ function getIsoPos(gridX, gridY) {
     return { left: screenX, top: screenY, zIndex: zIndex };
 }
 
-// 2. 화면 좌표(CSS left/top %)를 그리드 좌표(0~100)로 역변환 (드래그용)
+// (getGridPosFromScreen 함수도 위 변수값과 똑같이 맞춰주세요!)
 function getGridPosFromScreen(screenX, screenY) {
-    // 위 함수와 변수값이 반드시 일치해야 합니다!
     const centerX = 50;
-    const centerY = 30; // ✨ 수정됨
+    const centerY = 35; // ✨ 일치시킴
     
-    const widthFactor = 0.5;  // ✨ 수정됨
-    const heightFactor = 0.32; // ✨ 수정됨
+    const widthFactor = 0.32; // ✨ 일치시킴
+    const heightFactor = 0.20; // ✨ 일치시킴
     
     const dx = (screenX - centerX) / widthFactor;
     const dy = (screenY - centerY) / heightFactor;
@@ -2076,13 +2070,11 @@ function getGridPosFromScreen(screenX, screenY) {
     let gridX = (dx + dy) / 2;
     let gridY = (dy - dx) / 2;
     
-    // 범위 제한 (0~100)
     gridX = Math.max(0, Math.min(100, gridX));
     gridY = Math.max(0, Math.min(100, gridY));
     
     return { x: gridX, y: gridY };
 }
-
 
 // ================== ✨ 수정된 displayMyRoom (전체 코드) ✨ ==================
 function displayMyRoom() {
@@ -2314,39 +2306,41 @@ function showBubble(charEl, text) {
 
 
 // ================== ✨ 수정된 startChibiMovement ✨ ==================
-// 캐릭터 랜덤 이동 함수 (수정됨: 이동 반경 제한)
+// 캐릭터 랜덤 이동 함수 (가구 회피 로직 개선)
 function startChibiMovement(element) {
     if (element.dataset.moveInterval) clearInterval(element.dataset.moveInterval);
 
     const move = () => {
         const myRoomView = document.getElementById('myroom-view');
         if (!myRoomView || myRoomView.classList.contains('hidden')) return;
-		if (element.dataset.isInteracting === 'true') return;
+        
+        // 대화 중이면 이동 금지
+        if (element.dataset.isInteracting === 'true') return;
 
-        // 1. 이동할 랜덤 목적지 생성
         let targetGridX, targetGridY;
         let attempts = 0;
         let isValidPosition = false;
 
-        // ✨ [핵심 수정] 이동 반경을 10 ~ 90 사이로 제한 (벽과 구석 피하기)
-        // 기존: Math.random() * 90; (0~90)
-        // 수정: Math.random() * 70 + 15; (15 ~ 85 범위)
-        const safePadding = 15; 
-        const safeRange = 70;   
+        // ✨ [수정 1] 이동 범위를 전체(0~100)에 가깝게 넓힘 (여백을 줄임)
+        // getIsoPos에서 이미 범위를 좁혔으므로, 여기선 꽉 채워 써도 됩니다.
+        const safePadding = 5; 
+        const safeRange = 90;   
 
-        while (attempts < 10) {
+        // ✨ [수정 2] 시도 횟수 증가 (10 -> 50)
+        while (attempts < 50) {
             targetGridX = Math.random() * safeRange + safePadding;
             targetGridY = Math.random() * safeRange + safePadding;
 
-            // 가구 충돌 체크
             let collision = false;
             for (const furniture of playerRoom.furniture) {
                 const itemData = furnitureItems.find(i => i.id === furniture.id);
+                // 벽걸이 가구, 러그는 밟고 지나감
                 if (!itemData || itemData.type === 'wall' || itemData.type === 'rug') continue;
 
-                // 가구 주변 12 거리 이내는 피함
+                // ✨ [수정 3] 충돌 판정 거리 완화 (12 -> 8)
+                // 가구에 좀 더 가까이 붙을 수 있게 하여 좁은 공간도 활용
                 const dist = Math.sqrt(Math.pow(targetGridX - furniture.x, 2) + Math.pow(targetGridY - furniture.y, 2));
-                if (dist < 12) { 
+                if (dist < 8) { 
                     collision = true;
                     break;
                 }
@@ -2359,20 +2353,25 @@ function startChibiMovement(element) {
             attempts++;
         }
 
-        if (!isValidPosition) return;
+        // ✨ [수정 4] 자리를 못 찾았더라도 멈추지 않고 그냥 이동 (강제 이동)
+        // 가구가 너무 많아 꽉 찼을 때 캐릭터가 굳는 것을 방지합니다.
+        if (!isValidPosition) {
+             // 충돌 무시하고 랜덤 위치로 설정
+             targetGridX = Math.random() * safeRange + safePadding;
+             targetGridY = Math.random() * safeRange + safePadding;
+        }
 
-        // 3. 좌표 변환 및 이동
+        // 좌표 변환 및 이동 적용
         const iso = getIsoPos(targetGridX, targetGridY);
         
         const currentLeft = parseFloat(element.style.left);
         const img = element.querySelector('img');
-        i// ✨ [중요] 방향 전환 시 이미지 태그에 클래스를 붙여서 현재 방향을 기록해둠 (상호작용 때 쓰임)
         if (iso.left < currentLeft) {
             img.style.transform = 'scaleX(1)'; 
-            element.dataset.facing = 'left'; // 기록
+            element.dataset.facing = 'left';
         } else {
             img.style.transform = 'scaleX(-1)'; 
-            element.dataset.facing = 'right'; // 기록
+            element.dataset.facing = 'right';
         }
 
         element.style.left = `${iso.left}%`;
@@ -2383,11 +2382,10 @@ function startChibiMovement(element) {
         element.dataset.gridY = targetGridY;
     };
 
-    // 3~6초마다 이동
-    const interval = setInterval(move, Math.random() * 3000 + 3000);
+    // 3~5초마다 이동 (랜덤성 부여)
+    const interval = setInterval(move, Math.random() * 2000 + 3000);
     element.dataset.moveInterval = interval;
 }
-
 
 // ================== ✨ 수정된 initDragEvents (배치 모드) ✨ ==================
 function initDragEvents() {
@@ -4679,6 +4677,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
