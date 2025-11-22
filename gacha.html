@@ -2040,20 +2040,23 @@ function addCardToInventory(cardName) {
 
 // 1. 그리드 좌표(0~100)를 화면 좌표(CSS left/top %)로 변환
 function getIsoPos(gridX, gridY) {
-    // 바닥의 중심(50, 50)이 화면의 (50%, 63%)에 오도록 설정
-    
+    // 바닥의 중심(50, 50)을 기준으로 좌표 계산
     const centerX = 50; 
-    const centerY = 40; // 바닥의 꼭대기 점 (CSS top 63%와 높이를 고려해 조정함)
     
-    // CSS width: 46% -> 절반인 23%가 좌우 폭 계수
-    // CSS height: 90% (회전 후 약 45%) -> 45%가 상하 폭 계수
-    const widthFactor = 0.23;  
-    const heightFactor = 0.22; 
+    // ✨ [수정 1] 바닥의 꼭대기 점 높이 (기존 40 -> 32로 올려서 위쪽 공간 확보)
+    const centerY = 32; 
+    
+    // ✨ [수정 2] 너비 계수 (기존 0.23 -> 0.45)
+    // 0.45로 하면 좌우 폭을 화면의 90%까지 씁니다. (벽 끝까지 닿음)
+    const widthFactor = 0.45;  
+    
+    // ✨ [수정 3] 높이 계수 (기존 0.22 -> 0.25)
+    // 바닥의 기울기에 맞춰 조정
+    const heightFactor = 0.25; 
     
     const screenX = centerX + (gridX - gridY) * widthFactor;
     const screenY = centerY + (gridX + gridY) * heightFactor;
     
-    // z-index는 화면 아래쪽(Y가 클수록)에 있을수록 커야 함
     const zIndex = Math.floor(gridX + gridY);
     
     return { left: screenX, top: screenY, zIndex: zIndex };
@@ -2061,11 +2064,12 @@ function getIsoPos(gridX, gridY) {
 
 // 2. 화면 좌표(CSS left/top %)를 그리드 좌표(0~100)로 역변환 (드래그용)
 function getGridPosFromScreen(screenX, screenY) {
+    // 위 함수와 변수값이 반드시 일치해야 합니다!
     const centerX = 50;
-    const centerY = 40; // getIsoPos와 동일해야 함
+    const centerY = 32; // ✨ 수정됨
     
-    const widthFactor = 0.23;
-    const heightFactor = 0.22;
+    const widthFactor = 0.45; // ✨ 수정됨
+    const heightFactor = 0.25; // ✨ 수정됨
     
     const dx = (screenX - centerX) / widthFactor;
     const dy = (screenY - centerY) / heightFactor;
@@ -4537,6 +4541,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
