@@ -2077,7 +2077,7 @@ function getGridPosFromScreen(screenX, screenY) {
 }
 
 
-// ================== ✨ 수정된 displayMyRoom ✨ ==================
+// ================== ✨ 수정된 displayMyRoom (전체 코드) ✨ ==================
 function displayMyRoom() {
     const roomLayer = document.getElementById('room-layer');
     if (!roomLayer) return;
@@ -2089,26 +2089,53 @@ function displayMyRoom() {
         if (furnitureData) {
             const el = document.createElement('img');
             el.src = furnitureData.imageUrl;
-            el.className = 'placed-furniture absolute transition-transform duration-200'; // 부드러운 움직임 추가
+            el.className = 'placed-furniture absolute transition-transform duration-200';
             el.dataset.id = item.id;
             el.dataset.key = index;
 
-            // ✨ 아이소메트릭 좌표 변환 적용
+            // 아이소메트릭 좌표 변환 (그리드 -> 화면 %)
             const iso = getIsoPos(item.x, item.y);
             
             el.style.left = `${iso.left}%`;
             el.style.top = `${iso.top}%`;
-            // 중심점을 바닥 중앙으로 맞추기 위해 transform 사용 (가구 크기에 따라 조정 필요)
-            el.style.transform = 'translate(-50%, -50%)'; 
-            el.style.width = `${furnitureData.size.w * 8}%`; // 크기 살짝 조정
-            el.style.zIndex = iso.zIndex; // 원근감 적용
+            
+            // z-index 보정값 (가구 종류에 따라 앞뒤 순서 미세 조정)
+            let zOffset = 0;
+
+            // ✨ 가구 타입에 따른 형태 변형 (러그는 눕히고, 가구는 세우기) ✨
+            if (furnitureData.type === 'rug') {
+                // [러그/카펫] 
+                // 바닥에 납작하게 붙어 보이도록 45도 회전 후 Y축을 눌러줍니다.
+                // translate(-50%, -50%)는 중심점을 이미지 정중앙으로 잡습니다.
+                el.style.transform = 'translate(-50%, -50%) rotate(45deg) scaleY(0.58)';
+                el.style.width = `${furnitureData.size.w * 10}%`; // 바닥 타일 크기에 맞춰 넓게
+                el.style.opacity = '0.95'; // 바닥 질감과 섞이도록 아주 약간 투명
+                zOffset = -10; // 캐릭터나 다른 가구보다 항상 밑에 깔리도록 설정
+            } else {
+                // [일반 가구: 책상, 의자, 책장 등]
+                // 바닥 위에 수직으로 서 있는 '빌보드' 방식
+                // translate(-50%, -95%)는 중심점을 이미지의 '맨 아래쪽(발)'로 잡습니다.
+                el.style.transform = 'translate(-50%, -95%)'; 
+                
+                // 가구 크기 조정 (화면 비율에 맞춰 적절히 키움)
+                el.style.width = `${furnitureData.size.w * 15}%`; 
+                
+                // 그림자를 추가하여 바닥에 서 있는 느낌 강조
+                el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))';
+                zOffset = 0; 
+            }
+
+            // 원근감 적용 (화면 아래쪽에 있을수록 z-index가 높음) + 가구별 보정값
+            el.style.zIndex = iso.zIndex + zOffset; 
 
             roomLayer.appendChild(el);
         }
     });
 
     // (2) SD 캐릭터 렌더링
+    // 덱에 있는 캐릭터 우선 표시, 없으면 인벤토리 앞 5명
     const activeCharacters = playerDeck.length > 0 ? playerDeck : playerInventory.slice(0, 5);
+    
     activeCharacters.forEach((card, index) => {
         const charData = findCharacter(card.name);
         if (!charData) return;
@@ -2117,32 +2144,41 @@ function displayMyRoom() {
         el.className = 'chibi-character absolute cursor-pointer transition-all duration-[2000ms] ease-linear';
         el.id = `chibi-${index}`;
         
-        // 초기 랜덤 위치 (그리드 좌표 0~90)
+        // 초기 위치 랜덤 설정 (0~90 그리드 범위)
         const gridX = Math.random() * 90;
         const gridY = Math.random() * 90;
         const iso = getIsoPos(gridX, gridY);
 
         el.style.left = `${iso.left}%`;
         el.style.top = `${iso.top}%`;
-        el.style.transform = 'translate(-50%, -100%)'; // 캐릭터 발이 좌표에 오도록 위로 올림
+        
+        // ✨ 캐릭터 위치 보정
+        // 캐릭터의 발 끝이 정확히 좌표점에 오도록 위로(-90%) 올립니다.
+        el.style.transform = 'translate(-50%, -90%)'; 
+        
         el.style.width = '60px';
         el.style.height = '60px';
-        el.style.zIndex = iso.zIndex + 50; // 가구보다 살짝 위에 (캐릭터 우선)
+        
+        // 캐릭터는 가구보다 살짝 앞에 보이도록 z-index에 가산점을 줍니다.
+        // 단, 앞에 있는 가구(zIndex가 매우 높은 가구) 뒤에는 가려져야 하므로 적절히 더합니다.
+        el.style.zIndex = iso.zIndex + 50; 
 
-        // 캐릭터 이미지
+        // 캐릭터 이미지 생성
         const img = document.createElement('img');
+        // chibiImages 객체가 있으면 SD 이미지 사용, 없으면 카드 이미지 사용
         img.src = (typeof chibiImages !== 'undefined' && chibiImages[charData.baseName]) ? chibiImages[charData.baseName] : charData.cardImageUrl;
         img.className = 'w-full h-full object-contain drop-shadow-lg';
         el.appendChild(img);
 
-        // 말풍선 (기존 코드 동일)
+        // 대사 말풍선 생성
         const bubble = document.createElement('div');
         bubble.className = 'chibi-bubble absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-2 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 transition-opacity duration-300 pointer-events-none z-20 border border-gray-300 shadow-sm';
         bubble.innerText = charData.dialogues[0];
         el.appendChild(bubble);
 
+        // 캐릭터 클릭 이벤트 (대사 출력)
         el.addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // 뒤에 있는 가구 클릭 방지
             const randomDialogue = charData.dialogues[Math.floor(Math.random() * charData.dialogues.length)];
             bubble.innerText = randomDialogue;
             bubble.style.opacity = 1;
@@ -2151,13 +2187,15 @@ function displayMyRoom() {
 
         roomLayer.appendChild(el);
         
-        // 현재 그리드 위치 저장 (이동 로직용)
+        // 이동 로직을 위해 현재 그리드 좌표 저장
         el.dataset.gridX = gridX;
         el.dataset.gridY = gridY;
         
+        // 캐릭터 움직임 시작
         startChibiMovement(el);
     });
 }
+
 
 
 // ================== ✨ 수정된 startChibiMovement ✨ ==================
@@ -4426,6 +4464,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
