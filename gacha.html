@@ -2090,46 +2090,38 @@ function displayMyRoom() {
     if (!roomLayer) return;
     roomLayer.innerHTML = '';
 
-   // (1) 가구 렌더링
+    // (1) 가구 렌더링
     playerRoom.furniture.forEach((item, index) => {
         const furnitureData = furnitureItems.find(f => f.id === item.id);
         if (furnitureData) {
             const el = document.createElement('img');
-            // ... (기본 설정 동일) ...
             el.src = furnitureData.imageUrl;
-            el.className = 'placed-furniture absolute transition-transform duration-200';
+            
+            // ✨ [수정] pointer-events-auto 추가 (가구 클릭/드래그 허용)
+            el.className = 'placed-furniture absolute transition-transform duration-200 pointer-events-auto';
+            
             el.dataset.id = item.id;
             el.dataset.key = index;
 
-            // 좌표 계산
             const iso = getIsoPos(item.x, item.y);
             el.style.left = `${iso.left}%`;
             el.style.top = `${iso.top}%`;
             
-            // ✨ 좌우 반전 스타일 적용 변수
             const flipTransform = item.isFlipped ? 'scaleX(-1)' : 'scaleX(1)';
-
             let zOffset = 0;
 
             if (furnitureData.type === 'rug') {
-                // [러그] - 러그는 45도 회전이 있어서 scaleX를 뒤에 붙이면 축이 꼬일 수 있음.
-                // 여기서는 단순하게 처리하거나, 러그는 반전을 막을 수도 있습니다.
-                // 일단 반전을 적용하되 순서를 주의합니다.
                 el.style.transform = `translate(-50%, -50%) rotate(45deg) scaleY(0.58) ${flipTransform}`;
                 el.style.width = `${furnitureData.size.w * 7}%`; 
                 el.style.opacity = '0.95';
                 zOffset = -100; 
-                
             } else if (furnitureData.type === 'wall') {
-                // [벽걸이]
                 el.style.transform = `translate(-50%, -200%) ${flipTransform}`;
                 el.style.width = `${furnitureData.size.w * 10}%`; 
                 zOffset = -50; 
-
             } else {
-                // [일반 가구]
                 el.style.transform = `translate(-50%, -95%) ${flipTransform}`;
-                el.style.width = '12%'; // 고정 비율
+                el.style.width = '12%'; 
                 el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))'; 
                 zOffset = 0; 
             }
@@ -2146,7 +2138,10 @@ function displayMyRoom() {
         if (!charData) return;
 
         const el = document.createElement('div');
-        el.className = 'chibi-character absolute cursor-pointer transition-all duration-[2000ms] ease-linear';
+        
+        // ✨ [수정] pointer-events-auto 추가 (캐릭터 클릭 허용)
+        el.className = 'chibi-character absolute cursor-pointer transition-all duration-[2000ms] ease-linear pointer-events-auto';
+        
         el.id = `chibi-${index}`;
         
         const gridX = Math.random() * 90;
@@ -2156,8 +2151,6 @@ function displayMyRoom() {
         el.style.left = `${iso.left}%`;
         el.style.top = `${iso.top}%`;
         el.style.transform = 'translate(-50%, -90%)'; 
-        
-        // ✨ 캐릭터 크기도 60px -> 45px로 약간 줄여서 가구와 비율을 맞춤
         el.style.width = '45px';
         el.style.height = '45px';
         el.style.zIndex = iso.zIndex + 50; 
@@ -2172,6 +2165,7 @@ function displayMyRoom() {
         bubble.innerText = charData.dialogues[0];
         el.appendChild(bubble);
 
+        // 클릭 이벤트 리스너 (이제 정상 작동할 것입니다)
         el.addEventListener('click', (e) => {
             e.stopPropagation();
             const randomDialogue = charData.dialogues[Math.floor(Math.random() * charData.dialogues.length)];
@@ -2181,8 +2175,13 @@ function displayMyRoom() {
         });
 
         roomLayer.appendChild(el);
-        el.dataset.gridX = gridX;
-        el.dataset.gridY = gridY;
+        
+        // 캐릭터 초기 위치 정보가 없으면 랜덤 위치 할당
+        if (!el.dataset.gridX) {
+             el.dataset.gridX = gridX;
+             el.dataset.gridY = gridY;
+        }
+        
         startChibiMovement(el);
     });
 }
@@ -4551,6 +4550,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
