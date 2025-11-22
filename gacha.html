@@ -2120,14 +2120,18 @@ function displayMyRoom() {
                 el.style.width = `${furnitureData.size.w * 10}%`; 
                 zOffset = -50; 
 
-            } else {
-                // [일반 가구 (책상, 서류함 등)]
-                el.style.transform = 'translate(-50%, -95%)'; 
-                // 기존 15% -> 9%로 축소 (2칸짜리 책상이 화면의 18% 정도 차지하게 됨)
-                el.style.width = `${furnitureData.size.w * 9}%`; 
-                el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))'; 
-                zOffset = 0; 
-            }
+           } else {
+    // [일반 가구 (책상, 책장 등)]
+    el.style.transform = 'translate(-50%, -95%)'; 
+    
+    // ❌ 기존: el.style.width = `${furnitureData.size.w * 9}%`; 
+    // ✅ 수정: size.w를 곱하지 않고 고정 비율 사용 (이미지 자체 비율 유지)
+    // 책상이 너무 크면 이 값을 10~12% 정도로 맞춰보세요.
+    el.style.width = '12%'; 
+    
+    el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))'; 
+    zOffset = 0; 
+}
 
             el.style.zIndex = iso.zIndex + zOffset; 
             roomLayer.appendChild(el);
@@ -4449,6 +4453,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
