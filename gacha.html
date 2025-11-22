@@ -2040,21 +2040,20 @@ function addCardToInventory(cardName) {
 
 // 1. 그리드 좌표(0~100)를 화면 좌표(CSS left/top %)로 변환
 function getIsoPos(gridX, gridY) {
-    // gridX, gridY: 0 ~ 100 사이의 값
-    // 마름모 꼴로 변환 공식
-    // 화면 중앙(50, 40)을 기준으로 X는 오른쪽 아래, Y는 왼쪽 아래로 퍼짐
+    // 바닥의 중심(50, 50)이 화면의 (50%, 63%)에 오도록 설정
     
     const centerX = 50; 
-    const centerY = 20; // 바닥의 꼭대기 높이 조절
+    const centerY = 40; // 바닥의 꼭대기 점 (CSS top 63%와 높이를 고려해 조정함)
     
-    // 아이소메트릭 투영 공식 응용
-    // x가 커지면 오른쪽(+), y가 커지면 왼쪽(-) -> 가로 위치
-    // x, y 둘 다 커지면 아래로(+) -> 세로 위치
+    // CSS width: 46% -> 절반인 23%가 좌우 폭 계수
+    // CSS height: 90% (회전 후 약 45%) -> 45%가 상하 폭 계수
+    const widthFactor = 0.23;  
+    const heightFactor = 0.22; 
     
-    const screenX = centerX + (gridX - gridY) * 0.6; // 0.6은 너비 계수 (넓게 퍼지게)
-    const screenY = centerY + (gridX + gridY) * 0.35; // 0.35는 높이 계수 (납작하게)
+    const screenX = centerX + (gridX - gridY) * widthFactor;
+    const screenY = centerY + (gridX + gridY) * heightFactor;
     
-    // z-index는 화면 아래쪽(Y가 클수록)에 있을수록 커야 함 -> (gridX + gridY)가 클수록 앞
+    // z-index는 화면 아래쪽(Y가 클수록)에 있을수록 커야 함
     const zIndex = Math.floor(gridX + gridY);
     
     return { left: screenX, top: screenY, zIndex: zIndex };
@@ -2063,16 +2062,13 @@ function getIsoPos(gridX, gridY) {
 // 2. 화면 좌표(CSS left/top %)를 그리드 좌표(0~100)로 역변환 (드래그용)
 function getGridPosFromScreen(screenX, screenY) {
     const centerX = 50;
-    const centerY = 20;
+    const centerY = 40; // getIsoPos와 동일해야 함
     
-    const dx = (screenX - centerX) / 0.6;
-    const dy = (screenY - centerY) / 0.35;
+    const widthFactor = 0.23;
+    const heightFactor = 0.22;
     
-    // 연립방정식 풀이
-    // dx = x - y
-    // dy = x + y
-    // x = (dx + dy) / 2
-    // y = (dy - dx) / 2
+    const dx = (screenX - centerX) / widthFactor;
+    const dy = (screenY - centerY) / heightFactor;
     
     let gridX = (dx + dy) / 2;
     let gridY = (dy - dx) / 2;
@@ -4472,6 +4468,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
