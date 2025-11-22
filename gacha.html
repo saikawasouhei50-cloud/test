@@ -2362,7 +2362,7 @@ function initDragEvents() {
             }
         }
     });
-	// 4. 더블 클릭 시 가구 좌우 반전 (수정됨: 즉시 저장 제거)
+	// 4. 더블 클릭 시 가구 좌우 반전 (최적화 버전)
     container.addEventListener('dblclick', (e) => {
         if (!isEditMode) return;
         
@@ -2370,18 +2370,30 @@ function initDragEvents() {
         if (!target.classList.contains('placed-furniture')) return;
 
         e.preventDefault();
+        e.stopPropagation(); // 이벤트 전파 중단 (중요)
         
         const uniqueKey = target.dataset.key;
-        if (uniqueKey !== undefined && playerRoom.furniture[uniqueKey]) {
-            // 방향 토글
-            const currentFlip = playerRoom.furniture[uniqueKey].isFlipped || false;
-            playerRoom.furniture[uniqueKey].isFlipped = !currentFlip;
+        const item = playerRoom.furniture[uniqueKey]; // 데이터 원본 가져오기
+
+        if (uniqueKey !== undefined && item) {
+            // 1. 데이터 값 변경
+            item.isFlipped = !item.isFlipped;
             
-            // 화면 갱신만 하고, 저장은 하지 않습니다.
-            displayMyRoom();
+            // 2. 화면 갱신 (전체를 다시 그리지 않고, 해당 요소 스타일만 변경)
+            const furnitureData = furnitureItems.find(f => f.id === item.id);
+            const flipTransform = item.isFlipped ? 'scaleX(-1)' : 'scaleX(1)';
+
+            // 가구 타입에 따른 transform 재계산
+            if (furnitureData.type === 'rug') {
+                target.style.transform = `translate(-50%, -50%) rotate(45deg) scaleY(0.58) ${flipTransform}`;
+            } else if (furnitureData.type === 'wall') {
+                target.style.transform = `translate(-50%, -200%) ${flipTransform}`;
+            } else {
+                target.style.transform = `translate(-50%, -95%) ${flipTransform}`;
+            }
             
-            // ❌ 삭제됨: saveGame(); 
-            // (저장은 배치 모드를 종료할 때 한 번에 수행됩니다)
+            // ❌ displayMyRoom(); <-- 이거 때문에 튕기는 거라 삭제했습니다.
+            // ❌ saveGame();      <-- 저장도 나중에 한꺼번에 합니다.
         }
     });
 
@@ -4539,6 +4551,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
