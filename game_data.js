@@ -1364,11 +1364,11 @@ const currentEventInfo = {
 };
 
 const furnitureItems = [
-    { id: 'desk_wood', name: '낡은 원목 책상', type: 'floor', size: { w: 2, h: 1 }, cost: 100, imageUrl: 'https://placehold.co/100x50/8B4513/ffffff?text=Desk' },
-    { id: 'bookshelf_mystery', name: '미스터리 책장', type: 'wall', size: { w: 1, h: 2 }, cost: 150, imageUrl: 'https://placehold.co/50x100/553c9a/ffffff?text=Book' },
-    { id: 'rug_red', name: '붉은색 러그', type: 'rug', size: { w: 2, h: 2 }, cost: 80, imageUrl: 'https://placehold.co/100x100/e53e3e/ffffff?text=Rug' },
-    { id: 'sofa_leather', name: '가죽 소파', type: 'floor', size: { w: 2, h: 1 }, cost: 200, imageUrl: 'https://placehold.co/100x50/2d3748/ffffff?text=Sofa' },
-    { id: 'plant_potted', name: '관상용 화분', type: 'floor', size: { w: 1, h: 1 }, cost: 50, imageUrl: 'https://placehold.co/50x50/2f855a/ffffff?text=Plant' }
+    { id: 'desk_wood', name: '낡은 원목 책상', type: 'floor', size: { w: 2, h: 1 }, cost: 100, imageUrl: 'https://i.imgur.com/0tfl9uY.png' },
+    { id: 'bookshelf_mystery', name: '미스터리 책장', type: 'wall', size: { w: 1, h: 2 }, cost: 150, imageUrl: 'https://i.imgur.com/ewfr87E.png' },
+    { id: 'rug_red', name: '붉은색 러그', type: 'rug', size: { w: 2, h: 2 }, cost: 80, imageUrl: 'https://i.imgur.com/SYin06r.png' },
+    { id: 'sofa_leather', name: '가죽 소파', type: 'floor', size: { w: 2, h: 1 }, cost: 200, imageUrl: 'https://i.imgur.com/MrhdmIQ.png' },
+    { id: 'plant_potted', name: '관상용 화분', type: 'floor', size: { w: 1, h: 1 }, cost: 50, imageUrl: 'https://i.imgur.com/UbLVLuZ.png' }
 ];
 
 // --- 캐릭터 SD 이미지 매핑 (없으면 기본 카드 이미지나 플레이스홀더 사용) ---
@@ -1378,6 +1378,7 @@ const chibiImages = {
     '윤필규': 'https://placehold.co/60x60/63b3ed/ffffff?text=SD+윤필규',
     // ... 나머지 캐릭터들도 추가
 };
+
 
 
 
