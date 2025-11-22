@@ -2010,22 +2010,30 @@ function displayMyRoom() {
     if (!roomLayer) return; // 방이 없으면 중단
     roomLayer.innerHTML = '';
 
-    // (1) 가구 렌더링
-    playerRoom.furniture.forEach(item => {
+    // (1) 가구 렌더링 [수정된 부분 시작]
+    // forEach에 index 매개변수를 추가하여 몇 번째 가구인지 추적합니다.
+    playerRoom.furniture.forEach((item, index) => { 
         const furnitureData = furnitureItems.find(f => f.id === item.id);
         if (furnitureData) {
             const el = document.createElement('img');
             el.src = furnitureData.imageUrl;
             el.className = 'placed-furniture absolute';
+            
+            // ✨ [핵심 수정] 드래그 시 식별을 위해 id와 key(인덱스)를 심어줍니다.
+            el.dataset.id = item.id;
+            el.dataset.key = index; 
+
             // 백분율(%) 좌표로 위치 및 크기 지정
             el.style.left = `${item.x}%`;
             el.style.top = `${item.y}%`;
             el.style.width = `${furnitureData.size.w * 10}%`; 
+            
             // z-index를 Y축 좌표에 맞춰 설정 (아래에 있는 가구가 앞에 오도록)
             el.style.zIndex = Math.floor(item.y);
             roomLayer.appendChild(el);
         }
     });
+    // [수정된 부분 끝]
 
     // (2) SD 캐릭터 렌더링 (덱에 있는 캐릭터 5명, 없으면 인벤토리 앞 5명)
     const activeCharacters = playerDeck.length > 0 ? playerDeck : playerInventory.slice(0, 5);
@@ -4319,6 +4327,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
