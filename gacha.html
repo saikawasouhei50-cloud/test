@@ -2087,11 +2087,12 @@ function displayMyRoom() {
     if (!roomLayer) return;
     roomLayer.innerHTML = '';
 
-    // (1) 가구 렌더링
+   // (1) 가구 렌더링
     playerRoom.furniture.forEach((item, index) => {
         const furnitureData = furnitureItems.find(f => f.id === item.id);
         if (furnitureData) {
             const el = document.createElement('img');
+            // ... (기본 설정 동일) ...
             el.src = furnitureData.imageUrl;
             el.className = 'placed-furniture absolute transition-transform duration-200';
             el.dataset.id = item.id;
@@ -2102,36 +2103,33 @@ function displayMyRoom() {
             el.style.left = `${iso.left}%`;
             el.style.top = `${iso.top}%`;
             
+            // ✨ 좌우 반전 스타일 적용 변수
+            const flipTransform = item.isFlipped ? 'scaleX(-1)' : 'scaleX(1)';
+
             let zOffset = 0;
 
-            // ✨ 가구 크기(width) 배율을 대폭 줄였습니다 ✨
             if (furnitureData.type === 'rug') {
-                // [러그] 
-                el.style.transform = 'translate(-50%, -50%) rotate(45deg) scaleY(0.58)';
-                // 기존 10% -> 7%로 축소
+                // [러그] - 러그는 45도 회전이 있어서 scaleX를 뒤에 붙이면 축이 꼬일 수 있음.
+                // 여기서는 단순하게 처리하거나, 러그는 반전을 막을 수도 있습니다.
+                // 일단 반전을 적용하되 순서를 주의합니다.
+                el.style.transform = `translate(-50%, -50%) rotate(45deg) scaleY(0.58) ${flipTransform}`;
                 el.style.width = `${furnitureData.size.w * 7}%`; 
                 el.style.opacity = '0.95';
                 zOffset = -100; 
                 
             } else if (furnitureData.type === 'wall') {
-                // [벽걸이 (게시판 등)]
-                el.style.transform = 'translate(-50%, -200%)'; 
-                // 기존 18% -> 10%로 축소
+                // [벽걸이]
+                el.style.transform = `translate(-50%, -200%) ${flipTransform}`;
                 el.style.width = `${furnitureData.size.w * 10}%`; 
                 zOffset = -50; 
 
-           } else {
-    // [일반 가구 (책상, 책장 등)]
-    el.style.transform = 'translate(-50%, -95%)'; 
-    
-    // ❌ 기존: el.style.width = `${furnitureData.size.w * 9}%`; 
-    // ✅ 수정: size.w를 곱하지 않고 고정 비율 사용 (이미지 자체 비율 유지)
-    // 책상이 너무 크면 이 값을 10~12% 정도로 맞춰보세요.
-    el.style.width = '12%'; 
-    
-    el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))'; 
-    zOffset = 0; 
-}
+            } else {
+                // [일반 가구]
+                el.style.transform = `translate(-50%, -95%) ${flipTransform}`;
+                el.style.width = '12%'; // 고정 비율
+                el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))'; 
+                zOffset = 0; 
+            }
 
             el.style.zIndex = iso.zIndex + zOffset; 
             roomLayer.appendChild(el);
@@ -2363,6 +2361,27 @@ function initDragEvents() {
             }
         }
     });
+	// 4. 더블 클릭 시 가구 좌우 반전 (Flip)
+    container.addEventListener('dblclick', (e) => {
+        if (!isEditMode) return;
+        
+        // 클릭된 요소가 가구인지 확인
+        let target = e.target;
+        if (!target.classList.contains('placed-furniture')) return;
+
+        e.preventDefault();
+        
+        const uniqueKey = target.dataset.key;
+        if (uniqueKey !== undefined && playerRoom.furniture[uniqueKey]) {
+            // isFlipped 값을 토글 (true <-> false)
+            const currentFlip = playerRoom.furniture[uniqueKey].isFlipped || false;
+            playerRoom.furniture[uniqueKey].isFlipped = !currentFlip;
+            
+            // 화면 갱신 및 저장
+            displayMyRoom();
+            saveGame();
+        }
+    });
 }
 
 
@@ -2370,6 +2389,7 @@ function initDragEvents() {
 // ================== ✨ [신규] 가구 보관함 기능 시작 ✨ ==================
 
 // 1. 가구 보관함 열기 (보유 중이지만 방에 없는 가구만 표시)
+// 1. 가구 보관함 열기 (수량 계산 로직 적용)
 function openFurnitureStorage() {
     const list = document.getElementById('storage-list');
     const modal = document.getElementById('furniture-storage-modal');
@@ -2377,37 +2397,60 @@ function openFurnitureStorage() {
 
     list.innerHTML = '';
 
-    // 현재 방에 배치된 가구들의 ID 목록 추출
-    const placedFurnitureIds = playerRoom.furniture.map(f => f.id);
+    // 1. 현재 방에 배치된 가구들의 ID별 개수를 셉니다.
+    const placedCounts = {};
+    playerRoom.furniture.forEach(f => {
+        placedCounts[f.id] = (placedCounts[f.id] || 0) + 1;
+    });
 
-    // 보유 중인 가구 중 배치되지 않은 것들 필터링
-    const unplacedFurnitureIds = ownedFurniture.filter(id => !placedFurnitureIds.includes(id));
+    // 2. 전체 보유 가구의 ID별 개수를 셉니다.
+    const ownedCounts = {};
+    ownedFurniture.forEach(id => {
+        ownedCounts[id] = (ownedCounts[id] || 0) + 1;
+    });
 
-    if (unplacedFurnitureIds.length === 0) {
-        list.innerHTML = `<p class="col-span-3 text-center text-gray-500 py-4">보관 중인 가구가 없습니다.<br>상점에서 구매하거나 배치된 가구를 회수하세요.</p>`;
-    } else {
-        unplacedFurnitureIds.forEach(id => {
+    // 3. (보유 개수 - 배치 개수)가 1개 이상인 가구만 추출합니다.
+    const uniqueOwnedIds = [...new Set(ownedFurniture)]; // 중복 제거된 ID 목록
+    
+    let hasItem = false;
+
+    uniqueOwnedIds.forEach(id => {
+        const totalOwned = ownedCounts[id] || 0;
+        const totalPlaced = placedCounts[id] || 0;
+        const availableCount = totalOwned - totalPlaced; // 보관함에 남아있는 개수
+
+        if (availableCount > 0) {
+            hasItem = true;
             const item = furnitureItems.find(f => f.id === id);
             if (!item) return;
 
             const div = document.createElement('div');
             div.className = 'bg-black/40 p-3 rounded flex flex-col items-center text-center border border-purple-500/30 hover:bg-purple-900/20 transition-colors cursor-pointer';
             
-            // 클릭 시 배치 함수 호출
+            // 클릭 시 배치
             div.onclick = () => placeFurnitureFromStorage(id);
 
             div.innerHTML = `
-                <div class="h-16 w-full flex items-center justify-center mb-2 bg-black/20 rounded pointer-events-none">
+                <div class="h-16 w-full flex items-center justify-center mb-2 bg-black/20 rounded pointer-events-none relative">
                     <img src="${item.imageUrl}" class="max-h-full max-w-full">
+                    <span class="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-bl">x${availableCount}</span>
                 </div>
                 <p class="font-bold text-white text-sm mb-1 pointer-events-none">${item.name}</p>
                 <p class="text-green-400 text-xs pointer-events-none">클릭하여 배치</p>
             `;
             list.appendChild(div);
-        });
+        }
+    });
+
+    if (!hasItem) {
+        list.innerHTML = `<p class="col-span-3 text-center text-gray-500 py-4">보관 중인 가구가 없습니다.<br>모든 가구를 배치했습니다.</p>`;
     }
     modal.classList.remove('hidden');
 }
+
+// (참고) placeFurnitureFromStorage 함수는 기존 유지하되, isFlipped 초기값만 추가해주세요.
+// 기존: playerRoom.furniture.push({ id: item.id, x: 45, y: 45 });
+// 수정: playerRoom.furniture.push({ id: item.id, x: 45, y: 45, isFlipped: false });
 
 // 2. 보관함에서 가구 꺼내기 (배치)
 function placeFurnitureFromStorage(furnitureId) {
@@ -2415,7 +2458,7 @@ function placeFurnitureFromStorage(furnitureId) {
     if (!item) return;
 
     // 방 중앙에 배치
-    playerRoom.furniture.push({ id: item.id, x: 45, y: 45 });
+    playerRoom.furniture.push({ id: item.id, x: 45, y: 45, isFlipped: false });
     
     showMessage(`${item.name} 배치 완료!`, 'text-green-300', messageArea);
     
@@ -2468,31 +2511,31 @@ function openFurnitureShop() {
 
 		window.openFurnitureShop = openFurnitureShop;
 
-// 3. 가구 구매 (HTML onclick에서 호출됨)
+// 3. 가구 구매 (중복 구매 허용 버전)
 window.buyFurniture = function(furnitureId) {
     const item = furnitureItems.find(f => f.id === furnitureId);
     if (!item) return;
 
-    if (ownedFurniture.includes(item.id)) {
-        alert('이미 보유하고 있는 가구입니다.');
-        return;
-    }
+    // ❌ 기존의 중복 체크 로직 삭제
+    // if (ownedFurniture.includes(item.id)) { ... } 
 
     if (playerCurrency >= item.cost) {
         if (!confirm(`${item.name}을(를) 💎${item.cost}에 구매하시겠습니까?`)) return;
 
         playerCurrency -= item.cost;
+        
+        // 보유 목록에 추가 (같은 ID가 여러 번 들어감)
         ownedFurniture.push(item.id);
         
-        // 구매 즉시 방 중앙에 자동 배치
-        playerRoom.furniture.push({ id: item.id, x: 45, y: 45 });
+        // 구매 즉시 방 중앙에 자동 배치 (초기 상태: 반전 없음)
+        playerRoom.furniture.push({ id: item.id, x: 45, y: 45, isFlipped: false });
         
         showMessage(`${item.name} 구매 완료!`, 'text-green-300', messageArea);
         
         updateUI();
         saveGame();
-        openFurnitureShop(); // 상점 UI 갱신 (버튼 상태 변경)
-        displayMyRoom(); // 방 화면 갱신
+        openFurnitureShop(); 
+        displayMyRoom(); 
     } else {
         alert('보석이 부족합니다.');
     }
@@ -4489,6 +4532,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
