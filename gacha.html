@@ -2104,37 +2104,37 @@ function displayMyRoom() {
             
             let zOffset = 0;
 
-            // ✨ 가구 타입별 스타일 적용 ✨
+            // ✨ 가구 크기(width) 배율을 대폭 줄였습니다 ✨
             if (furnitureData.type === 'rug') {
-                // [러그] 바닥에 납작하게 깔림
+                // [러그] 
                 el.style.transform = 'translate(-50%, -50%) rotate(45deg) scaleY(0.58)';
-                el.style.width = `${furnitureData.size.w * 10}%`; 
+                // 기존 10% -> 7%로 축소
+                el.style.width = `${furnitureData.size.w * 7}%`; 
                 el.style.opacity = '0.95';
-                zOffset = -100; // 가장 아래로
+                zOffset = -100; 
                 
             } else if (furnitureData.type === 'wall') {
-                // [벽걸이 가구 (게시판)] 바닥 좌표보다 위로 붕 띄움
-                // translate Y값을 -200% 정도로 주어 벽에 걸린 것처럼 연출
+                // [벽걸이 (게시판 등)]
                 el.style.transform = 'translate(-50%, -200%)'; 
-                el.style.width = `${furnitureData.size.w * 18}%`; // 조금 크게
-                zOffset = -50; // 바닥 가구보다는 뒤, 벽지보다는 앞
+                // 기존 18% -> 10%로 축소
+                el.style.width = `${furnitureData.size.w * 10}%`; 
+                zOffset = -50; 
 
             } else {
-                // [일반 가구 (책상, 책장 등)] 바닥 위에 서 있음
-                // 발끝을 기준점(-90%~-95%)으로 설정
+                // [일반 가구 (책상, 서류함 등)]
                 el.style.transform = 'translate(-50%, -95%)'; 
-                el.style.width = `${furnitureData.size.w * 15}%`; 
-                el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))'; // 그림자
+                // 기존 15% -> 9%로 축소 (2칸짜리 책상이 화면의 18% 정도 차지하게 됨)
+                el.style.width = `${furnitureData.size.w * 9}%`; 
+                el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))'; 
                 zOffset = 0; 
             }
 
-            // Y축(세로 위치)에 따라 앞뒤 순서 결정 (아래에 있을수록 앞)
             el.style.zIndex = iso.zIndex + zOffset; 
             roomLayer.appendChild(el);
         }
     });
 
-    // (2) SD 캐릭터 렌더링 (기존 코드 유지)
+    // (2) SD 캐릭터 렌더링
     const activeCharacters = playerDeck.length > 0 ? playerDeck : playerInventory.slice(0, 5);
     activeCharacters.forEach((card, index) => {
         const charData = findCharacter(card.name);
@@ -2151,9 +2151,11 @@ function displayMyRoom() {
         el.style.left = `${iso.left}%`;
         el.style.top = `${iso.top}%`;
         el.style.transform = 'translate(-50%, -90%)'; 
-        el.style.width = '60px';
-        el.style.height = '60px';
-        el.style.zIndex = iso.zIndex + 50; // 가구보다 앞에
+        
+        // ✨ 캐릭터 크기도 60px -> 45px로 약간 줄여서 가구와 비율을 맞춤
+        el.style.width = '45px';
+        el.style.height = '45px';
+        el.style.zIndex = iso.zIndex + 50; 
 
         const img = document.createElement('img');
         img.src = (typeof chibiImages !== 'undefined' && chibiImages[charData.baseName]) ? chibiImages[charData.baseName] : charData.cardImageUrl;
@@ -4447,6 +4449,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
