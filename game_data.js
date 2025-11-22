@@ -1363,12 +1363,63 @@ const currentEventInfo = {
     gachaCharacterName: EVENT_CHARACTER_NAME // 기존 이벤트 뽑기 캐릭터 이름 변수 사용
 };
 
+// game_data.js
+
 const furnitureItems = [
-    { id: 'desk_wood', name: '낡은 원목 책상', type: 'floor', size: { w: 2, h: 1 }, cost: 100, imageUrl: 'https://i.imgur.com/0tfl9uY.png' },
-    { id: 'bookshelf_mystery', name: '미스터리 책장', type: 'wall', size: { w: 1, h: 2 }, cost: 150, imageUrl: 'https://i.imgur.com/ewfr87E.png' },
-    { id: 'rug_red', name: '붉은색 러그', type: 'rug', size: { w: 2, h: 2 }, cost: 80, imageUrl: 'https://i.imgur.com/SYin06r.png' },
-    { id: 'sofa_leather', name: '가죽 소파', type: 'floor', size: { w: 2, h: 1 }, cost: 200, imageUrl: 'https://i.imgur.com/MrhdmIQ.png' },
-    { id: 'plant_potted', name: '관상용 화분', type: 'floor', size: { w: 1, h: 1 }, cost: 50, imageUrl: 'https://i.imgur.com/UbLVLuZ.png' }
+    // 1. 책상 (넓음)
+    { 
+        id: 'desk_detective', 
+        name: '탐정 사무소 책상', 
+        type: 'floor', // 바닥에 놓는 물건
+        size: { w: 2, h: 1 }, 
+        cost: 0, 
+        imageUrl: 'desk.png' // 👈 잘라낸 책상 이미지 파일명
+    },
+    // 2. 게시판 (벽걸이 - 높이 보정 필요)
+    { 
+        id: 'board_clue', 
+        name: '사건 게시판', 
+        type: 'wall', // 벽에 거는 물건
+        size: { w: 1, h: 1 }, 
+        cost: 0, 
+        imageUrl: 'board.png' // 👈 잘라낸 게시판 이미지 파일명
+    },
+    // 3. 3단 서류함
+    { 
+        id: 'cabinet_tall', 
+        name: '3단 철제 서류함', 
+        type: 'floor', 
+        size: { w: 1, h: 1 }, 
+        cost: 0, 
+        imageUrl: 'cabinet_tall.png' // 👈 잘라낸 3단 서류함 이미지
+    },
+    // 4. 2단 서류함
+    { 
+        id: 'cabinet_small', 
+        name: '2단 철제 서류함', 
+        type: 'floor', 
+        size: { w: 1, h: 1 }, 
+        cost: 0, 
+        imageUrl: 'cabinet_small.png' // 👈 잘라낸 2단 서류함 이미지
+    },
+    // 5. 책장
+    { 
+        id: 'bookshelf_wood', 
+        name: '원목 책장', 
+        type: 'floor', 
+        size: { w: 1, h: 1 }, 
+        cost: 0, 
+        imageUrl: 'bookshelf.png' // 👈 잘라낸 책장 이미지
+    },
+    // (기존 러그 유지)
+    { 
+        id: 'rug_red', 
+        name: '붉은색 러그', 
+        type: 'rug', 
+        size: { w: 2, h: 2 }, 
+        cost: 80, 
+        imageUrl: 'https://i.imgur.com/SYin06r.png' 
+    }
 ];
 
 // --- 캐릭터 SD 이미지 매핑 (없으면 기본 카드 이미지나 플레이스홀더 사용) ---
@@ -1378,6 +1429,7 @@ const chibiImages = {
     '윤필규': 'https://placehold.co/60x60/63b3ed/ffffff?text=SD+윤필규',
     // ... 나머지 캐릭터들도 추가
 };
+
 
 
 
