@@ -1373,7 +1373,7 @@ const furnitureItems = [
         type: 'floor', // 바닥에 놓는 물건
         size: { w: 2, h: 1 }, 
         cost: 0, 
-        imageUrl: 'https://i.imgur.com/HEUmcZf.png' // 👈 잘라낸 책상 이미지 파일명
+        imageUrl: 'https://i.imgur.com/V80cbue.png' // 👈 잘라낸 책상 이미지 파일명
     },
     // 2. 게시판 (벽걸이 - 높이 보정 필요)
     { 
@@ -1382,7 +1382,7 @@ const furnitureItems = [
         type: 'wall', // 벽에 거는 물건
         size: { w: 1, h: 1 }, 
         cost: 0, 
-        imageUrl: 'board.png' // 👈 잘라낸 게시판 이미지 파일명
+        imageUrl: 'https://i.imgur.com/xfMeA0r.png' // 👈 잘라낸 게시판 이미지 파일명
     },
     // 3. 3단 서류함
     { 
@@ -1391,7 +1391,7 @@ const furnitureItems = [
         type: 'floor', 
         size: { w: 1, h: 1 }, 
         cost: 0, 
-        imageUrl: 'cabinet_tall.png' // 👈 잘라낸 3단 서류함 이미지
+        imageUrl: 'https://i.imgur.com/1TRnMdx.png' // 👈 잘라낸 3단 서류함 이미지
     },
     // 4. 2단 서류함
     { 
@@ -1400,7 +1400,7 @@ const furnitureItems = [
         type: 'floor', 
         size: { w: 1, h: 1 }, 
         cost: 0, 
-        imageUrl: 'cabinet_small.png' // 👈 잘라낸 2단 서류함 이미지
+        imageUrl: 'https://i.imgur.com/4V3YNqa.png' // 👈 잘라낸 2단 서류함 이미지
     },
     // 5. 책장
     { 
@@ -1409,7 +1409,7 @@ const furnitureItems = [
         type: 'floor', 
         size: { w: 1, h: 1 }, 
         cost: 0, 
-        imageUrl: 'bookshelf.png' // 👈 잘라낸 책장 이미지
+        imageUrl: 'https://i.imgur.com/vTOoTBr.png' // 👈 잘라낸 책장 이미지
     },
     // (기존 러그 유지)
     { 
@@ -1429,6 +1429,7 @@ const chibiImages = {
     '윤필규': 'https://placehold.co/60x60/63b3ed/ffffff?text=SD+윤필규',
     // ... 나머지 캐릭터들도 추가
 };
+
 
 
 
