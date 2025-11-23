@@ -917,6 +917,11 @@ const closeDismantleResultButton = document.getElementById('close-dismantle-resu
             const detailStoryNextButton = document.getElementById('detail-story-next');
 			const storyView = document.getElementById('story-view');
 
+		const GRID_SIZE = 10; // 10x10 격자
+const TILE_WIDTH_PERCENT = 9;  // 타일 하나의 화면상 가로 비율 (%) - 방 너비에 맞춰 조정
+const TILE_HEIGHT_PERCENT = 5; // 타일 하나의 화면상 세로 비율 (%) - 바닥 기울기에 맞춰 조정
+
+
 		// 1. 가구 보관함 열기 (수량 계산 로직 적용)
 function openFurnitureStorage() {
     const list = document.getElementById('storage-list');
@@ -2541,9 +2546,6 @@ function addCardToInventory(cardName) {
 
 // ================== 📏 10x10 그리드 시스템 설정 ==================
 
-const GRID_SIZE = 10; // 10x10 격자
-const TILE_WIDTH_PERCENT = 9;  // 타일 하나의 화면상 가로 비율 (%) - 방 너비에 맞춰 조정
-const TILE_HEIGHT_PERCENT = 5; // 타일 하나의 화면상 세로 비율 (%) - 바닥 기울기에 맞춰 조정
 
 // 1. 그리드 좌표(0~9) -> 화면 좌표(%) 변환
 function getIsoPos(gridX, gridY) {
@@ -4712,6 +4714,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
