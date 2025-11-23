@@ -10,6 +10,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
 
+		/* gacha.html <style> 태그 안에 추가 */
+
+.room-wrapper {
+    width: 100%; /* 부모 너비 꽉 채움 */
+    max-width: 800px; /* 최대 너비 */
+    margin: 0 auto; /* 중앙 정렬 */
+    position: relative;
+    
+    /* ✨ 화면 비율 변수 (JS에서 업데이트됨) */
+    --room-aspect-ratio: 1.6; 
+    
+    /* ✨ 높이를 비율에 맞춰 자동 조절 */
+    padding-bottom: calc(100% / var(--room-aspect-ratio)); 
+    height: 0; 
+}
+
+#room-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 기존 h-96 클래스는 HTML에서 제거하거나 무시됨 */
+}
+
 		/* gacha.html의 .iso-floor 스타일 수정 */
 
 .iso-floor {
@@ -586,16 +611,18 @@ body.pointer-events-none {
                     <p class="text-gray-200">탐정 사무소를 꾸미고 등장인물들의 휴식을 지켜보세요.</p>
                 </div>
 
-                <div id="room-container" class="relative w-full max-w-3xl mx-auto h-96 bg-gray-900 rounded-xl overflow-hidden shadow-2xl border-4 border-gray-700 perspective-1000">
-    
-    <div class="absolute inset-0 bg-contain bg-center bg-no-repeat" style="background-image: url('https://i.imgur.com/CklaT1l.png');"></div>
-    
-    <div class="iso-floor"></div>
-    
-    <div id="room-layer" class="relative w-full h-full z-10 pointer-events-none">
-        <style> #room-layer > * { pointer-events: auto; } </style>
-    </div>
+                <div class="room-wrapper">
+    <div id="room-container" class="relative w-full h-full bg-gray-900 rounded-xl overflow-hidden shadow-2xl border-4 border-gray-700 perspective-1000">
+        
+        <div class="absolute inset-0 bg-contain bg-center bg-no-repeat" style="background-image: url('https://i.imgur.com/CklaT1l.png');"></div>
+        
+        <div class="iso-floor"></div>
+        
+        <div id="room-layer" class="relative w-full h-full z-10 pointer-events-none">
+            <style> #room-layer > * { pointer-events: auto; } </style>
+        </div>
 
+    </div>
 </div>
 
                 <div class="flex justify-center gap-4 mt-6">
@@ -2038,17 +2065,71 @@ function addCardToInventory(cardName) {
 // 1. 마이룸 화면 표시 (캐릭터 & 가구 렌더링)
 		// ================== ✨ 아이소메트릭(마름모) 변환 로직 ✨ ==================
 
-// 1. 그리드 좌표 변환 함수 (반응형 비율 적용)
+// ================== 📏 반응형 비율 계산 로직 (신규 추가) ==================
+
+// 전역 변수 선언
+let roomAspectRatio = 1.6; // 기본 비율 (CSS 초기값과 일치)
+
+function updateRoomAspectRatio() {
+    const wrapper = document.querySelector('.room-wrapper');
+    if (!wrapper) return;
+
+    // room-container의 실제 크기를 기준으로 비율 계산
+    const container = document.getElementById('room-container');
+    if (container && container.offsetWidth > 0 && container.offsetHeight > 0) {
+        roomAspectRatio = container.offsetWidth / container.offsetHeight;
+    } else {
+        // Fallback: 컨테이너가 아직 렌더링 안 됐을 때 wrapper 스타일 기준
+        const style = window.getComputedStyle(wrapper);
+        const width = parseFloat(style.width);
+        const height = parseFloat(style.height);
+        if (width > 0 && height > 0) {
+             roomAspectRatio = width / height;
+        }
+    }
+    
+    // 계산된 비율을 CSS 변수에 적용 (CSS의 padding-bottom이 이 값에 따라 변함)
+    wrapper.style.setProperty('--room-aspect-ratio', roomAspectRatio);
+    
+    // 비율이 변경되었으므로 가구/캐릭터 위치를 다시 그려서 보정
+    if (typeof displayMyRoom === 'function') {
+        displayMyRoom(); 
+    }
+}
+
+// 화면 크기가 바뀔 때마다 비율 재계산
+window.addEventListener('resize', updateRoomAspectRatio);
+
+// 페이지 로드 완료 시 최초 1회 실행
+document.addEventListener('DOMContentLoaded', () => {
+    // 약간의 지연을 두어 CSS 레이아웃이 잡힌 뒤 계산하도록 함
+    setTimeout(updateRoomAspectRatio, 100);
+});
+
+
+// ================== ✨ 좌표 변환 함수 (비율 반영 버전) ==================
+
+// 1. 그리드 좌표 변환 함수 (최적화된 반응형)
 function getIsoPos(gridX, gridY) {
     const centerX = 50; 
     
-    // 화면 비율(가로/세로)에 따라 높이 계수 등을 다르게 설정합니다.
-    // 모바일(세로모드)에서는 바닥을 좀 더 납작하게 보여줘야 짤리지 않습니다.
-    const isMobile = window.innerWidth < 768; // 768px 미만이면 모바일로 간주
-
-    const centerY = isMobile ? 40 : 30; // 모바일이면 좀 더 아래로 내림
-    const widthFactor = isMobile ? 0.42 : 0.46; // 모바일은 좌우 폭을 살짝 줄임
-    const heightFactor = isMobile ? 0.20 : 0.30; // 모바일은 높이를 더 납작하게 (중요!)
+    // 화면 비율에 따라 높이 계수 등을 동적으로 조정합니다.
+    const baseWidthFactor = 0.46; 
+    const baseHeightFactor = 0.30; 
+    
+    // 비율 보정 로직:
+    // 화면이 세로로 길어질수록(모바일) roomAspectRatio가 작아짐 -> dynamicHeightMultiplier가 커짐 -> 바닥이 납작해짐
+    // (Math.sqrt를 사용하여 변화를 부드럽게 함)
+    let dynamicHeightMultiplier = 1;
+    if (roomAspectRatio > 0) {
+        dynamicHeightMultiplier = 1 / Math.sqrt(roomAspectRatio);
+    }
+    
+    // 바닥 중심점(Y)도 비율에 따라 살짝 이동
+    const centerY = 30 + (1.6 - roomAspectRatio) * 10; 
+    
+    const widthFactor = baseWidthFactor; 
+    const heightFactor = baseHeightFactor * dynamicHeightMultiplier * 0.9; 
     
     const screenX = centerX + (gridX - gridY) * widthFactor;
     const screenY = centerY + (gridX + gridY) * heightFactor;
@@ -2062,10 +2143,17 @@ function getIsoPos(gridX, gridY) {
 function getGridPosFromScreen(screenX, screenY) {
     const centerX = 50;
     
-    const isMobile = window.innerWidth < 768;
-    const centerY = isMobile ? 40 : 30;
-    const widthFactor = isMobile ? 0.42 : 0.46;
-    const heightFactor = isMobile ? 0.20 : 0.30;
+    const baseWidthFactor = 0.46; 
+    const baseHeightFactor = 0.30; 
+    
+    let dynamicHeightMultiplier = 1;
+    if (roomAspectRatio > 0) {
+        dynamicHeightMultiplier = 1 / Math.sqrt(roomAspectRatio);
+    }
+
+    const centerY = 30 + (1.6 - roomAspectRatio) * 10;
+    const widthFactor = baseWidthFactor; 
+    const heightFactor = baseHeightFactor * dynamicHeightMultiplier * 0.9;
     
     const dx = (screenX - centerX) / widthFactor;
     const dy = (screenY - centerY) / heightFactor;
@@ -4669,6 +4757,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
