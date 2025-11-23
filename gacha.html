@@ -2038,20 +2038,17 @@ function addCardToInventory(cardName) {
 // 1. 마이룸 화면 표시 (캐릭터 & 가구 렌더링)
 		// ================== ✨ 아이소메트릭(마름모) 변환 로직 ✨ ==================
 
-// 1. 그리드 좌표 변환 함수 (방 전체 크기로 다시 확장)
+// 1. 그리드 좌표 변환 함수 (반응형 비율 적용)
 function getIsoPos(gridX, gridY) {
     const centerX = 50; 
     
-    // ✨ [수정 1] 바닥 시작점 높이 (살짝 위로)
-    const centerY = 30; 
-    
-    // ✨ [수정 2] 너비 계수 확장 (0.32 -> 0.46)
-    // 화면 좌우 92%까지 사용하여 벽 끝까지 가구를 놓을 수 있게 함
-    const widthFactor = 0.46;  
-    
-    // ✨ [수정 3] 높이 계수 확장 (0.20 -> 0.30)
-    // 바닥을 화면 하단까지 깊게 내림
-    const heightFactor = 0.30; 
+    // 화면 비율(가로/세로)에 따라 높이 계수 등을 다르게 설정합니다.
+    // 모바일(세로모드)에서는 바닥을 좀 더 납작하게 보여줘야 짤리지 않습니다.
+    const isMobile = window.innerWidth < 768; // 768px 미만이면 모바일로 간주
+
+    const centerY = isMobile ? 40 : 30; // 모바일이면 좀 더 아래로 내림
+    const widthFactor = isMobile ? 0.42 : 0.46; // 모바일은 좌우 폭을 살짝 줄임
+    const heightFactor = isMobile ? 0.20 : 0.30; // 모바일은 높이를 더 납작하게 (중요!)
     
     const screenX = centerX + (gridX - gridY) * widthFactor;
     const screenY = centerY + (gridX + gridY) * heightFactor;
@@ -2061,13 +2058,14 @@ function getIsoPos(gridX, gridY) {
     return { left: screenX, top: screenY, zIndex: zIndex };
 }
 
-// (getGridPosFromScreen 함수도 위와 똑같은 값으로 수정)
+// 2. 역변환 함수 (드래그용 - 위와 동일한 로직 적용)
 function getGridPosFromScreen(screenX, screenY) {
     const centerX = 50;
-    const centerY = 30; // ✨ 일치시킴
     
-    const widthFactor = 0.46; // ✨ 일치시킴
-    const heightFactor = 0.30; // ✨ 일치시킴
+    const isMobile = window.innerWidth < 768;
+    const centerY = isMobile ? 40 : 30;
+    const widthFactor = isMobile ? 0.42 : 0.46;
+    const heightFactor = isMobile ? 0.20 : 0.30;
     
     const dx = (screenX - centerX) / widthFactor;
     const dy = (screenY - centerY) / heightFactor;
@@ -4671,6 +4669,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
