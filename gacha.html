@@ -2038,43 +2038,58 @@ function addCardToInventory(cardName) {
 // 1. 마이룸 화면 표시 (캐릭터 & 가구 렌더링)
 		// ================== ✨ 아이소메트릭(마름모) 변환 로직 ✨ ==================
 
-// 1. 그리드 좌표 변환 함수 (반응형 비율 적용)
-function getIsoPos(gridX, gridY) {
-    const centerX = 50; 
-    
-    // 화면 비율(가로/세로)에 따라 높이 계수 등을 다르게 설정합니다.
-    // 모바일(세로모드)에서는 바닥을 좀 더 납작하게 보여줘야 짤리지 않습니다.
-    const isMobile = window.innerWidth < 768; // 768px 미만이면 모바일로 간주
+// ================== 📏 10x10 그리드 시스템 설정 ==================
 
-    const centerY = isMobile ? 40 : 30; // 모바일이면 좀 더 아래로 내림
-    const widthFactor = isMobile ? 0.42 : 0.46; // 모바일은 좌우 폭을 살짝 줄임
-    const heightFactor = isMobile ? 0.20 : 0.30; // 모바일은 높이를 더 납작하게 (중요!)
+const GRID_SIZE = 10; // 10x10 격자
+const TILE_WIDTH_PERCENT = 9;  // 타일 하나의 화면상 가로 비율 (%) - 방 너비에 맞춰 조정
+const TILE_HEIGHT_PERCENT = 5; // 타일 하나의 화면상 세로 비율 (%) - 바닥 기울기에 맞춰 조정
+
+// 1. 그리드 좌표(0~9) -> 화면 좌표(%) 변환
+function getIsoPos(gridX, gridY) {
+    // 방의 꼭대기(Top Center) 기준점
+    const originX = 50; 
+    const originY = 30; 
+
+    // 아이소메트릭 변환 공식 (격자형)
+    // x가 증가하면: 오른쪽 아래로 이동 (화면상 오른쪽+, 아래+)
+    // y가 증가하면: 왼쪽 아래로 이동 (화면상 왼쪽-, 아래+)
     
-    const screenX = centerX + (gridX - gridY) * widthFactor;
-    const screenY = centerY + (gridX + gridY) * heightFactor;
+    const screenX = originX + (gridX - gridY) * (TILE_WIDTH_PERCENT / 2);
+    const screenY = originY + (gridX + gridY) * (TILE_HEIGHT_PERCENT / 2);
     
-    const zIndex = Math.floor(gridX + gridY);
+    // z-index는 "화면상 아래쪽에 있는 것"이 "앞에" 와야 함
+    // (gridX + gridY)가 클수록 화면 아래쪽임.
+    const zIndex = Math.floor(gridX + gridY) * 10; // 넉넉하게 10씩 띄움
     
     return { left: screenX, top: screenY, zIndex: zIndex };
 }
 
-// 2. 역변환 함수 (드래그용 - 위와 동일한 로직 적용)
+// 2. 화면 좌표(%) -> 그리드 좌표(0~9) 역변환 (드래그용)
 function getGridPosFromScreen(screenX, screenY) {
-    const centerX = 50;
+    const originX = 50;
+    const originY = 30;
     
-    const isMobile = window.innerWidth < 768;
-    const centerY = isMobile ? 40 : 30;
-    const widthFactor = isMobile ? 0.42 : 0.46;
-    const heightFactor = isMobile ? 0.20 : 0.30;
+    // 역변환 공식 유도
+    // dx = screenX - originX = (gx - gy) * W/2
+    // dy = screenY - originY = (gx + gy) * H/2
+    // ... 연립방정식 풀이 ...
     
-    const dx = (screenX - centerX) / widthFactor;
-    const dy = (screenY - centerY) / heightFactor;
+    const dx = screenX - originX;
+    const dy = screenY - originY;
     
-    let gridX = (dx + dy) / 2;
-    let gridY = (dy - dx) / 2;
+    const w = TILE_WIDTH_PERCENT / 2;
+    const h = TILE_HEIGHT_PERCENT / 2;
     
-    gridX = Math.max(0, Math.min(100, gridX));
-    gridY = Math.max(0, Math.min(100, gridY));
+    // 근사치 계산
+    let gridX = (dy/h + dx/w) / 2;
+    let gridY = (dy/h - dx/w) / 2;
+    
+    // 정수로 반올림 (Snapping) 및 범위 제한 (0 ~ 9)
+    gridX = Math.round(gridX);
+    gridY = Math.round(gridY);
+    
+    gridX = Math.max(0, Math.min(GRID_SIZE - 1, gridX));
+    gridY = Math.max(0, Math.min(GRID_SIZE - 1, gridY));
     
     return { x: gridX, y: gridY };
 }
@@ -2086,81 +2101,99 @@ function displayMyRoom() {
     roomLayer.innerHTML = '';
 
     // (1) 가구 렌더링
-    playerRoom.furniture.forEach((item, index) => {
+    // z-index 순서대로 그리기 위해 정렬 (뒤에 있는 가구부터 그려야 함)
+    const sortedFurniture = [...playerRoom.furniture].sort((a, b) => {
+        return (a.x + a.y) - (b.x + b.y);
+    });
+
+    sortedFurniture.forEach((item, index) => {
         const furnitureData = furnitureItems.find(f => f.id === item.id);
         if (furnitureData) {
             const el = document.createElement('img');
             el.src = furnitureData.imageUrl;
+            el.className = 'placed-furniture absolute transition-all duration-200 pointer-events-auto';
             
-            // ✨ [수정] pointer-events-auto 추가 (가구 클릭/드래그 허용)
-            el.className = 'placed-furniture absolute transition-transform duration-200 pointer-events-auto';
-            
+            // 데이터셋 설정 (드래그 식별용)
+            // 주의: 정렬했기 때문에 원본 배열의 인덱스를 찾아야 함
+            const originalIndex = playerRoom.furniture.indexOf(item);
+            el.dataset.key = originalIndex; 
             el.dataset.id = item.id;
-            el.dataset.key = index;
 
+            // 좌표 계산 (정수형 Grid 좌표 사용)
             const iso = getIsoPos(item.x, item.y);
+            
             el.style.left = `${iso.left}%`;
             el.style.top = `${iso.top}%`;
             
             const flipTransform = item.isFlipped ? 'scaleX(-1)' : 'scaleX(1)';
-            let zOffset = 0;
 
+            // ✨ 크기 및 위치 보정 (Grid 단위에 맞춤)
             if (furnitureData.type === 'rug') {
+                // 러그: 바닥 타일에 딱 맞게 변형
                 el.style.transform = `translate(-50%, -50%) rotate(45deg) scaleY(0.58) ${flipTransform}`;
-                el.style.width = `${furnitureData.size.w * 7}%`; 
+                // 가로 2칸, 세로 2칸이면 그만큼 커져야 함
+                el.style.width = `${furnitureData.size.w * TILE_WIDTH_PERCENT}%`; 
                 el.style.opacity = '0.95';
-                zOffset = -100; 
+                el.style.zIndex = 0; // 바닥은 제일 아래
+                
             } else if (furnitureData.type === 'wall') {
+                // 벽걸이: 바닥보다 위로 띄움
                 el.style.transform = `translate(-50%, -200%) ${flipTransform}`;
-                el.style.width = `${furnitureData.size.w * 10}%`; 
-                zOffset = -50; 
+                el.style.width = `${furnitureData.size.w * TILE_WIDTH_PERCENT}%`; 
+                el.style.zIndex = 5; // 벽지는 바닥 가구보다 뒤, 바닥보단 앞
+                
             } else {
-                el.style.transform = `translate(-50%, -95%) ${flipTransform}`;
-                el.style.width = '12%'; 
-                el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))'; 
-                zOffset = 0; 
+                // 일반 가구: 바닥 기준점에 발을 맞춤
+                el.style.transform = `translate(-50%, -90%) ${flipTransform}`;
+                // ✨ 가구 너비 = (칸 수 * 타일너비) * 보정값
+                // 이미지가 꽉 차게 보이기 위해 1.2~1.5배 정도 키움
+                const scaleFactor = 1.3; 
+                el.style.width = `${furnitureData.size.w * TILE_WIDTH_PERCENT * scaleFactor}%`; 
+                el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))';
+                el.style.zIndex = iso.zIndex; 
             }
 
-            el.style.zIndex = iso.zIndex + zOffset; 
             roomLayer.appendChild(el);
         }
     });
 
-    // (2) SD 캐릭터 렌더링
+    // (2) 캐릭터 렌더링
     const activeCharacters = playerDeck.length > 0 ? playerDeck : playerInventory.slice(0, 5);
     activeCharacters.forEach((card, index) => {
-        const charData = findCharacter(card.name);
-        if (!charData) return;
-
         const el = document.createElement('div');
-        
-        // ✨ [수정] pointer-events-auto 추가 (캐릭터 클릭 허용)
         el.className = 'chibi-character absolute cursor-pointer transition-all duration-[2000ms] ease-linear pointer-events-auto';
-        
         el.id = `chibi-${index}`;
         
-        const gridX = Math.random() * 90;
-        const gridY = Math.random() * 90;
-        const iso = getIsoPos(gridX, gridY);
+        // 캐릭터 초기 위치가 없으면 랜덤 할당 (0~9 정수)
+        if (el.dataset.gridX === undefined) {
+             el.dataset.gridX = Math.floor(Math.random() * GRID_SIZE);
+             el.dataset.gridY = Math.floor(Math.random() * GRID_SIZE);
+        }
+        
+        const gx = parseInt(el.dataset.gridX);
+        const gy = parseInt(el.dataset.gridY);
+        const iso = getIsoPos(gx, gy);
 
         el.style.left = `${iso.left}%`;
         el.style.top = `${iso.top}%`;
         el.style.transform = 'translate(-50%, -90%)'; 
-        el.style.width = '45px';
-        el.style.height = '45px';
-        el.style.zIndex = iso.zIndex + 50; 
+        el.style.width = `${TILE_WIDTH_PERCENT * 0.8}%`; // 캐릭터 크기도 타일 비율에 맞춤 (반응형)
+        el.style.height = 'auto';
+        el.style.zIndex = iso.zIndex + 5; // 같은 칸 가구보다 살짝 앞
 
+        // ... (이미지, 말풍선, 클릭 이벤트 등 기존 코드 유지) ...
+        const charData = findCharacter(card.name);
+        if (!charData) return;
         const img = document.createElement('img');
         img.src = (typeof chibiImages !== 'undefined' && chibiImages[charData.baseName]) ? chibiImages[charData.baseName] : charData.cardImageUrl;
         img.className = 'w-full h-full object-contain drop-shadow-lg';
         el.appendChild(img);
-
+        
+        // (말풍선 코드 생략 - 기존 유지)
         const bubble = document.createElement('div');
         bubble.className = 'chibi-bubble absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-2 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 transition-opacity duration-300 pointer-events-none z-20 border border-gray-300 shadow-sm';
         bubble.innerText = charData.dialogues[0];
         el.appendChild(bubble);
-
-        // 클릭 이벤트 리스너 (이제 정상 작동할 것입니다)
         el.addEventListener('click', (e) => {
             e.stopPropagation();
             const randomDialogue = charData.dialogues[Math.floor(Math.random() * charData.dialogues.length)];
@@ -2170,16 +2203,10 @@ function displayMyRoom() {
         });
 
         roomLayer.appendChild(el);
-        
-        // 캐릭터 초기 위치 정보가 없으면 랜덤 위치 할당
-        if (!el.dataset.gridX) {
-             el.dataset.gridX = gridX;
-             el.dataset.gridY = gridY;
-        }
-        
         startChibiMovement(el);
     });
-	initInteractionSystem();
+    
+    initInteractionSystem();
 }
 
 		// ================== ✨ 캐릭터 상호작용 시스템 ✨ ==================
@@ -2317,63 +2344,74 @@ function startChibiMovement(element) {
     const move = () => {
         const myRoomView = document.getElementById('myroom-view');
         if (!myRoomView || myRoomView.classList.contains('hidden')) return;
-        
         if (element.dataset.isInteracting === 'true') return;
 
-        let targetGridX, targetGridY;
-        let attempts = 0;
-        let isValidPosition = false;
+        // 현재 위치 (정수)
+        let currentGx = parseInt(element.dataset.gridX) || 0;
+        let currentGy = parseInt(element.dataset.gridY) || 0;
 
-        // ✨ [핵심] 방은 0~100이지만, 캐릭터는 15~85 사이만 다니게 함 (벽 뚫기 방지)
-        const safePadding = 15; 
-        const safeRange = 70;   
+        // 랜덤하게 상하좌우 1칸 이동 시도
+        const directions = [
+            { dx: 1, dy: 0 }, { dx: -1, dy: 0 }, 
+            { dx: 0, dy: 1 }, { dx: 0, dy: -1 }
+        ];
+        
+        // 유효한 이동 방향 찾기 (랜덤 섞기)
+        directions.sort(() => Math.random() - 0.5);
+        
+        let nextGx = currentGx;
+        let nextGy = currentGy;
+        let moved = false;
 
-        while (attempts < 50) {
-            targetGridX = Math.random() * safeRange + safePadding;
-            targetGridY = Math.random() * safeRange + safePadding;
+        for (let dir of directions) {
+            const testX = currentGx + dir.dx;
+            const testY = currentGy + dir.dy;
 
-            let collision = false;
-            for (const furniture of playerRoom.furniture) {
-                const itemData = furnitureItems.find(i => i.id === furniture.id);
-                if (!itemData || itemData.type === 'wall' || itemData.type === 'rug') continue;
+            // 1. 맵 밖으로 나가는지 체크
+            if (testX < 0 || testX >= GRID_SIZE || testY < 0 || testY >= GRID_SIZE) continue;
 
-                const dist = Math.sqrt(Math.pow(targetGridX - furniture.x, 2) + Math.pow(targetGridY - furniture.y, 2));
-                if (dist < 8) { 
-                    collision = true;
-                    break;
-                }
+            // 2. 가구 충돌 체크 (해당 칸에 'floor' 타입 가구가 있는지)
+            const hasFurniture = playerRoom.furniture.some(f => {
+                const fData = furnitureItems.find(i => i.id === f.id);
+                if (!fData || fData.type !== 'floor') return false;
+                
+                // 가구가 차지하는 모든 칸(width x height) 체크
+                // (여기서는 단순화를 위해 1x1로 가정하거나, 정밀 체크 필요 시 확장 가능)
+                // 일단 가구의 기준점(x, y)과 겹치는지 확인
+                return Math.round(f.x) === testX && Math.round(f.y) === testY;
+            });
+
+            if (!hasFurniture) {
+                nextGx = testX;
+                nextGy = testY;
+                moved = true;
+                break; // 이동 성공
+            }
+        }
+
+        // 이동 실행
+        if (moved) {
+            const iso = getIsoPos(nextGx, nextGy);
+            
+            // 방향 전환
+            const img = element.querySelector('img');
+            // 화면상 왼쪽으로 가면(left값이 줄어들면) 왼쪽 보기
+            const currentLeft = parseFloat(element.style.left);
+            if (iso.left < currentLeft) {
+                img.style.transform = 'scaleX(1)';
+                element.dataset.facing = 'left';
+            } else {
+                img.style.transform = 'scaleX(-1)';
+                element.dataset.facing = 'right';
             }
 
-            if (!collision) {
-                isValidPosition = true;
-                break;
-            }
-            attempts++;
+            element.style.left = `${iso.left}%`;
+            element.style.top = `${iso.top}%`;
+            element.style.zIndex = iso.zIndex + 5; // 캐릭터는 가구보다 살짝 위
+            
+            element.dataset.gridX = nextGx;
+            element.dataset.gridY = nextGy;
         }
-
-        if (!isValidPosition) {
-             targetGridX = Math.random() * safeRange + safePadding;
-             targetGridY = Math.random() * safeRange + safePadding;
-        }
-
-        const iso = getIsoPos(targetGridX, targetGridY);
-        
-        const currentLeft = parseFloat(element.style.left);
-        const img = element.querySelector('img');
-        if (iso.left < currentLeft) {
-            img.style.transform = 'scaleX(1)'; 
-            element.dataset.facing = 'left';
-        } else {
-            img.style.transform = 'scaleX(-1)'; 
-            element.dataset.facing = 'right';
-        }
-
-        element.style.left = `${iso.left}%`;
-        element.style.top = `${iso.top}%`;
-        element.style.zIndex = iso.zIndex + 50;
-        
-        element.dataset.gridX = targetGridX;
-        element.dataset.gridY = targetGridY;
     };
 
     const interval = setInterval(move, Math.random() * 2000 + 3000);
@@ -2438,10 +2476,13 @@ function initDragEvents() {
         const gridPos = getGridPosFromScreen(currentLeft, currentTop);
         
         const uniqueKey = draggedFurniture.dataset.key;
-        if (uniqueKey !== undefined && playerRoom.furniture[uniqueKey]) {
-            playerRoom.furniture[uniqueKey].x = gridPos.x;
-            playerRoom.furniture[uniqueKey].y = gridPos.y;
-        }
+       if (!playerRoom.furniture || playerRoom.furniture.length === 0) {
+    playerRoom.furniture = [
+        // 이제 좌표는 0 ~ 9 사이의 정수입니다.
+        { id: 'rug_red', x: 5, y: 5, isFlipped: false }, 
+        { id: 'desk_detective', x: 4, y: 4, isFlipped: false },
+        { id: 'bookshelf_wood', x: 0, y: 0, isFlipped: false }
+    ];
 
         // z-index 재계산 및 스타일 복구
         const newIso = getIsoPos(gridPos.x, gridPos.y);
@@ -4669,7 +4710,6 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
-
 
 
 
