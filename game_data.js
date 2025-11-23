@@ -1373,7 +1373,7 @@ const furnitureItems = [
         type: 'floor', // 바닥에 놓는 물건
         size: { w: 2, h: 1 }, 
         cost: 0, 
-		scale: 0.3,
+		scale: 0.5,
         imageUrl: 'https://i.imgur.com/V80cbue.png' // 👈 잘라낸 책상 이미지 파일명
     },
     // 2. 게시판 (벽걸이 - 높이 보정 필요)
@@ -1392,7 +1392,7 @@ const furnitureItems = [
         type: 'floor', 
         size: { w: 1, h: 1 }, 
         cost: 0, 
-		scale: 0.3,
+		scale: 0.5,
         imageUrl: 'https://i.imgur.com/1TRnMdx.png' // 👈 잘라낸 3단 서류함 이미지
     },
     // 4. 2단 서류함
@@ -1402,7 +1402,7 @@ const furnitureItems = [
         type: 'floor', 
         size: { w: 1, h: 1 }, 
         cost: 0, 
-		scale: 0.3,
+		scale: 0.5,
         imageUrl: 'https://i.imgur.com/4V3YNqa.png' // 👈 잘라낸 2단 서류함 이미지
     },
     // 5. 책장
@@ -1471,6 +1471,7 @@ const genericInteractions = [
     ['사건 조사는 잘 돼가나요?', '쉽지 않네요.'],
     ['안녕하세요!', '반갑습니다.']
 ];
+
 
 
 
