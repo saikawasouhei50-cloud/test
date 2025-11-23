@@ -2087,20 +2087,20 @@ function addCardToInventory(cardName) {
 		// ================== ✨ 아이소메트릭(마름모) 변환 로직 ✨ ==================
 
 // 1. 그리드 좌표 변환 함수 (벽 안쪽으로 범위 축소)
-// 1. 그리드 좌표 변환 함수 (배율 수정: 10배 확대)
 function getIsoPos(gridX, gridY) {
     const centerX = 50; 
     
-    // ✨ [핵심 수정] 바닥 시작점 (위쪽 꼭짓점)
-    // 25% 정도가 적당합니다. (배경 이미지의 마루 시작점)
-    const centerY = 25; 
+    // ✨ [수정 1] 바닥 중심점 높이 (30 -> 35)
+    // 전체적으로 살짝 내려서 위쪽 벽에 닿지 않게 합니다.
+    const centerY = 45; 
     
-    // ✨ [핵심 수정] 배율을 대폭 키웠습니다! (0.38 -> 4.0)
-    // 그리드 좌표(0~9) 하나당 화면의 4%씩 차지하게 합니다.
-    const widthFactor = 4.0;  
+    // ✨ [수정 2] 너비 계수 축소 (0.46 -> 0.38)
+    // 좌우 벽 두께만큼 안쪽으로 들여옵니다.
+    const widthFactor = 0.38;  
     
-    // ✨ [핵심 수정] 높이 배율도 키움 (0.24 -> 2.2)
-    const heightFactor = 2.2; 
+    // ✨ [수정 3] 높이 계수 축소 (0.30 -> 0.24)
+    // 아래쪽 벽에 닿지 않게 상하 폭을 줄입니다.
+    const heightFactor = 0.24; 
     
     const screenX = centerX + (gridX - gridY) * widthFactor;
     const screenY = centerY + (gridX + gridY) * heightFactor;
@@ -2113,10 +2113,10 @@ function getIsoPos(gridX, gridY) {
 // 2. 역변환 함수 (위와 변수값 일치 필수)
 function getGridPosFromScreen(screenX, screenY) {
     const centerX = 50;
-    const centerY = 25; // ✨ 일치시킴
+    const centerY = 45; // ✨ 일치시킴
     
-    const widthFactor = 4.0; // ✨ 일치시킴
-    const heightFactor = 2.2; // ✨ 일치시킴
+    const widthFactor = 0.38; // ✨ 일치시킴
+    const heightFactor = 0.24; // ✨ 일치시킴
     
     const dx = (screenX - centerX) / widthFactor;
     const dy = (screenY - centerY) / heightFactor;
@@ -2124,11 +2124,8 @@ function getGridPosFromScreen(screenX, screenY) {
     let gridX = (dx + dy) / 2;
     let gridY = (dy - dx) / 2;
     
-    gridX = Math.round(gridX);
-    gridY = Math.round(gridY);
-    
-    gridX = Math.max(0, Math.min(GRID_SIZE - 1, gridX));
-    gridY = Math.max(0, Math.min(GRID_SIZE - 1, gridY));
+    gridX = Math.max(0, Math.min(100, gridX));
+    gridY = Math.max(0, Math.min(100, gridY));
     
     return { x: gridX, y: gridY };
 }
@@ -4736,8 +4733,6 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
-
-
 
 
 
