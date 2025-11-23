@@ -2401,15 +2401,7 @@ const isBlocked = playerRoom.furniture.some(f => {
     const dist = Math.sqrt(Math.pow(f.x - testX, 2) + Math.pow(f.y - testY, 2));
     return dist < 6; 
 });
-            // 이 자리에 가구가 있는지 확인
-            const isBlocked = playerRoom.furniture.some(f => {
-                const itemData = furnitureItems.find(i => i.id === f.id);
-                // 벽걸이, 러그는 무시 (밟아도 됨)
-                if (!itemData || itemData.type === 'wall' || itemData.type === 'rug') return false;
-                
-                // 좌표가 겹치면 '막힘'으로 간주
-                return Math.round(f.x) === testX && Math.round(f.y) === testY;
-            });
+           
 
             // 빈 자리라면? -> 여기로 결정하고 반복 종료!
             if (!isBlocked) {
@@ -4746,6 +4738,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
