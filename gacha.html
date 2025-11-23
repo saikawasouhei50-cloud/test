@@ -764,6 +764,59 @@ body.pointer-events-none {
     const auth = firebase.auth(); // 인증 서비스 변수 추가
 
     let currentUser = null; // 현재 로그인된 유저 정보
+		const SAVE_DATA_KEY = 'gachaGameSaveData_v9';
+    let currentUser = null;
+
+    // 게임 데이터 변수들
+    let playerCurrency = 100;
+    let playerFountainPens = 500;
+    let playerInkwells = 0;
+    let playerEventPoints = 0;
+    let playerBookmarks = 10;
+    
+    // 인벤토리 & 덱
+    let playerInventory = [];
+    let playerDeck = [];
+    let collectedCardNames = new Set();
+    let inventoryCapacity = 100;
+    
+    // 마이룸 & 가구 (여기가 문제였음!)
+    let playerRoom = { furniture: [], characters: [] }; 
+    let ownedFurniture = []; 
+    
+    // 기타 상태 변수
+    let playerChoices = {};
+    let currentEventChoice = null;
+    let isMultiSelectMode = false;
+    let selectedCardsToDismantle = new Set();
+    let isSortAscending = false;
+    let representativeCharacter = null;
+    let isCombatRunning = false;
+    let combatSpeedMultiplier = 1;
+    let lastCombatType = 'main';
+    let clearedStages = [];
+    let clearedEventDungeons = [];
+    let isDismantling = false;
+    let purchasedEventItems = {};
+    let currentStoryPages = [];
+    let currentStoryPageIndex = 0;
+    let lastBookmarkUpdateTime = Date.now();
+    let playerAchievements = {};
+    let playerStats = { totalPulls: 0 };
+    let currentInteractiveStory = null;
+    let currentSceneIndex = 0;
+    let currentSortOrder = 'rarity';
+    let currentRarityFilter = 'All';
+    let clearedStageStories = []; 
+
+    // 상수들
+    const MAX_BOOKMARKS = 10;
+    const BOOKMARK_REGEN_TIME = 5 * 60 * 1000;
+    const DECK_CAPACITY = 5;
+    const PULL_ONE_COST = 10;
+    const PULL_TEN_COST = 100;
+    const EXPAND_COST = 50;
+    const EXPAND_AMOUNT = 10;
 
 		// 1. 가구 보관함 열기 (수량 계산 로직 적용)
 function openFurnitureStorage() {
@@ -1071,48 +1124,7 @@ const RARITY_COST_MULTIPLIER = { // 👈 이 코드를 추가
     'SSR': 1.6,
 };
 const STAT_INCREASE_PER_LEVEL = 0.05; // 레벨당 기본 능력치의 5% 증가
-            let playerCurrency = 100;
-			let playerChoices = {};
-			let playerFountainPens = 500; // 🖋️
-			let playerInkwells = 0;
-			let currentEventChoice = null;
-			let isMultiSelectMode = false; // ✨ 다중 선택 모드 상태 추가
-            let selectedCardsToDismantle = new Set(); // ✨ 선택된 카드 ID Set 추가
-            let playerInventory = [];
-			let collectedCardNames = new Set(); // 👈 이 줄을 추가하세요.
-		let playerRoom = { furniture: [], characters: [] }; // 마이룸 데이터 (가구 배치, 캐릭터)
-let ownedFurniture = []; // 보유한 가구 목록
-			let isSortAscending = false; // ✨ 정렬 방향 변수 추가 (false: 내림차순, true: 오름차순)
-            let playerDeck = [];
-            let inventoryCapacity = 100;
-            let representativeCharacter = null;
-            let isCombatRunning = false;
-            let combatSpeedMultiplier = 1;
-            let lastCombatType = 'main'; // 마지막 전투 유형을 저장합니다.
-            let clearedStages = [];
-            let clearedEventDungeons = [];
-			let isDismantling = false;
-            let playerEventPoints = 0;
-            let purchasedEventItems = {};
-            let currentStoryPages = [];
-            let currentStoryPageIndex = 0;
-            let playerBookmarks = 10;
-            const MAX_BOOKMARKS = 10;
-            let lastBookmarkUpdateTime = Date.now();
-            const BOOKMARK_REGEN_TIME = 5 * 60 * 1000; // 5 minutes
-            let playerAchievements = {}; // { ach_001: 'unlocked' | 'claimed' }
-            let playerStats = { totalPulls: 0 };
-			let currentInteractiveStory = null; // 이 줄 추가
-			let currentSceneIndex = 0; // 이 줄 추가
-			let currentSortOrder = 'rarity';
-			let currentRarityFilter = 'All'; // 👈 이 줄을 추가하세요.
-			let clearedStageStories = []; 
-
-            const DECK_CAPACITY = 5;
-            const PULL_ONE_COST = 10;
-            const PULL_TEN_COST = 100;
-            const EXPAND_COST = 50;
-            const EXPAND_AMOUNT = 10;
+            
             
 
             // --- HTML 요소 가져오기 ---
@@ -1281,7 +1293,14 @@ async function loadGameFromFirebase(uid) {
         collectedCardNames = new Set(savedData.collectedCardNames || []);
         const savedDeckIds = savedData.deck || [];
         playerDeck = savedDeckIds.map(id => playerInventory.find(card => card.id === id)).filter(Boolean);
-		playerRoom = savedData.myRoom || { furniture: [], characters: [] };
+		// savedData.myRoom이 없거나, 있더라도 furniture 배열이 없으면 빈 배열로 초기화
+playerRoom = savedData.myRoom || { furniture: [], characters: [] };
+if (!Array.isArray(playerRoom.furniture)) {
+    playerRoom.furniture = [];
+}
+if (!Array.isArray(playerRoom.characters)) {
+    playerRoom.characters = [];
+}
         ownedFurniture = savedData.ownedFurniture || [];
         inventoryCapacity = savedData.capacity ?? 100;
         if (savedData.representative) {
@@ -4690,6 +4709,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
