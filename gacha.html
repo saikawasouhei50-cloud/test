@@ -1125,6 +1125,13 @@ async function loadGameFromFirebase(uid) {
         const savedDeckIds = savedData.deck || [];
         playerDeck = savedDeckIds.map(id => playerInventory.find(card => card.id === id)).filter(Boolean);
 		playerRoom = savedData.myRoom || { furniture: [], characters: [] };
+        
+        if (!Array.isArray(playerRoom.furniture)) {
+            playerRoom.furniture = []; // 가구 목록이 없으면 빈 배열 생성
+        }
+        if (!Array.isArray(playerRoom.characters)) {
+            playerRoom.characters = []; // 캐릭터 목록이 없으면 빈 배열 생성
+        }
         ownedFurniture = savedData.ownedFurniture || [];
         inventoryCapacity = savedData.capacity ?? 100;
         if (savedData.representative) {
@@ -2086,6 +2093,9 @@ function displayMyRoom() {
     const roomLayer = document.getElementById('room-layer');
     if (!roomLayer) return;
     roomLayer.innerHTML = '';
+
+    // ✨ [추가] 가구 데이터가 비어있다면 빈 배열로 초기화 (에러 방지)
+    if (!playerRoom.furniture) playerRoom.furniture = [];
 
     // (1) 가구 렌더링
     playerRoom.furniture.forEach((item, index) => {
@@ -4671,6 +4681,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
