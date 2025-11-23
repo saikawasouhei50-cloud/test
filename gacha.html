@@ -2435,14 +2435,13 @@ function initDragEvents() {
             if (e.cancelable) e.preventDefault();
             draggedFurniture = target;
             draggedFurniture.style.cursor = 'grabbing';
-            draggedFurniture.style.zIndex = 9999; // 드래그 중엔 맨 위로
-            draggedFurniture.style.transition = 'none'; // 드래그 중엔 애니메이션 끔
+            draggedFurniture.style.zIndex = 9999; 
+            draggedFurniture.style.transition = 'none'; 
 
             const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
             const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
             const rect = draggedFurniture.getBoundingClientRect();
             
-            // 중심점 기준 드래그를 위해 오프셋 조정
             dragOffsetX = clientX - rect.left - (rect.width / 2);
             dragOffsetY = clientY - rect.top - (rect.height / 2);
         }
@@ -2456,11 +2455,9 @@ function initDragEvents() {
         const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
         const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
 
-        // 화면상 좌표 (%, 픽셀 -> 퍼센트 변환)
         let screenX = ((clientX - containerRect.left) / containerRect.width) * 100;
         let screenY = ((clientY - containerRect.top) / containerRect.height) * 100;
 
-        // 시각적 업데이트
         draggedFurniture.style.left = `${screenX}%`;
         draggedFurniture.style.top = `${screenY}%`;
     };
@@ -2468,36 +2465,33 @@ function initDragEvents() {
     const handleEnd = (e) => {
         if (!isEditMode || !draggedFurniture) return;
 
-        // 드래그가 끝난 시점의 화면 좌표(%)
         const currentLeft = parseFloat(draggedFurniture.style.left);
         const currentTop = parseFloat(draggedFurniture.style.top);
         
-        // ✨ 화면 좌표를 다시 그리드 좌표(x, y)로 역변환하여 저장
+        // 1. 현재 화면 위치를 그리드 좌표(0~9)로 변환
         const gridPos = getGridPosFromScreen(currentLeft, currentTop);
-        
         const uniqueKey = draggedFurniture.dataset.key;
-       if (!playerRoom.furniture || playerRoom.furniture.length === 0) {
-    playerRoom.furniture = [
-        // 이제 좌표는 0 ~ 9 사이의 정수입니다.
-        { id: 'rug_red', x: 5, y: 5, isFlipped: false }, 
-        { id: 'desk_detective', x: 4, y: 4, isFlipped: false },
-        { id: 'bookshelf_wood', x: 0, y: 0, isFlipped: false }
-    ];
 
-        // z-index 재계산 및 스타일 복구
-        const newIso = getIsoPos(gridPos.x, gridPos.y);
-        draggedFurniture.style.zIndex = newIso.zIndex;
+        // 2. 데이터에 저장
+        if (uniqueKey !== undefined && playerRoom.furniture[uniqueKey]) {
+            playerRoom.furniture[uniqueKey].x = gridPos.x;
+            playerRoom.furniture[uniqueKey].y = gridPos.y;
+
+            // 3. 그리드에 딱 맞춰서(Snap) 화면 위치 보정
+            const newIso = getIsoPos(gridPos.x, gridPos.y);
+            draggedFurniture.style.left = `${newIso.left}%`;
+            draggedFurniture.style.top = `${newIso.top}%`;
+            draggedFurniture.style.zIndex = newIso.zIndex;
+            
+            saveGame(); // 저장
+        }
+
         draggedFurniture.style.cursor = 'grab';
-        draggedFurniture.style.transition = ''; // 애니메이션 복구
-        
-        // 최종 위치 보정 (정확한 그리드 위치로 스냅)
-        draggedFurniture.style.left = `${newIso.left}%`;
-        draggedFurniture.style.top = `${newIso.top}%`;
-
+        draggedFurniture.style.transition = ''; 
         draggedFurniture = null;
     };
-	};
 
+    // 이벤트 리스너 등록
     container.addEventListener('mousedown', handleStart);
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('mouseup', handleEnd);
@@ -2506,6 +2500,7 @@ function initDragEvents() {
     window.addEventListener('touchmove', handleMove, { passive: false });
     window.addEventListener('touchend', handleEnd);
 
+    // 우클릭 삭제 (보관함으로 이동)
     container.addEventListener('contextmenu', (e) => {
         if (!isEditMode) return;
         if (e.target.classList.contains('placed-furniture')) {
@@ -2516,42 +2511,34 @@ function initDragEvents() {
                     playerRoom.furniture.splice(uniqueKey, 1);
                     displayMyRoom();
                     saveGame();
+                    // 화면 갱신을 위한 꼼수 (껐다 켜기)
                     toggleEditMode(); 
                     toggleEditMode(); 
                 }
             }
         }
     });
-	// 4. 더블 클릭 시 가구 좌우 반전 (최적화 버전)
+
+    // 더블 클릭 시 좌우 반전
     container.addEventListener('dblclick', (e) => {
         if (!isEditMode) return;
-        
         let target = e.target;
         if (!target.classList.contains('placed-furniture')) return;
 
         e.preventDefault();
-        e.stopPropagation(); // 이벤트 전파 중단 (중요)
+        e.stopPropagation();
         
         const uniqueKey = target.dataset.key;
-        const item = playerRoom.furniture[uniqueKey]; // 데이터 원본 가져오기
+        const item = playerRoom.furniture[uniqueKey];
 
         if (uniqueKey !== undefined && item) {
-                item.isFlipped = !item.isFlipped;
-                const furnitureData = furnitureItems.find(f => f.id === item.id);
-                const flipTransform = item.isFlipped ? 'scaleX(-1)' : 'scaleX(1)';
+            item.isFlipped = !item.isFlipped;
+            displayMyRoom(); // 화면 갱신
+            saveGame();
+        }
+    });
 
-                if (furnitureData.type === 'rug') {
-                    target.style.transform = `translate(-50%, -50%) rotate(45deg) scaleY(0.58) ${flipTransform}`;
-                } else if (furnitureData.type === 'wall') {
-                    target.style.transform = `translate(-50%, -200%) ${flipTransform}`;
-                } else {
-                    target.style.transform = `translate(-50%, -95%) ${flipTransform}`;
-                }
-            }
-        });
-
-    } // 👈 ✨ [중요] initDragEvents 함수의 닫는 괄호 추가!
-
+}
 
 // ================== ✨ [신규] 가구 보관함 기능 시작 ✨ ==================
 
@@ -2625,7 +2612,7 @@ function placeFurnitureFromStorage(furnitureId) {
     if (!item) return;
 
     // 방 중앙에 배치
-    playerRoom.furniture.push({ id: item.id, x: 45, y: 45, isFlipped: false });
+    playerRoom.furniture.push({ id: item.id, x: 5, y: 5, isFlipped: false });
     
     showMessage(`${item.name} 배치 완료!`, 'text-green-300', messageArea);
     
@@ -2700,7 +2687,7 @@ window.buyFurniture = function(furnitureId) {
         ownedFurniture.push(item.id);
         
         // 구매 즉시 방 중앙에 자동 배치 (초기 상태: 반전 없음)
-        playerRoom.furniture.push({ id: item.id, x: 45, y: 45, isFlipped: false });
+        playerRoom.furniture.push({ id: item.id, x: 5, y: 5, isFlipped: false });
         
         showMessage(`${item.name} 구매 완료!`, 'text-green-300', messageArea);
         
@@ -4704,6 +4691,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
