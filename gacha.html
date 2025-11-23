@@ -2090,7 +2090,7 @@ function getIsoPos(gridX, gridY) {
     
     // ✨ [수정 1] 바닥 중심점 높이 (30 -> 35)
     // 전체적으로 살짝 내려서 위쪽 벽에 닿지 않게 합니다.
-    const centerY = 35; 
+    const centerY = 45; 
     
     // ✨ [수정 2] 너비 계수 축소 (0.46 -> 0.38)
     // 좌우 벽 두께만큼 안쪽으로 들여옵니다.
@@ -2111,7 +2111,7 @@ function getIsoPos(gridX, gridY) {
 // 2. 역변환 함수 (위와 변수값 일치 필수)
 function getGridPosFromScreen(screenX, screenY) {
     const centerX = 50;
-    const centerY = 35; // ✨ 일치시킴
+    const centerY = 45; // ✨ 일치시킴
     
     const widthFactor = 0.38; // ✨ 일치시킴
     const heightFactor = 0.24; // ✨ 일치시킴
@@ -4721,6 +4721,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
