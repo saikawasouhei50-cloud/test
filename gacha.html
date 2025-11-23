@@ -2375,76 +2375,51 @@ function startChibiMovement(element) {
 
     const move = () => {
         const myRoomView = document.getElementById('myroom-view');
-        // 방이 안 보이거나 대화 중이면 중단
         if (!myRoomView || myRoomView.classList.contains('hidden')) return;
         if (element.dataset.isInteracting === 'true') return;
 
-        // 현재 위치 (없으면 0,0)
-        let currentGx = parseInt(element.dataset.gridX) || 0;
-        let currentGy = parseInt(element.dataset.gridY) || 0;
+        let targetGridX, targetGridY;
+        let attempts = 0;
+        let finalTarget = null; // 최종 목적지
 
-        // 상하좌우 이동 후보
-        const directions = [
-            { dx: 0, dy: -1 }, { dx: 0, dy: 1 }, 
-            { dx: -1, dy: 0 }, { dx: 1, dy: 0 }
-        ];
-        
-        // 랜덤하게 섞기
-        directions.sort(() => Math.random() - 0.5);
+        // ✨ [핵심 로직] 빈 자리를 찾기 위해 10번 시도합니다.
+        while (attempts < 10) {
+            // 0~9 사이 랜덤 좌표 생성
+            const testX = Math.floor(Math.random() * GRID_SIZE);
+            const testY = Math.floor(Math.random() * GRID_SIZE);
 
-        let nextGx = currentGx;
-        let nextGy = currentGy;
-        let canMove = false;
+            // 이 자리에 가구가 있는지 확인
+            const isBlocked = playerRoom.furniture.some(f => {
+                const itemData = furnitureItems.find(i => i.id === f.id);
+                // 벽걸이, 러그는 무시 (밟아도 됨)
+                if (!itemData || itemData.type === 'wall' || itemData.type === 'rug') return false;
+                
+                // 좌표가 겹치면 '막힘'으로 간주
+                return Math.round(f.x) === testX && Math.round(f.y) === testY;
+            });
 
-        // 이동 가능한 방향 찾기
-        for (let dir of directions) {
-            const testX = currentGx + dir.dx;
-            const testY = currentGy + dir.dy;
-
-            // 1. 맵 밖인지 체크 (GRID_SIZE는 10)
-            if (testX < 0 || testX >= 10 || testY < 0 || testY >= 10) continue;
-
-            // 2. 가구 충돌 체크
-            let isBlocked = false;
-            if (playerRoom.furniture) { // 가구 데이터가 있을 때만 체크
-                isBlocked = playerRoom.furniture.some(f => {
-                    // 가구 아이템 정보를 찾음 (없으면 벽 취급 안 함)
-                    const itemData = furnitureItems.find(i => i.id === f.id);
-                    // 벽걸이나 러그는 지나갈 수 있음
-                    if (!itemData || itemData.type === 'wall' || itemData.type === 'rug') return false;
-                    
-                    // 좌표가 같으면 충돌
-                    return Math.round(f.x) === testX && Math.round(f.y) === testY;
-                });
-            }
-
-            // 가구가 없으면 이동 결정!
+            // 빈 자리라면? -> 여기로 결정하고 반복 종료!
             if (!isBlocked) {
-                nextGx = testX;
-                nextGy = testY;
-                canMove = true;
-                break; 
+                finalTarget = { x: testX, y: testY };
+                break;
             }
+            
+            // 막힌 자리라면? -> 일단 후보지로 저장해두고 다시 시도 (정 갈 데 없으면 여기라도 가야 하니까)
+            if (!finalTarget) {
+                finalTarget = { x: testX, y: testY };
+            }
+
+            attempts++;
         }
 
-        // 이동할 곳이 없으면? (그냥 제자리에서 방향만 랜덤하게 바꿈)
-        if (!canMove) {
-            // 50% 확률로 좌우 반전이라도 시켜서 살아있는 느낌 주기
-            if (Math.random() > 0.5) {
-                const img = element.querySelector('img');
-                const currentScale = img.style.transform === 'scaleX(1)' ? -1 : 1;
-                img.style.transform = `scaleX(${currentScale})`;
-                element.dataset.facing = currentScale === 1 ? 'left' : 'right';
-            }
-            return; 
-        }
+        // (안전장치) 혹시라도 타겟이 없으면 현재 위치 유지
+        if (!finalTarget) return;
 
-        // 좌표 변환 및 실제 이동
-        const iso = getIsoPos(nextGx, nextGy);
+        // --- 이동 실행 ---
+        const iso = getIsoPos(finalTarget.x, finalTarget.y);
         
-        // 방향 전환 (왼쪽/오른쪽)
+        const currentLeft = parseFloat(element.style.left) || iso.left;
         const img = element.querySelector('img');
-        const currentLeft = parseFloat(element.style.left) || iso.left; // 초기값 방어
         
         if (iso.left < currentLeft) {
             img.style.transform = 'scaleX(1)'; 
@@ -2456,15 +2431,16 @@ function startChibiMovement(element) {
 
         element.style.left = `${iso.left}%`;
         element.style.top = `${iso.top}%`;
+        
+        // 가구보다 살짝 앞에 서기
         element.style.zIndex = iso.zIndex + 5;
         
-        // 데이터 업데이트
-        element.dataset.gridX = nextGx;
-        element.dataset.gridY = nextGy;
+        element.dataset.gridX = finalTarget.x;
+        element.dataset.gridY = finalTarget.y;
     };
 
-    // 1.5초 ~ 3초마다 이동 (더 자주 움직이게 시간 단축)
-    const interval = setInterval(move, Math.random() * 1500 + 1500);
+    // 2.5초 ~ 4.5초 간격으로 이동 (너무 정신없지 않게)
+    const interval = setInterval(move, Math.random() * 2000 + 2500);
     element.dataset.moveInterval = interval;
 }
 // ================== ✨ 수정된 initDragEvents (배치 모드) ✨ ==================
@@ -4757,6 +4733,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
