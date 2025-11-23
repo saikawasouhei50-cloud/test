@@ -2197,11 +2197,15 @@ function displayMyRoom() {
                 zOffset = -50; 
             } else {
                 el.style.transform = `translate(-50%, -95%) ${flipTransform}`;
-                el.style.width = '12%'; 
+               let baseWidth = 12; 
+                if (furnitureData.scale) {
+                    baseWidth = baseWidth * furnitureData.scale;
+                }
+                el.style.width = `${baseWidth}%`; 
+                
                 el.style.filter = 'drop-shadow(0px 5px 5px rgba(0,0,0,0.5))'; 
                 zOffset = 0; 
             }
-
             el.style.zIndex = iso.zIndex + zOffset; 
             roomLayer.appendChild(el);
         }
@@ -4765,6 +4769,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
