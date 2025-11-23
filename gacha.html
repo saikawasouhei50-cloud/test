@@ -931,7 +931,7 @@ function b64_to_utf8(str) {
     reader.readAsText(file);
 }
 		const SAVE_DATA_KEY = 'gachaGameSaveData_v9';
-const GRID_SIZE = 10; 
+const GRID_SIZE = 100; 
     const TILE_WIDTH_PERCENT = 9;  
     const TILE_HEIGHT_PERCENT = 5;
             
@@ -2385,9 +2385,22 @@ function startChibiMovement(element) {
         // ✨ [핵심 로직] 빈 자리를 찾기 위해 10번 시도합니다.
         while (attempts < 10) {
             // 0~9 사이 랜덤 좌표 생성
-            const testX = Math.floor(Math.random() * GRID_SIZE);
-            const testY = Math.floor(Math.random() * GRID_SIZE);
+            // 1. 가장자리(0과 100 근처)에 너무 붙지 않도록 10 ~ 90 사이의 좌표를 생성합니다.
+const margin = 10;
+const effectiveSize = GRID_SIZE - (margin * 2); // 100 - 20 = 80
+const testX = Math.floor(Math.random() * effectiveSize) + margin;
+const testY = Math.floor(Math.random() * effectiveSize) + margin;
 
+// 2. 가구 충돌 체크 범위 수정 (좌표가 0~100이 되었으므로 범위도 넓혀야 함)
+const isBlocked = playerRoom.furniture.some(f => {
+    const itemData = furnitureItems.find(i => i.id === f.id);
+    if (!itemData || itemData.type === 'wall' || itemData.type === 'rug') return false;
+    
+    // 가구 중심점(f.x, f.y)과 목표 지점(testX, testY)의 거리를 계산
+    // 거리가 6 이내면 부딪힌 것으로 간주 (가구 크기에 따라 조절 가능)
+    const dist = Math.sqrt(Math.pow(f.x - testX, 2) + Math.pow(f.y - testY, 2));
+    return dist < 6; 
+});
             // 이 자리에 가구가 있는지 확인
             const isBlocked = playerRoom.furniture.some(f => {
                 const itemData = furnitureItems.find(i => i.id === f.id);
@@ -4733,6 +4746,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
