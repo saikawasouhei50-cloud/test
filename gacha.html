@@ -818,6 +818,105 @@ body.pointer-events-none {
     const EXPAND_COST = 50;
     const EXPAND_AMOUNT = 10;
 
+		// --- HTML 요소 가져오기 ---
+			const dismantleMultiUI = document.getElementById('dismantle-multi-ui');
+
+const selectedCardCountSpan = document.getElementById('selected-card-count');
+const dismantleSelectedButton = document.getElementById('dismantle-selected-button');
+			const fountainPenDisplay = document.getElementById('fountainpen-display');
+            const currencyDisplay = document.getElementById('currency-display');
+            const messageArea = document.getElementById('message-area');
+            const allTabs = document.querySelectorAll('.tab-button');
+            const allViews = document.querySelectorAll(
+              'main > div:not(#combat-result-modal):not(#card-detail-modal):not(#interactive-story-modal)'
+            );
+            const pullOneButton = document.getElementById('pull-one');
+            const pullTenButton = document.getElementById('pull-ten');
+            const pullOneEventButton = document.getElementById('pull-one-event');
+            const pullTenEventButton = document.getElementById('pull-ten-event');
+            const resultsContainer = document.getElementById('results-container');
+            const inventoryContainer = document.getElementById('inventory-container');
+            const inventoryStatus = document.getElementById('inventory-status');
+            const expandInventoryButton = document.getElementById('expand-inventory');
+            const deckStatus = document.getElementById('deck-status');
+            const deckSlotsContainer = document.getElementById('deck-slots-container');
+            const deckInventoryContainer = document.getElementById('deck-inventory-container');
+            const autoFillDeckButton = document.getElementById('auto-fill-deck');
+            const deckPowerDisplay = document.getElementById('deck-power-display');
+            const combatMessageArea = document.getElementById('combat-message-area');
+            const dungeonListContainer = document.getElementById('dungeon-list-container');
+            const homeCharacterContainer = document.getElementById('home-character-container');
+            const homeCharacterImage = document.getElementById('home-character-image');
+            const homeDialogueContainer = document.getElementById('home-dialogue-container');
+            const homeDefaultMessage = document.getElementById('home-default-message');
+            const homeCharacterName = document.getElementById('home-character-name');
+            const homeCharacterDialogue = document.getElementById('home-character-dialogue');
+            const eventBanner = document.getElementById('event-banner');
+            const eventBannerText = document.getElementById('event-banner-text');
+            const gachaTabNormal = document.getElementById('gacha-tab-normal');
+            const gachaTabEvent = document.getElementById('gacha-tab-event');
+            const normalGachaView = document.getElementById('normal-gacha-view');
+            const eventGachaView = document.getElementById('event-gacha-view');
+            const eventGachaInfo = document.getElementById('event-gacha-info');
+            const resetButton = document.getElementById('reset-game');
+            const storageWarning = document.getElementById('storage-warning');
+            const combatInProgressView = document.getElementById('combat-in-progress-view');
+            const combatPlayerDeck = document.getElementById('combat-player-deck');
+            const combatMonsterArea = document.getElementById('combat-monster-area');
+            const combatLogContainer = document.getElementById('combat-log-container');
+            const combatLog = document.getElementById('combat-log');
+            const combatResultModal = document.getElementById('combat-result-modal');
+            const combatResultTitle = document.getElementById('combat-result-title');
+            const combatResultMessage = document.getElementById('combat-result-message');
+            const closeCombatResultButton = document.getElementById('close-combat-result');
+            const cardDetailModal = document.getElementById('card-detail-modal');
+            const closeCardDetailButton = document.getElementById('close-card-detail');
+            const speed1xButton = document.getElementById('speed-1x');
+            const speed2xButton = document.getElementById('speed-2x');
+            const speed4xButton = document.getElementById('speed-4x');
+            const collectionContainer = document.getElementById('collection-container');
+            const mainStoryContainer = document.getElementById('main-story-container');
+            const eventTab = document.getElementById('tab-event');
+            const eventPointDisplay = document.getElementById('event-point-display');
+            const eventPointsSpan = document.getElementById('event-points');
+            const eventSubTabBattle = document.getElementById('event-sub-tab-battle');
+            const eventSubTabStory = document.getElementById('event-sub-tab-story');
+            const eventSubTabShop = document.getElementById('event-sub-tab-shop');
+            const eventBattleView = document.getElementById('event-battle-view');
+            const eventStoryView = document.getElementById('event-story-view');
+            const eventShopView = document.getElementById('event-shop-view');
+            const eventDungeonListContainer = document.getElementById('event-dungeon-list-container');
+            const eventStoryContainer = document.getElementById('event-story-container');
+            const eventShopContainer = document.getElementById('event-shop-container');
+            const bookmarkDisplay = document.getElementById('bookmark-display');
+            const maxBookmarkDisplay = document.getElementById('max-bookmark-display');
+            const bookmarkTimerContainer = document.getElementById('bookmark-timer-container'); 
+            const achievementsContainer = document.getElementById('achievements-container'); // ✅ 여기서 명확하게 선언
+            const toastNotification = document.getElementById('toast-notification');
+			const synergyList = document.getElementById('synergy-list');
+			const dismantleCardButton = document.getElementById('dismantle-card-button');
+			const dismantleResultModal = document.getElementById('dismantle-result-modal');
+const dismantleRewardsList = document.getElementById('dismantle-rewards-list');
+const closeDismantleResultButton = document.getElementById('close-dismantle-result');
+
+			// ✨ 파일 업로드 요소 추가 ✨
+			const uploadFile = document.getElementById('upload-file'); // ✅ 이 라인을 추가하세요.
+			
+			// ✨ 스토리 탭 관련 변수들 ✨
+			const stageStoryContainer = document.getElementById('stage-story-container');
+            const storySubTabMain = document.getElementById('story-sub-tab-main');
+            const storySubTabStage = document.getElementById('story-sub-tab-stage');
+			const interactiveStoryModal = document.getElementById('interactive-story-modal');
+			const storyCharLeft = document.getElementById('story-char-left');
+			const storyCharRight = document.getElementById('story-char-right');
+			const speakerName = document.getElementById('speaker-name');
+			const dialogueText = document.getElementById('dialogue-text');
+			const storyNextButton = document.getElementById('story-next-button');
+			const storySkipButton = document.getElementById('story-skip-button');
+			const detailStoryPrevButton = document.getElementById('detail-story-prev');
+            const detailStoryNextButton = document.getElementById('detail-story-next');
+			const storyView = document.getElementById('story-view');
+
 		// 1. 가구 보관함 열기 (수량 계산 로직 적용)
 function openFurnitureStorage() {
     const list = document.getElementById('storage-list');
@@ -1480,104 +1579,7 @@ const STAT_INCREASE_PER_LEVEL = 0.05; // 레벨당 기본 능력치의 5% 증가
             
             
 
-            // --- HTML 요소 가져오기 ---
-			const dismantleMultiUI = document.getElementById('dismantle-multi-ui');
-
-const selectedCardCountSpan = document.getElementById('selected-card-count');
-const dismantleSelectedButton = document.getElementById('dismantle-selected-button');
-			const fountainPenDisplay = document.getElementById('fountainpen-display');
-            const currencyDisplay = document.getElementById('currency-display');
-            const messageArea = document.getElementById('message-area');
-            const allTabs = document.querySelectorAll('.tab-button');
-            const allViews = document.querySelectorAll(
-              'main > div:not(#combat-result-modal):not(#card-detail-modal):not(#interactive-story-modal)'
-            );
-            const pullOneButton = document.getElementById('pull-one');
-            const pullTenButton = document.getElementById('pull-ten');
-            const pullOneEventButton = document.getElementById('pull-one-event');
-            const pullTenEventButton = document.getElementById('pull-ten-event');
-            const resultsContainer = document.getElementById('results-container');
-            const inventoryContainer = document.getElementById('inventory-container');
-            const inventoryStatus = document.getElementById('inventory-status');
-            const expandInventoryButton = document.getElementById('expand-inventory');
-            const deckStatus = document.getElementById('deck-status');
-            const deckSlotsContainer = document.getElementById('deck-slots-container');
-            const deckInventoryContainer = document.getElementById('deck-inventory-container');
-            const autoFillDeckButton = document.getElementById('auto-fill-deck');
-            const deckPowerDisplay = document.getElementById('deck-power-display');
-            const combatMessageArea = document.getElementById('combat-message-area');
-            const dungeonListContainer = document.getElementById('dungeon-list-container');
-            const homeCharacterContainer = document.getElementById('home-character-container');
-            const homeCharacterImage = document.getElementById('home-character-image');
-            const homeDialogueContainer = document.getElementById('home-dialogue-container');
-            const homeDefaultMessage = document.getElementById('home-default-message');
-            const homeCharacterName = document.getElementById('home-character-name');
-            const homeCharacterDialogue = document.getElementById('home-character-dialogue');
-            const eventBanner = document.getElementById('event-banner');
-            const eventBannerText = document.getElementById('event-banner-text');
-            const gachaTabNormal = document.getElementById('gacha-tab-normal');
-            const gachaTabEvent = document.getElementById('gacha-tab-event');
-            const normalGachaView = document.getElementById('normal-gacha-view');
-            const eventGachaView = document.getElementById('event-gacha-view');
-            const eventGachaInfo = document.getElementById('event-gacha-info');
-            const resetButton = document.getElementById('reset-game');
-            const storageWarning = document.getElementById('storage-warning');
-            const combatInProgressView = document.getElementById('combat-in-progress-view');
-            const combatPlayerDeck = document.getElementById('combat-player-deck');
-            const combatMonsterArea = document.getElementById('combat-monster-area');
-            const combatLogContainer = document.getElementById('combat-log-container');
-            const combatLog = document.getElementById('combat-log');
-            const combatResultModal = document.getElementById('combat-result-modal');
-            const combatResultTitle = document.getElementById('combat-result-title');
-            const combatResultMessage = document.getElementById('combat-result-message');
-            const closeCombatResultButton = document.getElementById('close-combat-result');
-            const cardDetailModal = document.getElementById('card-detail-modal');
-            const closeCardDetailButton = document.getElementById('close-card-detail');
-            const speed1xButton = document.getElementById('speed-1x');
-            const speed2xButton = document.getElementById('speed-2x');
-            const speed4xButton = document.getElementById('speed-4x');
-            const collectionContainer = document.getElementById('collection-container');
-            const mainStoryContainer = document.getElementById('main-story-container');
-            const eventTab = document.getElementById('tab-event');
-            const eventPointDisplay = document.getElementById('event-point-display');
-            const eventPointsSpan = document.getElementById('event-points');
-            const eventSubTabBattle = document.getElementById('event-sub-tab-battle');
-            const eventSubTabStory = document.getElementById('event-sub-tab-story');
-            const eventSubTabShop = document.getElementById('event-sub-tab-shop');
-            const eventBattleView = document.getElementById('event-battle-view');
-            const eventStoryView = document.getElementById('event-story-view');
-            const eventShopView = document.getElementById('event-shop-view');
-            const eventDungeonListContainer = document.getElementById('event-dungeon-list-container');
-            const eventStoryContainer = document.getElementById('event-story-container');
-            const eventShopContainer = document.getElementById('event-shop-container');
-            const bookmarkDisplay = document.getElementById('bookmark-display');
-            const maxBookmarkDisplay = document.getElementById('max-bookmark-display');
-            const bookmarkTimerContainer = document.getElementById('bookmark-timer-container'); 
-            const achievementsContainer = document.getElementById('achievements-container'); // ✅ 여기서 명확하게 선언
-            const toastNotification = document.getElementById('toast-notification');
-			const synergyList = document.getElementById('synergy-list');
-			const dismantleCardButton = document.getElementById('dismantle-card-button');
-			const dismantleResultModal = document.getElementById('dismantle-result-modal');
-const dismantleRewardsList = document.getElementById('dismantle-rewards-list');
-const closeDismantleResultButton = document.getElementById('close-dismantle-result');
-
-			// ✨ 파일 업로드 요소 추가 ✨
-			const uploadFile = document.getElementById('upload-file'); // ✅ 이 라인을 추가하세요.
-			
-			// ✨ 스토리 탭 관련 변수들 ✨
-			const stageStoryContainer = document.getElementById('stage-story-container');
-            const storySubTabMain = document.getElementById('story-sub-tab-main');
-            const storySubTabStage = document.getElementById('story-sub-tab-stage');
-			const interactiveStoryModal = document.getElementById('interactive-story-modal');
-			const storyCharLeft = document.getElementById('story-char-left');
-			const storyCharRight = document.getElementById('story-char-right');
-			const speakerName = document.getElementById('speaker-name');
-			const dialogueText = document.getElementById('dialogue-text');
-			const storyNextButton = document.getElementById('story-next-button');
-			const storySkipButton = document.getElementById('story-skip-button');
-			const detailStoryPrevButton = document.getElementById('detail-story-prev');
-            const detailStoryNextButton = document.getElementById('detail-story-next');
-			const storyView = document.getElementById('story-view');
+            
             
             // --- 데이터 저장/불러오기 함수 ---
             function isStorageAvailable() {
@@ -4710,6 +4712,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
