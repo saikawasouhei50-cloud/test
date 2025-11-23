@@ -12,6 +12,33 @@
 
 		/* gacha.html의 .iso-floor 스타일 수정 */
 
+		/* 시간대별 필터 효과 */
+
+/* 기본(밤) - 원본 이미지 그대로 */
+.time-night {
+    filter: none;
+}
+
+/* 아침 - 약간 푸르스름하고 밝으며 채도가 낮음 */
+.time-morning {
+    filter: brightness(1.1) sepia(0.2) hue-rotate(180deg) saturate(0.8);
+}
+
+/* 낮 - 가장 밝고 선명함 */
+.time-day {
+    filter: brightness(1.2) contrast(1.1) saturate(1.1);
+}
+
+/* 저녁(노을) - 붉은 톤(Sepia)과 따뜻한 색감 */
+.time-evening {
+    filter: brightness(0.9) sepia(0.5) hue-rotate(-20deg) saturate(1.3) contrast(1.1);
+}
+
+/* 배경 이미지 전환 애니메이션 (부드럽게 바뀌도록) */
+#room-background {
+    transition: filter 2s ease-in-out;
+}
+
 .room-wrapper {
     width: 100%;
     max-width: 800px; /* PC 최대 너비 */
@@ -4738,6 +4765,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
