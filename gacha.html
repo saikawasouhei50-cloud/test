@@ -2535,28 +2535,21 @@ function initDragEvents() {
         const item = playerRoom.furniture[uniqueKey]; // 데이터 원본 가져오기
 
         if (uniqueKey !== undefined && item) {
-            // 1. 데이터 값 변경
-            item.isFlipped = !item.isFlipped;
-            
-            // 2. 화면 갱신 (전체를 다시 그리지 않고, 해당 요소 스타일만 변경)
-            const furnitureData = furnitureItems.find(f => f.id === item.id);
-            const flipTransform = item.isFlipped ? 'scaleX(-1)' : 'scaleX(1)';
+                item.isFlipped = !item.isFlipped;
+                const furnitureData = furnitureItems.find(f => f.id === item.id);
+                const flipTransform = item.isFlipped ? 'scaleX(-1)' : 'scaleX(1)';
 
-            // 가구 타입에 따른 transform 재계산
-            if (furnitureData.type === 'rug') {
-                target.style.transform = `translate(-50%, -50%) rotate(45deg) scaleY(0.58) ${flipTransform}`;
-            } else if (furnitureData.type === 'wall') {
-                target.style.transform = `translate(-50%, -200%) ${flipTransform}`;
-            } else {
-                target.style.transform = `translate(-50%, -95%) ${flipTransform}`;
+                if (furnitureData.type === 'rug') {
+                    target.style.transform = `translate(-50%, -50%) rotate(45deg) scaleY(0.58) ${flipTransform}`;
+                } else if (furnitureData.type === 'wall') {
+                    target.style.transform = `translate(-50%, -200%) ${flipTransform}`;
+                } else {
+                    target.style.transform = `translate(-50%, -95%) ${flipTransform}`;
+                }
             }
-            
-            // ❌ displayMyRoom(); <-- 이거 때문에 튕기는 거라 삭제했습니다.
-            // ❌ saveGame();      <-- 저장도 나중에 한꺼번에 합니다.
-        }
-    });
+        });
 
-} // initDragEvents 끝
+    } // 👈 ✨ [중요] initDragEvents 함수의 닫는 괄호 추가!
 
 
 // ================== ✨ [신규] 가구 보관함 기능 시작 ✨ ==================
