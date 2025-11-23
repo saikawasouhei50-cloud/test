@@ -765,6 +765,163 @@ body.pointer-events-none {
 
     let currentUser = null; // 현재 로그인된 유저 정보
 
+		// 1. 가구 보관함 열기 (수량 계산 로직 적용)
+function openFurnitureStorage() {
+    const list = document.getElementById('storage-list');
+    const modal = document.getElementById('furniture-storage-modal');
+    if (!list || !modal) return;
+
+    list.innerHTML = '';
+
+    // 1. 현재 방에 배치된 가구들의 ID별 개수를 셉니다.
+    const placedCounts = {};
+    playerRoom.furniture.forEach(f => {
+        placedCounts[f.id] = (placedCounts[f.id] || 0) + 1;
+    });
+
+    // 2. 전체 보유 가구의 ID별 개수를 셉니다.
+    const ownedCounts = {};
+    ownedFurniture.forEach(id => {
+        ownedCounts[id] = (ownedCounts[id] || 0) + 1;
+    });
+
+    // 3. (보유 개수 - 배치 개수)가 1개 이상인 가구만 추출합니다.
+    const uniqueOwnedIds = [...new Set(ownedFurniture)]; // 중복 제거된 ID 목록
+    
+    let hasItem = false;
+
+    uniqueOwnedIds.forEach(id => {
+        const totalOwned = ownedCounts[id] || 0;
+        const totalPlaced = placedCounts[id] || 0;
+        const availableCount = totalOwned - totalPlaced; // 보관함에 남아있는 개수
+
+        if (availableCount > 0) {
+            hasItem = true;
+            const item = furnitureItems.find(f => f.id === id);
+            if (!item) return;
+
+            const div = document.createElement('div');
+            div.className = 'bg-black/40 p-3 rounded flex flex-col items-center text-center border border-purple-500/30 hover:bg-purple-900/20 transition-colors cursor-pointer';
+            
+            // 클릭 시 배치
+            div.onclick = () => placeFurnitureFromStorage(id);
+
+            div.innerHTML = `
+                <div class="h-16 w-full flex items-center justify-center mb-2 bg-black/20 rounded pointer-events-none relative">
+                    <img src="${item.imageUrl}" class="max-h-full max-w-full">
+                    <span class="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-bl">x${availableCount}</span>
+                </div>
+                <p class="font-bold text-white text-sm mb-1 pointer-events-none">${item.name}</p>
+                <p class="text-green-400 text-xs pointer-events-none">클릭하여 배치</p>
+            `;
+            list.appendChild(div);
+        }
+    });
+
+    if (!hasItem) {
+        list.innerHTML = `<p class="col-span-3 text-center text-gray-500 py-4">보관 중인 가구가 없습니다.<br>모든 가구를 배치했습니다.</p>`;
+    }
+    modal.classList.remove('hidden');
+}
+
+// (참고) placeFurnitureFromStorage 함수는 기존 유지하되, isFlipped 초기값만 추가해주세요.
+// 기존: playerRoom.furniture.push({ id: item.id, x: 45, y: 45 });
+// 수정: playerRoom.furniture.push({ id: item.id, x: 45, y: 45, isFlipped: false });
+
+// 2. 보관함에서 가구 꺼내기 (배치)
+function placeFurnitureFromStorage(furnitureId) {
+    const item = furnitureItems.find(f => f.id === furnitureId);
+    if (!item) return;
+
+    // 방 중앙에 배치
+    playerRoom.furniture.push({ id: item.id, x: 5, y: 5, isFlipped: false });
+    
+    showMessage(`${item.name} 배치 완료!`, 'text-green-300', messageArea);
+    
+    // 화면 갱신
+    displayMyRoom();
+    saveGame();
+    
+    // 보관함 목록 갱신 (방금 꺼낸 건 사라져야 함)
+    openFurnitureStorage();
+}
+
+// ================== ✨ 가구 보관함 기능 끝 ✨ ==================
+		
+// 2. 가구 상점 열기
+// 2. 가구 상점 열기 (수정됨)
+function openFurnitureShop() {
+    const list = document.getElementById('furniture-list');
+    const modal = document.getElementById('furniture-shop-modal');
+    if (!list || !modal) return;
+
+    list.innerHTML = '';
+
+    furnitureItems.forEach(item => {
+        // 현재 보유 중인 개수 계산
+        const ownedCount = ownedFurniture.filter(id => id === item.id).length;
+        
+        const div = document.createElement('div');
+        div.className = 'bg-black/40 p-3 rounded flex flex-col items-center text-center border border-white/10';
+        
+        // 돈이 충분한지 확인
+        const canAfford = playerCurrency >= item.cost;
+        
+        // 버튼 스타일 결정 (보유 여부 상관없이 돈만 있으면 활성화)
+        const btnClass = canAfford 
+            ? 'bg-green-500 hover:bg-green-600 cursor-pointer' 
+            : 'bg-red-500 opacity-50 cursor-not-allowed';
+            
+        const btnDisabled = canAfford ? '' : 'disabled';
+
+        div.innerHTML = `
+            <div class="h-16 w-full flex items-center justify-center mb-2 bg-black/20 rounded relative">
+                <img src="${item.imageUrl}" class="max-h-full max-w-full">
+                ${ownedCount > 0 ? `<span class="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-bl">x${ownedCount}</span>` : ''}
+            </div>
+            <p class="font-bold text-white text-sm mb-1">${item.name}</p>
+            <p class="text-yellow-300 text-xs mb-2">💎 ${item.cost}</p>
+            <button class="gacha-button text-xs py-1 px-3 rounded-full text-white font-bold w-full transition-colors ${btnClass}" 
+                ${btnDisabled} 
+                onclick="buyFurniture('${item.id}')">
+                구매
+            </button>
+        `;
+        list.appendChild(div);
+    });
+    modal.classList.remove('hidden');
+}
+
+// 3. 가구 구매 (중복 구매 허용 버전)
+window.buyFurniture = function(furnitureId) {
+    const item = furnitureItems.find(f => f.id === furnitureId);
+    if (!item) return;
+
+    // ❌ 기존의 중복 체크 로직 삭제
+    // if (ownedFurniture.includes(item.id)) { ... } 
+
+    if (playerCurrency >= item.cost) {
+        if (!confirm(`${item.name}을(를) 💎${item.cost}에 구매하시겠습니까?`)) return;
+
+        playerCurrency -= item.cost;
+        
+        // 보유 목록에 추가 (같은 ID가 여러 번 들어감)
+        ownedFurniture.push(item.id);
+        
+        // 구매 즉시 방 중앙에 자동 배치 (초기 상태: 반전 없음)
+        playerRoom.furniture.push({ id: item.id, x: 5, y: 5, isFlipped: false });
+        
+        showMessage(`${item.name} 구매 완료!`, 'text-green-300', messageArea);
+        
+        updateUI();
+        saveGame();
+        openFurnitureShop(); 
+        displayMyRoom(); 
+    } else {
+        alert('보석이 부족합니다.');
+    }
+};
+
     // DOM이 모두 로드된 후 게임 스크립트 실행
     document.addEventListener('DOMContentLoaded', () => {
 	document.body.classList.add('loading');
@@ -2540,165 +2697,7 @@ function initDragEvents() {
 
 }
 
-// ================== ✨ [신규] 가구 보관함 기능 시작 ✨ ==================
 
-// 1. 가구 보관함 열기 (보유 중이지만 방에 없는 가구만 표시)
-// 1. 가구 보관함 열기 (수량 계산 로직 적용)
-function openFurnitureStorage() {
-    const list = document.getElementById('storage-list');
-    const modal = document.getElementById('furniture-storage-modal');
-    if (!list || !modal) return;
-
-    list.innerHTML = '';
-
-    // 1. 현재 방에 배치된 가구들의 ID별 개수를 셉니다.
-    const placedCounts = {};
-    playerRoom.furniture.forEach(f => {
-        placedCounts[f.id] = (placedCounts[f.id] || 0) + 1;
-    });
-
-    // 2. 전체 보유 가구의 ID별 개수를 셉니다.
-    const ownedCounts = {};
-    ownedFurniture.forEach(id => {
-        ownedCounts[id] = (ownedCounts[id] || 0) + 1;
-    });
-
-    // 3. (보유 개수 - 배치 개수)가 1개 이상인 가구만 추출합니다.
-    const uniqueOwnedIds = [...new Set(ownedFurniture)]; // 중복 제거된 ID 목록
-    
-    let hasItem = false;
-
-    uniqueOwnedIds.forEach(id => {
-        const totalOwned = ownedCounts[id] || 0;
-        const totalPlaced = placedCounts[id] || 0;
-        const availableCount = totalOwned - totalPlaced; // 보관함에 남아있는 개수
-
-        if (availableCount > 0) {
-            hasItem = true;
-            const item = furnitureItems.find(f => f.id === id);
-            if (!item) return;
-
-            const div = document.createElement('div');
-            div.className = 'bg-black/40 p-3 rounded flex flex-col items-center text-center border border-purple-500/30 hover:bg-purple-900/20 transition-colors cursor-pointer';
-            
-            // 클릭 시 배치
-            div.onclick = () => placeFurnitureFromStorage(id);
-
-            div.innerHTML = `
-                <div class="h-16 w-full flex items-center justify-center mb-2 bg-black/20 rounded pointer-events-none relative">
-                    <img src="${item.imageUrl}" class="max-h-full max-w-full">
-                    <span class="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-bl">x${availableCount}</span>
-                </div>
-                <p class="font-bold text-white text-sm mb-1 pointer-events-none">${item.name}</p>
-                <p class="text-green-400 text-xs pointer-events-none">클릭하여 배치</p>
-            `;
-            list.appendChild(div);
-        }
-    });
-
-    if (!hasItem) {
-        list.innerHTML = `<p class="col-span-3 text-center text-gray-500 py-4">보관 중인 가구가 없습니다.<br>모든 가구를 배치했습니다.</p>`;
-    }
-    modal.classList.remove('hidden');
-}
-
-// (참고) placeFurnitureFromStorage 함수는 기존 유지하되, isFlipped 초기값만 추가해주세요.
-// 기존: playerRoom.furniture.push({ id: item.id, x: 45, y: 45 });
-// 수정: playerRoom.furniture.push({ id: item.id, x: 45, y: 45, isFlipped: false });
-
-// 2. 보관함에서 가구 꺼내기 (배치)
-function placeFurnitureFromStorage(furnitureId) {
-    const item = furnitureItems.find(f => f.id === furnitureId);
-    if (!item) return;
-
-    // 방 중앙에 배치
-    playerRoom.furniture.push({ id: item.id, x: 5, y: 5, isFlipped: false });
-    
-    showMessage(`${item.name} 배치 완료!`, 'text-green-300', messageArea);
-    
-    // 화면 갱신
-    displayMyRoom();
-    saveGame();
-    
-    // 보관함 목록 갱신 (방금 꺼낸 건 사라져야 함)
-    openFurnitureStorage();
-}
-
-// ================== ✨ 가구 보관함 기능 끝 ✨ ==================
-		
-// 2. 가구 상점 열기
-// 2. 가구 상점 열기 (수정됨)
-function openFurnitureShop() {
-    const list = document.getElementById('furniture-list');
-    const modal = document.getElementById('furniture-shop-modal');
-    if (!list || !modal) return;
-
-    list.innerHTML = '';
-
-    furnitureItems.forEach(item => {
-        // 현재 보유 중인 개수 계산
-        const ownedCount = ownedFurniture.filter(id => id === item.id).length;
-        
-        const div = document.createElement('div');
-        div.className = 'bg-black/40 p-3 rounded flex flex-col items-center text-center border border-white/10';
-        
-        // 돈이 충분한지 확인
-        const canAfford = playerCurrency >= item.cost;
-        
-        // 버튼 스타일 결정 (보유 여부 상관없이 돈만 있으면 활성화)
-        const btnClass = canAfford 
-            ? 'bg-green-500 hover:bg-green-600 cursor-pointer' 
-            : 'bg-red-500 opacity-50 cursor-not-allowed';
-            
-        const btnDisabled = canAfford ? '' : 'disabled';
-
-        div.innerHTML = `
-            <div class="h-16 w-full flex items-center justify-center mb-2 bg-black/20 rounded relative">
-                <img src="${item.imageUrl}" class="max-h-full max-w-full">
-                ${ownedCount > 0 ? `<span class="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-bl">x${ownedCount}</span>` : ''}
-            </div>
-            <p class="font-bold text-white text-sm mb-1">${item.name}</p>
-            <p class="text-yellow-300 text-xs mb-2">💎 ${item.cost}</p>
-            <button class="gacha-button text-xs py-1 px-3 rounded-full text-white font-bold w-full transition-colors ${btnClass}" 
-                ${btnDisabled} 
-                onclick="buyFurniture('${item.id}')">
-                구매
-            </button>
-        `;
-        list.appendChild(div);
-    });
-    modal.classList.remove('hidden');
-}
-
-// 3. 가구 구매 (중복 구매 허용 버전)
-window.buyFurniture = function(furnitureId) {
-    const item = furnitureItems.find(f => f.id === furnitureId);
-    if (!item) return;
-
-    // ❌ 기존의 중복 체크 로직 삭제
-    // if (ownedFurniture.includes(item.id)) { ... } 
-
-    if (playerCurrency >= item.cost) {
-        if (!confirm(`${item.name}을(를) 💎${item.cost}에 구매하시겠습니까?`)) return;
-
-        playerCurrency -= item.cost;
-        
-        // 보유 목록에 추가 (같은 ID가 여러 번 들어감)
-        ownedFurniture.push(item.id);
-        
-        // 구매 즉시 방 중앙에 자동 배치 (초기 상태: 반전 없음)
-        playerRoom.furniture.push({ id: item.id, x: 5, y: 5, isFlipped: false });
-        
-        showMessage(`${item.name} 구매 완료!`, 'text-green-300', messageArea);
-        
-        updateUI();
-        saveGame();
-        openFurnitureShop(); 
-        displayMyRoom(); 
-    } else {
-        alert('보석이 부족합니다.');
-    }
-};
 
 		// ================== 🔨 배치 모드(Edit Mode) 로직 시작 ==================
 
@@ -4691,6 +4690,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
