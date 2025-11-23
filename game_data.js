@@ -1427,6 +1427,7 @@ const furnitureItems = [
 const chibiImages = {
     '서도진': 'https://i.imgur.com/2N9aikK.png',
     '윤필규': 'https://placehold.co/60x60/63b3ed/ffffff?text=SD+윤필규',
+	'한 현': 'https://i.imgur.com/mK2Hbzp.png',
     // ... 나머지 캐릭터들도 추가
 };
 
@@ -1465,6 +1466,7 @@ const genericInteractions = [
     ['사건 조사는 잘 돼가나요?', '쉽지 않네요.'],
     ['안녕하세요!', '반갑습니다.']
 ];
+
 
 
 
