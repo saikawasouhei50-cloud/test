@@ -2369,37 +2369,46 @@ function showBubble(charEl, text) {
 }
 
 
-// ================== ✨ 수정된 startChibiMovement ✨ ==================
-// 캐릭터 랜덤 이동 함수 (가구 회피 로직 개선)
-// 캐릭터 이동 함수 (넓어진 방에서 캐릭터만 안쪽으로 다니게 설정)
+// 캐릭터 랜덤 이동 함수 (격자 기반 충돌 방지 적용)
 function startChibiMovement(element) {
+    // 기존 타이머 제거
     if (element.dataset.moveInterval) clearInterval(element.dataset.moveInterval);
 
     const move = () => {
         const myRoomView = document.getElementById('myroom-view');
         if (!myRoomView || myRoomView.classList.contains('hidden')) return;
         
+        // 대화 중이면 이동 금지
         if (element.dataset.isInteracting === 'true') return;
 
         let targetGridX, targetGridY;
         let attempts = 0;
         let isValidPosition = false;
 
-        // ✨ [핵심] 방은 0~100이지만, 캐릭터는 15~85 사이만 다니게 함 (벽 뚫기 방지)
-        const safePadding = 15; 
-        const safeRange = 70;   
-
+        // ✨ [수정 1] 이동 시도 횟수 증가 (50번)
         while (attempts < 50) {
-            targetGridX = Math.random() * safeRange + safePadding;
-            targetGridY = Math.random() * safeRange + safePadding;
+            // ✨ [핵심] 0 ~ 9 사이의 '정수' 좌표 랜덤 생성 (격자에 딱 맞춤)
+            targetGridX = Math.floor(Math.random() * GRID_SIZE);
+            targetGridY = Math.floor(Math.random() * GRID_SIZE);
 
             let collision = false;
+            
+            // 가구와 겹치는지 확인
             for (const furniture of playerRoom.furniture) {
                 const itemData = furnitureItems.find(i => i.id === furniture.id);
+                
+                // 벽걸이 가구나 러그는 밟고 지나가도 됨 -> 패스
                 if (!itemData || itemData.type === 'wall' || itemData.type === 'rug') continue;
 
-                const dist = Math.sqrt(Math.pow(targetGridX - furniture.x, 2) + Math.pow(targetGridY - furniture.y, 2));
-                if (dist < 8) { 
+                // ✨ [수정 2] 가구 좌표와 목표 좌표가 같은지 확인
+                // 가구 위치(정수)와 목표 위치(정수)가 같으면 충돌!
+                // (큰 가구의 경우 주변 1칸까지 체크)
+                const dist = Math.abs(targetGridX - furniture.x) + Math.abs(targetGridY - furniture.y);
+                
+                // 거리가 0이면(같은 칸) 충돌. 
+                // 만약 가구가 크다면(size.w > 1) dist < 1.5 등으로 범위를 늘릴 수 있음.
+                // 여기서는 단순하게 같은 칸이면 피하도록 설정.
+                if (dist < 1) { 
                     collision = true;
                     break;
                 }
@@ -2412,15 +2421,16 @@ function startChibiMovement(element) {
             attempts++;
         }
 
-        if (!isValidPosition) {
-             targetGridX = Math.random() * safeRange + safePadding;
-             targetGridY = Math.random() * safeRange + safePadding;
-        }
+        // 갈 곳을 못 찾았으면 이번 턴은 쉼 (제자리 유지)
+        if (!isValidPosition) return;
 
+        // 좌표 변환 및 이동 적용
         const iso = getIsoPos(targetGridX, targetGridY);
         
         const currentLeft = parseFloat(element.style.left);
         const img = element.querySelector('img');
+        
+        // 방향 전환 (왼쪽/오른쪽)
         if (iso.left < currentLeft) {
             img.style.transform = 'scaleX(1)'; 
             element.dataset.facing = 'left';
@@ -2429,14 +2439,19 @@ function startChibiMovement(element) {
             element.dataset.facing = 'right';
         }
 
+        // ✨ 위치 이동 (부드러운 transition 적용됨)
         element.style.left = `${iso.left}%`;
         element.style.top = `${iso.top}%`;
-        element.style.zIndex = iso.zIndex + 50;
         
+        // z-index: 같은 줄에 있는 가구보다 살짝 앞에 보이도록 +5
+        element.style.zIndex = iso.zIndex + 5;
+        
+        // 현재 위치 업데이트
         element.dataset.gridX = targetGridX;
         element.dataset.gridY = targetGridY;
     };
 
+    // 3~5초마다 이동
     const interval = setInterval(move, Math.random() * 2000 + 3000);
     element.dataset.moveInterval = interval;
 }
@@ -4730,6 +4745,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
