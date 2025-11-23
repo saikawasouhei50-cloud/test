@@ -2198,9 +2198,16 @@ function displayMyRoom() {
         el.style.left = `${iso.left}%`;
         el.style.top = `${iso.top}%`;
         el.style.transform = 'translate(-50%, -90%)'; 
-        el.style.width = '45px';
-        el.style.height = '45px';
-        el.style.zIndex = iso.zIndex + 50; 
+        
+        // ❌ 기존: 45px 고정 크기 (너무 작음)
+        // el.style.width = '45px';
+        // el.style.height = '45px';
+
+        // ✅ 수정: 타일 크기(TILE_WIDTH_PERCENT)에 비례하게 설정 (1.5배 ~ 1.8배 추천)
+        el.style.width = `${TILE_WIDTH_PERCENT * 1.6}%`; 
+        el.style.height = 'auto'; // 높이는 비율에 맞춰 자동 조절
+
+        el.style.zIndex = iso.zIndex + 50;
 
         const img = document.createElement('img');
         img.src = (typeof chibiImages !== 'undefined' && chibiImages[charData.baseName]) ? chibiImages[charData.baseName] : charData.cardImageUrl;
@@ -4721,6 +4728,7 @@ speed4xButton.addEventListener('click', () => setCombatSpeed(4));
     </script>
 </body>
 </html>
+
 
 
 
