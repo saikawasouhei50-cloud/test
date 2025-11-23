@@ -1425,7 +1425,7 @@ const furnitureItems = [
 // --- 캐릭터 SD 이미지 매핑 (없으면 기본 카드 이미지나 플레이스홀더 사용) ---
 // 실제 게임에서는 배경이 투명한 귀여운 SD 캐릭터 이미지가 필요합니다.
 const chibiImages = {
-    '서도진': 'https://placehold.co/60x60/a0aec0/ffffff?text=SD+서도진',
+    '서도진': 'https://i.imgur.com/2N9aikK.png',
     '윤필규': 'https://placehold.co/60x60/63b3ed/ffffff?text=SD+윤필규',
     // ... 나머지 캐릭터들도 추가
 };
@@ -1465,6 +1465,7 @@ const genericInteractions = [
     ['사건 조사는 잘 돼가나요?', '쉽지 않네요.'],
     ['안녕하세요!', '반갑습니다.']
 ];
+
 
 
 
